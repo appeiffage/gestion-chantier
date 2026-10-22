@@ -207,6 +207,34 @@
 
   </main>
 
+  <!-- MODAL : RÉCEPTION PARTIELLE DE COMMANDE -->
+  <div id="modal-reception-partielle" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300 text-xs">
+      <div class="p-4 border-b bg-amber-400 text-slate-950 flex justify-between items-center">
+        <h3 class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
+          <i class="fa-solid fa-boxes-packing"></i> Réception partielle & Reliquats
+        </h3>
+        <button onclick="fermerModalReceptionPartielle()" class="text-slate-900 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-4">
+        <div id="reception-cmd-info" class="font-bold text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200"></div>
+        <p class="text-[11px] text-slate-500">Indiquez ci-dessous les quantités réelles réceptionnées sur ce bon de livraison :</p>
+        <div id="articles-reception-container" class="space-y-2.5"></div>
+        
+        <div class="border-t pt-3 space-y-1">
+          <label class="font-bold text-slate-800 block">Date prévue pour le reliquat restant :</label>
+          <input id="date-reliquat-input" type="date" class="w-full border-2 border-slate-200 rounded-xl p-2 outline-none focus:border-amber-500 font-semibold text-slate-800">
+        </div>
+      </div>
+
+      <div class="p-4 border-t bg-slate-50 flex justify-end gap-2">
+        <button onclick="fermerModalReceptionPartielle()" class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="validerReceptionPartielleAction()" class="px-5 py-2.5 rounded-xl text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-300 shadow">Enregistrer la réception</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL : HISTORIQUE ET RÉTABLISSEMENT -->
   <div id="modal-historique" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
@@ -217,7 +245,6 @@
         <button onclick="fermerModalHistorique()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="p-5 overflow-y-auto space-y-5 text-xs">
-        
         <div>
           <h4 class="font-black text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
             <i class="fa-solid fa-check-circle text-emerald-600"></i> Dernières tâches terminées
@@ -235,7 +262,6 @@
             <p class="text-slate-400 italic">Aucune commande réceptionnée récemment.</p>
           </div>
         </div>
-
       </div>
       <div class="p-3 border-t bg-slate-50 flex justify-end">
         <button onclick="fermerModalHistorique()" class="px-5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Fermer</button>
@@ -376,6 +402,7 @@
     let tachesCache = [];
     let zoneFiltre = "Toutes";
     let tacheEnCoursDetails = null;
+    let commandeEnCoursPartielle = null;
 
     const aujourdhuiDate = new Date();
     const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
@@ -405,7 +432,7 @@
       renderHistorique();
     });
 
-    // RENDU COMMANDES (TRI CHRONOLOGIQUE)
+    // RENDU COMMANDES (TRI CHRONOLOGIQUE + BOUTONS DÉDOUBLÉS)
     function renderCommandes() {
       const containerJour = document.getElementById("liste-livraisons-jour");
       const containerRetard = document.getElementById("liste-livraisons-retard");
@@ -456,7 +483,7 @@
       let articlesHtml = (cmd.articles || []).map(a => `
         <div class="flex items-center justify-between text-[11px] py-0.5">
           <span class="font-bold text-slate-800">${a.ref}</span>
-          <span class="text-slate-500 font-bold">Qté : ${a.qte}</span>
+          <span class="text-slate-500 font-bold">Qté : ${a.qte_recue || 0}/${a.qte}</span>
         </div>
       `).join("");
 
@@ -476,9 +503,14 @@
           ${articlesHtml}
         </div>
 
-        <button onclick="validerReceptionCommande('${cmd.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1.5 shadow transition">
-          <i class="fa-solid fa-check"></i> Confirmer la réception
-        </button>
+        <div class="grid grid-cols-2 gap-1.5 pt-1">
+          <button onclick="validerReceptionCommande('${cmd.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 shadow transition">
+            <i class="fa-solid fa-check"></i> Reçu tout
+          </button>
+          <button onclick="ouvrirReceptionPartielle('${cmd.id}')" class="w-full bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-950 font-bold text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 border border-amber-300 transition">
+            <i class="fa-solid fa-boxes-packing"></i> Partiel / Reliquat
+          </button>
+        </div>
       `;
       return div;
     }
@@ -613,7 +645,14 @@
     };
 
     window.validerReceptionCommande = async (id) => {
+      const cmd = commandesCache.find(c => c.id === id);
+      if (!cmd) return;
+      const articlesMaj = (cmd.articles || []).map(a => ({
+        ...a,
+        qte_recue: a.qte
+      }));
       await updateDoc(doc(db, "commandes", id), {
+        articles: articlesMaj,
         statut: "recu",
         date_reception: new Date().toISOString()
       });
@@ -624,6 +663,74 @@
         statut: "en_attente",
         date_reception: null
       });
+    };
+
+    // MODAL RÉCEPTION PARTIELLE
+    window.ouvrirReceptionPartielle = (id) => {
+      commandeEnCoursPartielle = commandesCache.find(c => c.id === id);
+      if (!commandeEnCoursPartielle) return;
+
+      document.getElementById("reception-cmd-info").innerHTML = `
+        ${commandeEnCoursPartielle.numero} — ${commandeEnCoursPartielle.fournisseur}
+        ${commandeEnCoursPartielle.partie_info ? `<span class="text-xs text-blue-600 ml-1">(${commandeEnCoursPartielle.partie_info})</span>` : ''}
+      `;
+
+      const container = document.getElementById("articles-reception-container");
+      container.innerHTML = "";
+
+      (commandeEnCoursPartielle.articles || []).forEach((a, idx) => {
+        const reste = a.qte - (a.qte_recue || 0);
+        const div = document.createElement("div");
+        div.className = "bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center justify-between gap-3";
+        div.innerHTML = `
+          <div>
+            <div class="font-bold text-slate-800 text-xs">${a.ref}</div>
+            <div class="text-[10px] text-slate-500">Commandé : ${a.qte} | Déjà reçu : ${a.qte_recue || 0}</div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] font-bold text-slate-600">Reçu :</span>
+            <input type="number" id="qte-recue-${idx}" min="0" max="${reste}" value="${reste}" class="w-16 border-2 border-slate-300 rounded-lg p-1.5 text-center font-bold outline-none focus:border-amber-500 bg-white">
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById("date-reliquat-input").value = "";
+      document.getElementById("modal-reception-partielle").classList.remove("hidden");
+    };
+
+    window.fermerModalReceptionPartielle = () => {
+      document.getElementById("modal-reception-partielle").classList.add("hidden");
+    };
+
+    window.validerReceptionPartielleAction = async () => {
+      if (!commandeEnCoursPartielle) return;
+      const dateReliquat = document.getElementById("date-reliquat-input").value;
+
+      let estComplet = true;
+      const articlesMaj = (commandeEnCoursPartielle.articles || []).map((a, idx) => {
+        const inputVal = parseInt(document.getElementById(`qte-recue-${idx}`).value) || 0;
+        const totalRecu = (a.qte_recue || 0) + inputVal;
+        if (totalRecu < a.qte) estComplet = false;
+        return {
+          ...a,
+          qte_recue: totalRecu
+        };
+      });
+
+      const maj = {
+        articles: articlesMaj,
+        statut: estComplet ? "recu" : "reliquat",
+        date_reception: estComplet ? new Date().toISOString() : null
+      };
+
+      if (!estComplet && dateReliquat) {
+        maj.date_livraison = dateReliquat;
+        maj.reliquat_info = `Reliquat reporté au ${formaterDateFr(dateReliquat)}`;
+      }
+
+      await updateDoc(doc(db, "commandes", commandeEnCoursPartielle.id), maj);
+      fermerModalReceptionPartielle();
     };
 
     // MODAL HISTORIQUE
