@@ -15,8 +15,6 @@
 
   <!-- BANDEAU AVEC SILHOUETTE VECTORIELLE CONFORME AU RÉEL -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-amber-400">
-    
-    <!-- Rendu SVG vectoriel de la nouvelle tribune -->
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M 0 310 L 450 310 Q 750 310 1000 295" stroke="#334155" stroke-width="2"/>
@@ -57,7 +55,6 @@
       </svg>
     </div>
 
-    <!-- Contenu du bandeau -->
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center space-x-4">
         <div class="bg-blue-600 text-white w-13 h-13 p-3 rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
@@ -74,7 +71,6 @@
         </div>
       </div>
 
-      <!-- Boutons d'action en haut -->
       <div class="flex items-center gap-2.5 flex-wrap">
         <button onclick="ouvrirModalCommande()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
           <i class="fa-solid fa-cart-plus"></i>
@@ -87,7 +83,7 @@
       </div>
     </div>
 
-    <!-- Filtres rapides par Zone -->
+    <!-- Barre des Zones -->
     <div class="relative border-t border-white/10 bg-slate-950/60 backdrop-blur-md px-4 sm:px-6 py-2.5">
       <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
         <span class="text-xs font-black text-sky-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Filtre :</span>
@@ -108,10 +104,10 @@
   <!-- CONTENU PRINCIPAL (3/4 - 1/4) -->
   <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- COLONNE GAUCHE (75% / 9 COLS) : TÂCHES ET ACTIONS -->
+    <!-- COLONNE GAUCHE (75% / 9 COLS) -->
     <section class="lg:col-span-9 space-y-5">
 
-      <!-- REMONTÉES RA / BE (FOND AMBRÉ CLAIR) -->
+      <!-- REMONTÉES RA / BE -->
       <div class="bg-amber-100/70 border-2 border-amber-300 rounded-3xl p-5 shadow-sm space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -160,7 +156,7 @@
 
       </div>
 
-      <!-- BOUTON AJOUT RAPIDE EN BAS -->
+      <!-- BOUTON AJOUT RAPIDE -->
       <div class="pt-2">
         <button onclick="ouvrirModalTache()" class="w-full bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-950 font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-amber-500 flex items-center justify-center gap-3 transition active:scale-[0.99]">
           <i class="fa-solid fa-circle-plus text-xl"></i>
@@ -217,7 +213,7 @@
 
   </main>
 
-  <!-- MODAL : CRÉER COMMANDE MULTI-RÉFÉRENCES AVEC SCISSION AUTOMATIQUE PAR DATE -->
+  <!-- MODAL : CRÉER COMMANDE MULTI-RÉFÉRENCES (AVEC GESTION RELIQUATS PAR DATES MULTIPLES) -->
   <div id="modal-commande" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300 text-xs">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
@@ -336,7 +332,6 @@
           </div>
         </div>
 
-        <!-- Attribution Multiple par Checkboxes -->
         <div>
           <label class="font-bold text-slate-800 block mb-1">Assigner à (un ou plusieurs) :</label>
           <div class="grid grid-cols-3 gap-2">
@@ -437,7 +432,6 @@
     const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
     document.getElementById("date-du-jour").innerText = aujourdhuiDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    // Formatage standard JJ/MM/AAAA
     function formaterDateFr(chaineIso) {
       if (!chaineIso) return "";
       const datePart = chaineIso.split("T")[0];
@@ -448,7 +442,6 @@
       return chaineIso;
     }
 
-    // Écoute Firestore
     onSnapshot(collection(db, "commandes"), (snapshot) => {
       commandesCache = [];
       snapshot.forEach(d => commandesCache.push({ id: d.id, ...d.data() }));
@@ -463,7 +456,7 @@
       renderHistorique();
     });
 
-    // RENDU COMMANDES (COLONNE DROITE)
+    // RENDU COMMANDES (TRI CHRONOLOGIQUE)
     function renderCommandes() {
       const containerJour = document.getElementById("liste-livraisons-jour");
       const containerRetard = document.getElementById("liste-livraisons-retard");
@@ -475,9 +468,11 @@
 
       let countJour = 0, countRetard = 0, countAvenir = 0;
 
-      commandesCache.forEach(cmd => {
-        if (cmd.statut === "recu") return;
+      const commandesTriees = [...commandesCache]
+        .filter(cmd => cmd.statut !== "recu")
+        .sort((a, b) => (a.date_livraison || "").localeCompare(b.date_livraison || ""));
 
+      commandesTriees.forEach(cmd => {
         const dateLiv = cmd.date_livraison || "";
         const estAujourdhui = dateLiv === aujourdhuiStr;
         const estEnRetard = dateLiv && dateLiv < aujourdhuiStr;
@@ -555,7 +550,6 @@
         taches = taches.filter(t => t.zone === zoneFiltre || t.zone === "Toutes zones");
       }
 
-      // Remontées pour le RA ou le BE
       const remontees = taches.filter(t => {
         const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
         return assigns.includes("RA") || assigns.includes("BE");
@@ -678,7 +672,7 @@
       });
     };
 
-    // FORMULAIRE CRÉATION COMMANDE (SCISSION PAR DATES MULTIPLES)
+    // FORMULAIRE CRÉATION COMMANDE (RELIQUAT LE / RELIQUAT DU)
     window.ouvrirModalCommande = () => {
       document.getElementById("conteneur-articles").innerHTML = "";
       ajouterLigneArticle();
@@ -723,22 +717,30 @@
         }
       });
 
-      const datesDistinctes = Object.keys(articlesParDate);
+      // Tri chronologique des dates
+      const datesDistinctes = Object.keys(articlesParDate).sort((a, b) => a.localeCompare(b));
 
       if (!numero || datesDistinctes.length === 0) {
         alert("Indiquez un numéro de commande et au moins une référence.");
         return;
       }
 
-      let index = 1;
-      for (const dateLiv of datesDistinctes) {
+      const dateInitiale = datesDistinctes[0];
+
+      for (let index = 0; index < datesDistinctes.length; index++) {
+        const dateLiv = datesDistinctes[index];
         let reliquatTexte = null;
         let partieInfo = null;
 
         if (datesDistinctes.length > 1) {
-          partieInfo = `Livraison ${index}/${datesDistinctes.length}`;
-          const autresDates = datesDistinctes.filter(d => d !== dateLiv).map(d => formaterDateFr(d));
-          reliquatTexte = `Reliquat prévu le ${autresDates.join(", ")}`;
+          partieInfo = `Livraison ${index + 1}/${datesDistinctes.length}`;
+
+          if (index === 0) {
+            const dateSuivante = datesDistinctes.slice(1).map(d => formaterDateFr(d)).join(", ");
+            reliquatTexte = `Reliquat le ${dateSuivante}`;
+          } else {
+            reliquatTexte = `Reliquat du ${formaterDateFr(dateInitiale)}`;
+          }
         }
 
         await addDoc(collection(db, "commandes"), {
@@ -751,7 +753,6 @@
           statut: "en_attente",
           cree_le: new Date().toISOString()
         });
-        index++;
       }
 
       document.getElementById("cmd-num").value = "";
@@ -828,7 +829,7 @@
       }
     }
 
-    // GESTION FORMULAIRE TÂCHE
+    // FORMULAIRE TÂCHE MULTI-ASSIGNATION
     window.ouvrirModalTache = () => {
       document.getElementById("modal-tache").classList.remove("hidden");
     };
@@ -876,7 +877,7 @@
       fermerModalTache();
     };
 
-    // MODAL DÉTAILS
+    // DÉTAILS MODAL
     window.ouvrirDetailsTache = (t) => {
       tacheEnCoursDetails = t;
       document.getElementById("dtl-titre").innerText = t.titre;
@@ -908,7 +909,7 @@
       fermerModalDetails();
     };
 
-    // FILTRE PAR ZONE
+    // FILTRE DE ZONE
     window.filtrerZone = (zone) => {
       zoneFiltre = zone;
       document.querySelectorAll(".zone-btn").forEach(btn => {
