@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bureau d'Études - Stade Gabriel-Montpied</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-200 text-slate-800 min-h-screen">
+
+  <!-- BANDEAU BUREAU D'ÉTUDES AVEC DESSIN VECTORIEL DU STADE -->
+  <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-purple-500">
+    <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
+      <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 0 310 L 450 310 Q 750 310 1000 295" stroke="#334155" stroke-width="2"/>
+        <path d="M 30 75 Q 400 95 940 255" stroke="#a855f7" stroke-width="2.5" opacity="0.6"/>
+
+        <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.9">
+          <line x1="45" y1="310" x2="35" y2="70"/>
+          <line x1="100" y1="310" x2="40" y2="70"/>
+          <line x1="125" y1="310" x2="135" y2="73"/>
+          <line x1="140" y1="310" x2="225" y2="78"/>
+          <line x1="205" y1="310" x2="225" y2="78"/>
+          <line x1="225" y1="310" x2="225" y2="78"/>
+          <line x1="245" y1="310" x2="315" y2="84"/>
+          <line x1="300" y1="310" x2="315" y2="84"/>
+          <line x1="315" y1="310" x2="315" y2="84"/>
+          <line x1="330" y1="310" x2="405" y2="92"/>
+          <line x1="390" y1="310" x2="405" y2="92"/>
+          <line x1="405" y1="310" x2="405" y2="92"/>
+          <line x1="420" y1="310" x2="495" y2="105"/>
+          <line x1="480" y1="310" x2="495" y2="105"/>
+          <line x1="510" y1="310" x2="580" y2="125"/>
+          <line x1="565" y1="310" x2="580" y2="125"/>
+          <line x1="590" y1="310" x2="665" y2="150"/>
+          <line x1="650" y1="310" x2="665" y2="150"/>
+          <line x1="680" y1="310" x2="745" y2="180"/>
+          <line x1="730" y1="310" x2="745" y2="180"/>
+          <line x1="755" y1="305" x2="815" y2="210"/>
+          <line x1="805" y1="305" x2="815" y2="210"/>
+          <line x1="830" y1="300" x2="880" y2="238"/>
+          <line x1="870" y1="300" x2="880" y2="238"/>
+          <line x1="895" y1="298" x2="935" y2="260"/>
+          <line x1="930" y1="295" x2="935" y2="260"/>
+        </g>
+
+        <path d="M 40 72 L 135 75 L 225 80 L 315 86 L 405 94 L 495 107 L 580 127 L 665 152 L 745 182 L 815 212 L 880 240 L 935 262" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M 25 70 Q 400 85 945 265" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 25 65 Q 400 80 945 260" stroke="#c084fc" stroke-width="2" opacity="0.9"/>
+      </svg>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center space-x-4">
+        <div class="bg-purple-600 text-white w-13 h-13 p-3 rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
+          <i class="fa-solid fa-compass-drafting"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-black text-xl md:text-2xl tracking-tight text-white drop-shadow">Stade Gabriel-Montpied</h1>
+            <span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-400/50 px-2 py-0.5 rounded-full font-bold">Bureau d'Études</span>
+          </div>
+          <p class="text-sm text-slate-300 font-medium mt-0.5">
+            Suivi des études & arbitrages techniques — <span id="date-du-jour" class="capitalize"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button onclick="ouvrirModalTache()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-plus-circle"></i>
+          <span>Créer une tâche technique</span>
+        </button>
+        <button onclick="ouvrirModalHistorique()" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-rotate-left text-amber-400"></i>
+          <span>Historique & Rétablir</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtres rapides par Zone -->
+    <div class="relative border-t border-white/10 bg-slate-950/60 backdrop-blur-md px-4 sm:px-6 py-2.5">
+      <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <span class="text-xs font-black text-purple-300 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Filtre :</span>
+        <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow">Toutes zones</button>
+        <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">RDC</button>
+        <button onclick="filtrerZone('N1')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N1</button>
+        <button onclick="filtrerZone('N2')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N2</button>
+        <button onclick="filtrerZone('N3')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N3</button>
+        <button onclick="filtrerZone('N4')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N4</button>
+        <button onclick="filtrerZone('N5')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N5</button>
+        <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Billetterie</button>
+        <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gymnase</button>
+        <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gergovie</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENU PRINCIPAL DU BE (PLEINE LARGEUR CENTRÉE SUR LES TÂCHES & REMONTÉES) -->
+  <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- SECTION PRIORITAIRE : ACTIONS ASSIGNÉES AU BUREAU D'ÉTUDES -->
+    <section class="bg-purple-100/80 border-2 border-purple-300 rounded-3xl p-5 shadow-sm space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="bg-purple-600 text-white font-black text-xs px-2.5 py-1 rounded-xl uppercase tracking-wider flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-triangle-exclamation"></i> Actions requises BE
+          </span>
+          <h2 class="text-xs font-black text-purple-950 uppercase tracking-wide">Points d'arrêt & validations en attente du bureau d'études</h2>
+        </div>
+        <span id="badge-actions-be" class="text-xs font-black bg-purple-300 text-purple-950 px-2.5 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="liste-actions-be" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <p class="text-xs text-purple-900/70 italic col-span-2">Aucun point bloquant attribué au BE actuellement.</p>
+      </div>
+    </section>
+
+    <!-- SECTION : ENSEMBLE DES TÂCHES DU PROJET -->
+    <section class="space-y-4">
+
+      <!-- TÂCHES PLANIFIÉES -->
+      <div class="bg-emerald-50/60 border border-emerald-200 rounded-3xl p-4 md:p-5 shadow-sm space-y-3">
+        <div class="flex items-center justify-between pb-1 border-b border-emerald-200">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <h3 class="text-xs font-black uppercase tracking-wider text-emerald-950">Tâches planifiées</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold text-emerald-900/70">Total actives :</span>
+            <span id="count-total-taches" class="text-xs font-black bg-emerald-600 text-white px-2.5 py-0.5 rounded-lg shadow-sm">0</span>
+          </div>
+        </div>
+        <div id="liste-taches-datees" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Chargement...</p>
+        </div>
+      </div>
+
+      <!-- TÂCHES SANS DATE -->
+      <div class="bg-white border border-slate-300 rounded-3xl p-4 md:p-5 shadow-sm space-y-3">
+        <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
+          <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+          <h3 class="text-xs font-black uppercase tracking-wider text-slate-700">Tâches sans date</h3>
+        </div>
+        <div id="liste-taches-sans-date" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Aucune tâche sans date.</p>
+        </div>
+      </div>
+
+      <!-- BOUTON AJOUT RAPIDE EN BAS -->
+      <div class="pt-2">
+        <button onclick="ouvrirModalTache()" class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-purple-400 flex items-center justify-center gap-3 transition active:scale-[0.99]">
+          <i class="fa-solid fa-circle-plus text-xl"></i>
+          <span>Créer une note, réserver un plan ou solliciter le Chantier / RA</span>
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL : HISTORIQUE ET RÉTABLISSEMENT DES TÂCHES -->
+  <div id="modal-historique" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
+      <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
+        <h3 class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
+          <i class="fa-solid fa-clock-rotate-left text-purple-400"></i> Historique des tâches validées
+        </h3>
+        <button onclick="fermerModalHistorique()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-3 text-xs">
+        <div id="historique-taches" class="space-y-2">
+          <p class="text-slate-400 italic">Aucune tâche clôturée récemment.</p>
+        </div>
+      </div>
+      <div class="p-3 border-t bg-slate-50 flex justify-end">
+        <button onclick="fermerModalHistorique()" class="px-5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL : AJOUT TÂCHE TECHNIQUE BE -->
+  <div id="modal-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl border border-slate-300">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-purple-600"></i> Nouvelle tâche / Action BE
+        </h3>
+        <button onclick="fermerModalTache()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="font-bold text-slate-800 block mb-1">Titre de l'action / Étude</label>
+          <input id="tache-titre" type="text" placeholder="Ex: Diffusion indice B schéma TGBT" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-semibold text-slate-800">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-800 block mb-1">Zone concernée</label>
+            <select id="tache-zone" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 bg-white font-bold text-slate-700">
+              <option value="Toutes zones">Toutes zones</option>
+              <option value="RDC">RDC</option>
+              <option value="N1">N1</option>
+              <option value="N2">N2</option>
+              <option value="N3">N3</option>
+              <option value="N4">N4</option>
+              <option value="N5">N5</option>
+              <option value="Billetterie">Billetterie</option>
+              <option value="Gymnase">Gymnase</option>
+              <option value="Gergovie">Gergovie</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-800 block mb-1">Date d'échéance (optionnelle)</label>
+            <input id="tache-date" type="date" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-semibold text-slate-700">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-800 block mb-1">Assigner la réalisation à :</label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-emerald-100 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-950 font-bold transition">
+              <input type="checkbox" name="assigne_chk" value="Chantier" class="accent-emerald-600">
+              <i class="fa-solid fa-helmet-safety"></i> Chantier
+            </label>
+            <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-blue-100 has-[:checked]:border-blue-600 has-[:checked]:text-blue-950 font-bold transition">
+              <input type="checkbox" name="assigne_chk" value="RA" class="accent-blue-600">
+              <i class="fa-solid fa-briefcase"></i> RA
+            </label>
+            <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-purple-100 has-[:checked]:border-purple-600 has-[:checked]:text-purple-950 font-bold transition">
+              <input type="checkbox" name="assigne_chk" value="BE" checked class="accent-purple-600">
+              <i class="fa-solid fa-compass-drafting"></i> BE
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-800 block mb-1">Remarque rapide (visible de suite)</label>
+          <input id="tache-annotation" type="text" placeholder="Ex: Soumis au bureau de contrôle pour visa" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium">
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-800 block mb-1">Détails techniques / Références de documents</label>
+          <textarea id="tache-details" rows="2" placeholder="Références de plans, modifications de puissance, normes applicables..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium"></textarea>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 border-t">
+        <button onclick="fermerModalTache()" class="flex-1 py-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="enregistrerTache()" class="flex-1 py-3 rounded-xl text-xs font-black text-white bg-purple-600 hover:bg-purple-500 shadow">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL : DÉTAILS ET MODIFICATION ANNOTATION -->
+  <div id="modal-details-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl border border-slate-300">
+      <div class="flex justify-between items-start">
+        <div>
+          <div id="dtl-badges-zone" class="flex flex-wrap gap-1.5 items-center"></div>
+          <h3 id="dtl-titre" class="text-base font-black text-slate-900 mt-2"></h3>
+        </div>
+        <button onclick="fermerModalDetails()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+        <div><span class="text-slate-400 font-bold">Échéance :</span> <span id="dtl-date" class="font-bold text-slate-800 ml-1"></span></div>
+        <div><span class="text-slate-400 font-bold">Statut :</span> <span id="dtl-statut" class="font-bold text-slate-800 ml-1"></span></div>
+      </div>
+
+      <div>
+        <span class="font-bold text-slate-700 block mb-1">Détails de la tâche :</span>
+        <p id="dtl-description" class="text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 whitespace-pre-wrap font-medium"></p>
+      </div>
+
+      <div class="border-t pt-3 space-y-2">
+        <label class="font-bold text-slate-800 block">Mettre à jour l'annotation directe :</label>
+        <div class="flex gap-2">
+          <input id="dtl-annotation-input" type="text" class="flex-1 border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 text-xs font-medium" placeholder="Note technique...">
+          <button onclick="sauvegarderAnnotationDirecte()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs shrink-0 shadow">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      updateDoc, 
+      doc, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2rRm-cpLoA1KD0vesfxm3VZur7EknFNs",
+      authDomain: "datachantier.firebaseapp.com",
+      projectId: "datachantier",
+      storageBucket: "datachantier.firebasestorage.app",
+      messagingSenderId: "359359774794",
+      appId: "1:359359774794:web:d64063dece14398bbca6b3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let tachesCache = [];
+    let zoneFiltre = "Toutes";
+    let tacheEnCoursDetails = null;
+
+    const aujourdhuiDate = new Date();
+    const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
+    document.getElementById("date-du-jour").innerText = aujourdhuiDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    function formaterDateFr(chaineIso) {
+      if (!chaineIso) return "";
+      const datePart = chaineIso.split("T")[0];
+      const parts = datePart.split("-");
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return chaineIso;
+    }
+
+    onSnapshot(collection(db, "taches"), (snapshot) => {
+      tachesCache = [];
+      snapshot.forEach(d => tachesCache.push({ id: d.id, ...d.data() }));
+      renderTaches();
+      renderHistorique();
+    });
+
+    function renderTaches() {
+      const containerDatees = document.getElementById("liste-taches-datees");
+      const containerSansDate = document.getElementById("liste-taches-sans-date");
+      const containerActionsBE = document.getElementById("liste-actions-be");
+
+      containerDatees.innerHTML = "";
+      containerSansDate.innerHTML = "";
+      containerActionsBE.innerHTML = "";
+
+      let taches = tachesCache.filter(t => t.statut !== "termine");
+
+      if (zoneFiltre !== "Toutes") {
+        taches = taches.filter(t => t.zone === zoneFiltre || t.zone === "Toutes zones");
+      }
+
+      // Actions spécifiques au Bureau d'Études
+      const actionsBE = taches.filter(t => {
+        const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || ""];
+        return assigns.includes("BE");
+      });
+
+      document.getElementById("badge-actions-be").innerText = actionsBE.length;
+
+      actionsBE.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "bg-white p-3.5 rounded-2xl border-2 border-purple-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-purple-400 transition";
+        item.onclick = () => ouvrirDetailsTache(t);
+        item.innerHTML = `
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="bg-purple-600 text-white font-black text-[9px] px-2 py-0.5 rounded">Action BE</span>
+              <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
+              ${t.date_limite ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200"><i class="fa-regular fa-clock mr-1"></i>${formaterDateFr(t.date_limite)}</span>` : ''}
+            </div>
+            <h4 class="font-bold text-xs text-slate-900 mt-1">${t.titre}</h4>
+            ${t.annotation ? `<p class="text-[11px] text-purple-950 font-semibold mt-0.5"><i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation}</p>` : ''}
+          </div>
+          <button onclick="event.stopPropagation(); cloturerTache('${t.id}')" title="Marquer fait" class="bg-slate-100 hover:bg-emerald-100 text-slate-500 hover:text-emerald-700 p-2.5 rounded-xl text-sm transition">
+            <i class="fa-solid fa-check"></i>
+          </button>
+        `;
+        containerActionsBE.appendChild(item);
+      });
+
+      if (actionsBE.length === 0) {
+        containerActionsBE.innerHTML = `<p class="text-xs text-purple-900/70 italic col-span-2">Aucun point bloquant attribué au BE actuellement.</p>`;
+      }
+
+      document.getElementById("count-total-taches").innerText = taches.length;
+
+      const avecDate = taches.filter(t => t.date_limite).sort((a, b) => a.date_limite.localeCompare(b.date_limite));
+      const sansDate = taches.filter(t => !t.date_limite);
+
+      avecDate.forEach(t => containerDatees.appendChild(creerCarteTache(t, true)));
+      sansDate.forEach(t => containerSansDate.appendChild(creerCarteTache(t, false)));
+
+      if (avecDate.length === 0) containerDatees.innerHTML = `<div class="bg-white p-3 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">Aucune tâche planifiée sur cette zone.</div>`;
+      if (sansDate.length === 0) containerSansDate.innerHTML = `<div class="bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">Aucune tâche sans date.</div>`;
+    }
+
+    function creerCarteTache(t, estDatee) {
+      const card = document.createElement("div");
+      card.className = "bg-white border-2 border-slate-200 hover:border-slate-400 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition cursor-pointer";
+      card.onclick = (e) => {
+        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") {
+          ouvrirDetailsTache(t);
+        }
+      };
+
+      const dateRetard = estDatee && t.date_limite < aujourdhuiStr;
+      const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
+      const badgesAssign = assigns.map(a => {
+        if (a === 'BE') return `<span class="bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded text-[9px] uppercase border border-purple-200">BE</span>`;
+        if (a === 'RA') return `<span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[9px] uppercase border border-blue-200">RA</span>`;
+        return `<span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[9px] uppercase border">${a}</span>`;
+      }).join(" ");
+
+      card.innerHTML = `
+        <div class="space-y-1.5 flex-1">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="bg-slate-900 text-amber-300 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">
+              ${t.zone}
+            </span>
+            ${badgesAssign}
+            ${estDatee ? `
+              <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
+                <i class="fa-regular fa-calendar mr-1"></i>${formaterDateFr(t.date_limite)} ${dateRetard ? '(En retard)' : ''}
+              </span>
+            ` : ''}
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm leading-snug">${t.titre}</h4>
+
+          ${t.annotation ? `
+            <div class="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-950 px-3 py-1 rounded-xl text-xs font-semibold mt-1">
+              <i class="fa-regular fa-comment-dots text-amber-600"></i>
+              <span>${t.annotation}</span>
+            </div>
+          ` : ''}
+        </div>
+
+        <button onclick="cloturerTache('${t.id}')" class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow transition shrink-0">
+          <i class="fa-solid fa-check"></i> Fait
+        </button>
+      `;
+      return card;
+    }
+
+    window.cloturerTache = async (id) => {
+      await updateDoc(doc(db, "taches", id), {
+        statut: "termine",
+        termine_le: new Date().toISOString()
+      });
+    };
+
+    window.retablirTache = async (id) => {
+      await updateDoc(doc(db, "taches", id), {
+        statut: "a_faire",
+        termine_le: null
+      });
+    };
+
+    window.ouvrirModalHistorique = () => {
+      renderHistorique();
+      document.getElementById("modal-historique").classList.remove("hidden");
+    };
+
+    window.fermerModalHistorique = () => {
+      document.getElementById("modal-historique").classList.add("hidden");
+    };
+
+    function renderHistorique() {
+      const containerTaches = document.getElementById("historique-taches");
+      if (!containerTaches) return;
+      containerTaches.innerHTML = "";
+
+      const tachesTerminees = tachesCache
+        .filter(t => t.statut === "termine")
+        .sort((a, b) => (b.termine_le || "").localeCompare(a.termine_le || ""))
+        .slice(0, 15);
+
+      tachesTerminees.forEach(t => {
+        const div = document.createElement("div");
+        div.className = "bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center";
+        div.innerHTML = `
+          <div>
+            <div class="font-bold text-slate-800 text-xs">${t.titre}</div>
+            <div class="text-[10px] text-slate-500">${t.zone} — Validé le ${formaterDateFr(t.termine_le)}</div>
+          </div>
+          <button onclick="retablirTache('${t.id}')" class="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+            <i class="fa-solid fa-rotate-left"></i> Rétablir
+          </button>
+        `;
+        containerTaches.appendChild(div);
+      });
+
+      if (tachesTerminees.length === 0) {
+        containerTaches.innerHTML = `<p class="text-slate-400 italic">Aucune tâche terminée récemment.</p>`;
+      }
+    }
+
+    window.ouvrirModalTache = () => {
+      document.getElementById("modal-tache").classList.remove("hidden");
+    };
+
+    window.fermerModalTache = () => {
+      document.getElementById("modal-tache").classList.add("hidden");
+    };
+
+    window.enregistrerTache = async () => {
+      const titre = document.getElementById("tache-titre").value.trim();
+      const zone = document.getElementById("tache-zone").value;
+      const dateLimite = document.getElementById("tache-date").value || null;
+      const annotation = document.getElementById("tache-annotation").value.trim();
+      const details = document.getElementById("tache-details").value.trim();
+
+      const assignes = [];
+      document.querySelectorAll('input[name="assigne_chk"]:checked').forEach(chk => {
+        assignes.push(chk.value);
+      });
+
+      if (!titre) {
+        alert("Indiquez un titre.");
+        return;
+      }
+
+      if (assignes.length === 0) {
+        alert("Cochez au moins un responsable (Chantier, RA ou BE).");
+        return;
+      }
+
+      await addDoc(collection(db, "taches"), {
+        titre,
+        zone,
+        assignes,
+        date_limite: dateLimite,
+        annotation,
+        details,
+        statut: "a_faire",
+        cree_le: new Date().toISOString()
+      });
+
+      document.getElementById("tache-titre").value = "";
+      document.getElementById("tache-annotation").value = "";
+      document.getElementById("tache-details").value = "";
+      fermerModalTache();
+    };
+
+    window.ouvrirDetailsTache = (t) => {
+      tacheEnCoursDetails = t;
+      document.getElementById("dtl-titre").innerText = t.titre;
+
+      const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
+      const badgesContainer = document.getElementById("dtl-badges-zone");
+      badgesContainer.innerHTML = `
+        <span class="bg-amber-100 text-amber-950 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase">${t.zone}</span>
+        ${assigns.map(a => `<span class="bg-slate-200 text-slate-800 font-bold px-2 py-0.5 rounded-lg text-[10px] uppercase">${a}</span>`).join(" ")}
+      `;
+
+      document.getElementById("dtl-date").innerText = formaterDateFr(t.date_limite) || "Non fixée";
+      document.getElementById("dtl-statut").innerText = t.statut;
+      document.getElementById("dtl-description").innerText = t.details || "Aucune note complémentaire.";
+      document.getElementById("dtl-annotation-input").value = t.annotation || "";
+      document.getElementById("modal-details-tache").classList.remove("hidden");
+    };
+
+    window.fermerModalDetails = () => {
+      document.getElementById("modal-details-tache").classList.add("hidden");
+    };
+
+    window.sauvegarderAnnotationDirecte = async () => {
+      if (!tacheEnCoursDetails) return;
+      const nouvelleNote = document.getElementById("dtl-annotation-input").value.trim();
+      await updateDoc(doc(db, "taches", tacheEnCoursDetails.id), {
+        annotation: nouvelleNote
+      });
+      fermerModalDetails();
+    };
+
+    window.filtrerZone = (zone) => {
+      zoneFiltre = zone;
+      document.querySelectorAll(".zone-btn").forEach(btn => {
+        if (btn.innerText.trim() === zone || (zone === "Toutes" && btn.innerText.includes("Toutes"))) {
+          btn.className = "zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow";
+        } else {
+          btn.className = "zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
+        }
+      });
+      renderTaches();
+    };
+  </script>
+</body>
+</html>
