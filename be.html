@@ -83,29 +83,48 @@
       </div>
     </div>
 
-    <!-- Filtres rapides par Zone -->
-    <div class="relative border-t border-white/10 bg-slate-950/60 backdrop-blur-md px-4 sm:px-6 py-2.5">
+    <!-- Barre des Zones -->
+    <div class="relative border-t border-white/10 bg-slate-950/60 backdrop-blur-md px-4 sm:px-6 py-2">
       <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
-        <span class="text-xs font-black text-purple-300 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Filtre :</span>
-        <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow">Toutes zones</button>
-        <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">RDC</button>
-        <button onclick="filtrerZone('N1')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N1</button>
-        <button onclick="filtrerZone('N2')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N2</button>
-        <button onclick="filtrerZone('N3')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N3</button>
-        <button onclick="filtrerZone('N4')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N4</button>
-        <button onclick="filtrerZone('N5')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N5</button>
-        <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Billetterie</button>
-        <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gymnase</button>
-        <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gergovie</button>
+        <span class="text-xs font-black text-purple-300 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Zone :</span>
+        <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3 py-1 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow">Toutes zones</button>
+        <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">RDC</button>
+        <button onclick="filtrerZone('N1')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N1</button>
+        <button onclick="filtrerZone('N2')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N2</button>
+        <button onclick="filtrerZone('N3')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N3</button>
+        <button onclick="filtrerZone('N4')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N4</button>
+        <button onclick="filtrerZone('N5')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N5</button>
+        <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Billetterie</button>
+        <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gymnase</button>
+        <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gergovie</button>
+      </div>
+    </div>
+
+    <!-- Barre des Rôles (BE par défaut, Chantier, RA, Tous) -->
+    <div class="relative border-t border-white/5 bg-slate-950/80 px-4 sm:px-6 py-2">
+      <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <span class="text-xs font-black text-amber-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-users-gear mr-1"></i> Rôle :</span>
+        <button onclick="filtrerRole('BE')" class="role-btn active px-3.5 py-1 rounded-xl text-xs font-black shrink-0 bg-purple-600 text-white shadow">
+          <i class="fa-solid fa-compass-drafting mr-1"></i> BE uniquement
+        </button>
+        <button onclick="filtrerRole('Chantier')" class="role-btn px-3.5 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">
+          <i class="fa-solid fa-helmet-safety mr-1"></i> Chantier
+        </button>
+        <button onclick="filtrerRole('RA')" class="role-btn px-3.5 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">
+          <i class="fa-solid fa-briefcase mr-1"></i> RA
+        </button>
+        <button onclick="filtrerRole('Tous')" class="role-btn px-3.5 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">
+          Toutes les tâches
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- CONTENU PRINCIPAL DU BE (PLEINE LARGEUR CENTRÉE SUR LES TÂCHES & REMONTÉES) -->
+  <!-- CONTENU PRINCIPAL DU BE -->
   <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-    <!-- SECTION PRIORITAIRE : ACTIONS ASSIGNÉES AU BUREAU D'ÉTUDES -->
-    <section class="bg-purple-100/80 border-2 border-purple-300 rounded-3xl p-5 shadow-sm space-y-3">
+    <!-- SECTION PRIORITAIRE : ACTIONS REQUISES BE (VISIBLE LORSQUE BE EST COCHÉ OU EN VUE TOUS) -->
+    <section id="bloc-actions-be" class="bg-purple-100/80 border-2 border-purple-300 rounded-3xl p-5 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="bg-purple-600 text-white font-black text-xs px-2.5 py-1 rounded-xl uppercase tracking-wider flex items-center gap-1 shadow-sm">
@@ -120,7 +139,7 @@
       </div>
     </section>
 
-    <!-- SECTION : ENSEMBLE DES TÂCHES DU PROJET -->
+    <!-- SECTION : ENSEMBLE DES TÂCHES -->
     <section class="space-y-4">
 
       <!-- TÂCHES PLANIFIÉES -->
@@ -155,7 +174,7 @@
       <div class="pt-2">
         <button onclick="ouvrirModalTache()" class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-purple-400 flex items-center justify-center gap-3 transition active:scale-[0.99]">
           <i class="fa-solid fa-circle-plus text-xl"></i>
-          <span>Créer une note, réserver un plan ou solliciter le Chantier / RA</span>
+          <span>Créer une note, diffuser un plan ou solliciter le Chantier / RA</span>
         </button>
       </div>
 
@@ -163,7 +182,7 @@
 
   </main>
 
-  <!-- MODAL : HISTORIQUE ET RÉTABLISSEMENT DES TÂCHES -->
+  <!-- MODAL : HISTORIQUE ET RÉTABLISSEMENT -->
   <div id="modal-historique" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
@@ -188,7 +207,7 @@
     <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl border border-slate-300">
       <div class="flex justify-between items-center border-b pb-3">
         <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-plus-circle text-purple-600"></i> Nouvelle tâche / Action BE
+          <i class="fa-solid fa-plus-circle text-purple-600"></i> Nouvelle tâche / Action
         </h3>
         <button onclick="fermerModalTache()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -246,7 +265,7 @@
 
         <div>
           <label class="font-bold text-slate-800 block mb-1">Détails techniques / Références de documents</label>
-          <textarea id="tache-details" rows="2" placeholder="Références de plans, modifications de puissance, normes applicables..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium"></textarea>
+          <textarea id="tache-details" rows="2" placeholder="Références de plans, modifications de puissance, normes..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium"></textarea>
         </div>
       </div>
 
@@ -314,6 +333,7 @@
 
     let tachesCache = [];
     let zoneFiltre = "Toutes";
+    let roleFiltre = "BE"; // Filtrage par défaut sur le BE
     let tacheEnCoursDetails = null;
 
     const aujourdhuiDate = new Date();
@@ -341,6 +361,7 @@
       const containerDatees = document.getElementById("liste-taches-datees");
       const containerSansDate = document.getElementById("liste-taches-sans-date");
       const containerActionsBE = document.getElementById("liste-actions-be");
+      const blocActionsBE = document.getElementById("bloc-actions-be");
 
       containerDatees.innerHTML = "";
       containerSansDate.innerHTML = "";
@@ -348,53 +369,68 @@
 
       let taches = tachesCache.filter(t => t.statut !== "termine");
 
+      // 1. Filtrage par zone
       if (zoneFiltre !== "Toutes") {
         taches = taches.filter(t => t.zone === zoneFiltre || t.zone === "Toutes zones");
       }
 
-      // Actions spécifiques au Bureau d'Études
-      const actionsBE = taches.filter(t => {
-        const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || ""];
-        return assigns.includes("BE");
-      });
+      // 2. Gestion du bloc prioritaire BE (affiché uniquement quand roleFiltre est 'BE' ou 'Tous')
+      if (roleFiltre === "BE" || roleFiltre === "Tous") {
+        blocActionsBE.classList.remove("hidden");
+        const actionsBE = taches.filter(t => {
+          const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || ""];
+          return assigns.includes("BE");
+        });
 
-      document.getElementById("badge-actions-be").innerText = actionsBE.length;
+        document.getElementById("badge-actions-be").innerText = actionsBE.length;
 
-      actionsBE.forEach(t => {
-        const item = document.createElement("div");
-        item.className = "bg-white p-3.5 rounded-2xl border-2 border-purple-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-purple-400 transition";
-        item.onclick = () => ouvrirDetailsTache(t);
-        item.innerHTML = `
-          <div>
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="bg-purple-600 text-white font-black text-[9px] px-2 py-0.5 rounded">Action BE</span>
-              <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
-              ${t.date_limite ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200"><i class="fa-regular fa-clock mr-1"></i>${formaterDateFr(t.date_limite)}</span>` : ''}
+        actionsBE.forEach(t => {
+          const item = document.createElement("div");
+          item.className = "bg-white p-3.5 rounded-2xl border-2 border-purple-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-purple-400 transition";
+          item.onclick = () => ouvrirDetailsTache(t);
+          item.innerHTML = `
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="bg-purple-600 text-white font-black text-[9px] px-2 py-0.5 rounded">Action BE</span>
+                <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
+                ${t.date_limite ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200"><i class="fa-regular fa-clock mr-1"></i>${formaterDateFr(t.date_limite)}</span>` : ''}
+              </div>
+              <h4 class="font-bold text-xs text-slate-900 mt-1">${t.titre}</h4>
+              ${t.annotation ? `<p class="text-[11px] text-purple-950 font-semibold mt-0.5"><i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation}</p>` : ''}
             </div>
-            <h4 class="font-bold text-xs text-slate-900 mt-1">${t.titre}</h4>
-            ${t.annotation ? `<p class="text-[11px] text-purple-950 font-semibold mt-0.5"><i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation}</p>` : ''}
-          </div>
-          <button onclick="event.stopPropagation(); cloturerTache('${t.id}')" title="Marquer fait" class="bg-slate-100 hover:bg-emerald-100 text-slate-500 hover:text-emerald-700 p-2.5 rounded-xl text-sm transition">
-            <i class="fa-solid fa-check"></i>
-          </button>
-        `;
-        containerActionsBE.appendChild(item);
-      });
+            <button onclick="event.stopPropagation(); cloturerTache('${t.id}')" title="Marquer fait" class="bg-slate-100 hover:bg-emerald-100 text-slate-500 hover:text-emerald-700 p-2.5 rounded-xl text-sm transition">
+              <i class="fa-solid fa-check"></i>
+            </button>
+          `;
+          containerActionsBE.appendChild(item);
+        });
 
-      if (actionsBE.length === 0) {
-        containerActionsBE.innerHTML = `<p class="text-xs text-purple-900/70 italic col-span-2">Aucun point bloquant attribué au BE actuellement.</p>`;
+        if (actionsBE.length === 0) {
+          containerActionsBE.innerHTML = `<p class="text-xs text-purple-900/70 italic col-span-2">Aucun point bloquant attribué au BE actuellement.</p>`;
+        }
+      } else {
+        blocActionsBE.classList.add("hidden");
       }
 
-      document.getElementById("count-total-taches").innerText = taches.length;
+      // 3. Filtrage des tâches de la liste générale selon le rôle choisi
+      let tachesAffichees = taches;
+      if (roleFiltre !== "Tous") {
+        tachesAffichees = taches.filter(t => {
+          const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
+          return assigns.includes(roleFiltre);
+        });
+      }
 
-      const avecDate = taches.filter(t => t.date_limite).sort((a, b) => a.date_limite.localeCompare(b.date_limite));
-      const sansDate = taches.filter(t => !t.date_limite);
+      document.getElementById("count-total-taches").innerText = tachesAffichees.length;
+
+      const avecDate = tachesAffichees.filter(t => t.date_limite).sort((a, b) => a.date_limite.localeCompare(b.date_limite));
+      const sansDate = tachesAffichees.filter(t => !t.date_limite);
 
       avecDate.forEach(t => containerDatees.appendChild(creerCarteTache(t, true)));
       sansDate.forEach(t => containerSansDate.appendChild(creerCarteTache(t, false)));
 
-      if (avecDate.length === 0) containerDatees.innerHTML = `<div class="bg-white p-3 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">Aucune tâche planifiée sur cette zone.</div>`;
-      if (sansDate.length === 0) containerSansDate.innerHTML = `<div class="bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">Aucune tâche sans date.</div>`;
+      if (avecDate.length === 0) containerDatees.innerHTML = `<div class="bg-white p-3 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">Aucune tâche planifiée avec ces filtres.</div>`;
+      if (sansDate.length === 0) containerSansDate.innerHTML = `<div class="bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">Aucune tâche sans date avec ces filtres.</div>`;
     }
 
     function creerCarteTache(t, estDatee) {
@@ -493,7 +529,7 @@
       });
 
       if (tachesTerminees.length === 0) {
-        containerTaches.innerHTML = `<p class="text-slate-400 italic">Aucune tâche terminée récemment.</p>`;
+        containerTaches.innerHTML = `<p class="text-slate-400 italic">Aucune tâche clôturée récemment.</p>`;
       }
     }
 
@@ -579,9 +615,27 @@
       zoneFiltre = zone;
       document.querySelectorAll(".zone-btn").forEach(btn => {
         if (btn.innerText.trim() === zone || (zone === "Toutes" && btn.innerText.includes("Toutes"))) {
-          btn.className = "zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow";
+          btn.className = "zone-btn active px-3 py-1 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow";
         } else {
-          btn.className = "zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
+          btn.className = "zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
+        }
+      });
+      renderTaches();
+    };
+
+    window.filtrerRole = (role) => {
+      roleFiltre = role;
+      document.querySelectorAll(".role-btn").forEach(btn => {
+        const text = btn.innerText;
+        const correspond = (role === "BE" && text.includes("BE")) ||
+                           (role === "Chantier" && text.includes("Chantier")) ||
+                           (role === "RA" && text.includes("RA")) ||
+                           (role === "Tous" && text.includes("Toutes"));
+
+        if (correspond) {
+          btn.className = "role-btn active px-3.5 py-1 rounded-xl text-xs font-black shrink-0 bg-purple-600 text-white shadow";
+        } else {
+          btn.className = "role-btn px-3.5 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
         }
       });
       renderTaches();
