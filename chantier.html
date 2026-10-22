@@ -2,188 +2,219 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chantier - Suivi Terrain</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chantier - Stade Gabriel-Montpied</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 pb-24">
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-  <!-- En-tête mobile -->
-  <header class="bg-amber-500 text-slate-900 sticky top-0 z-30 shadow px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center space-x-2">
-      <i class="fa-solid fa-hard-hat text-2xl"></i>
-      <div>
-        <h1 class="font-black text-base uppercase leading-tight">Espace Chantier</h1>
-        <p class="text-[11px] font-semibold opacity-80">datachantier</p>
+  <!-- BANNIÈRE VISUELLE DU STADE -->
+  <header class="relative bg-slate-900 text-white overflow-hidden shadow-lg border-b-4 border-amber-500">
+    <div class="absolute inset-0 opacity-25 bg-cover bg-center" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Stade_Gabriel-Montpied_phase_1.jpg/1280px-Stade_Gabriel-Montpied_phase_1.jpg');"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-transparent"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex items-center space-x-4">
+        <div class="bg-amber-500 text-slate-950 w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl shadow-md">
+          <i class="fa-solid fa-helmet-safety"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-black text-xl md:text-2xl tracking-tight text-white">Chantier Gabriel-Montpied</h1>
+            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">En direct</span>
+          </div>
+          <p class="text-sm text-slate-300 font-medium">
+            Bonjour <span class="font-bold text-amber-400">Hervé</span> — <span id="date-du-jour" class="capitalize"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <button onclick="ouvrirModalTache()" class="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center justify-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-plus text-sm"></i> Nouvelle tâche
+        </button>
       </div>
     </div>
-    <button onclick="ouvrirModalTache()" class="bg-slate-900 active:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow">
-      <i class="fa-solid fa-plus"></i> Nouvelle tâche
-    </button>
+
+    <!-- Filtres par Zone -->
+    <div class="relative border-t border-white/10 bg-black/20 backdrop-blur-sm px-4 sm:px-6 py-2.5">
+      <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Zones :</span>
+        <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-amber-500 text-slate-950">Toutes</button>
+        <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">RDC</button>
+        <button onclick="filtrerZone('N1')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">N1</button>
+        <button onclick="filtrerZone('N2')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">N2</button>
+        <button onclick="filtrerZone('N3')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">N3</button>
+        <button onclick="filtrerZone('N4')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">N4</button>
+        <button onclick="filtrerZone('N5')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">N5</button>
+        <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">Billetterie</button>
+        <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">Gymnase</button>
+        <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20">Gergovie</button>
+      </div>
+    </div>
   </header>
 
-  <!-- Filtres par Zone -->
-  <section class="p-2.5 bg-white border-b border-slate-200 sticky top-[53px] z-20 flex gap-2 overflow-x-auto no-scrollbar">
-    <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-900 text-white">Toutes</button>
-    <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">RDC</button>
-    <button onclick="filtrerZone('N1')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">N1</button>
-    <button onclick="filtrerZone('N2')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">N2</button>
-    <button onclick="filtrerZone('N3')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">N3</button>
-    <button onclick="filtrerZone('N4')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">N4</button>
-    <button onclick="filtrerZone('N5')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">N5</button>
-    <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">Billetterie</button>
-    <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">Gymnase</button>
-    <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">Gergovie</button>
-  </section>
+  <!-- AGENCEMENT 3/4 (TO-DO) - 1/4 (COMMANDES) -->
+  <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-  <!-- Contenu Principal -->
-  <main class="p-4 space-y-6 max-w-lg mx-auto">
+    <!-- PARTIE GAUCHE (75% / 9 COLONNES) : TO-DO LIST TERRAIN -->
+    <section class="lg:col-span-9 space-y-6">
 
-    <!-- LIVRAISONS -->
-    <section class="space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-        <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-truck-fast text-amber-500 text-sm"></i> Réceptions de commandes
-        </h2>
-      </div>
-
-      <!-- Livraisons Aujourd'hui -->
-      <div class="space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-[11px] font-bold text-amber-800 uppercase flex items-center gap-1">
-            <i class="fa-solid fa-clock"></i> Attendues aujourd'hui
-          </span>
-          <span id="badge-jour" class="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full">0</span>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-emerald-600"></i> Plan d'actions & Tâches
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">Cochez une tâche dès qu'elle est achevée sur le terrain.</p>
         </div>
-        <div id="liste-livraisons-jour" class="space-y-3">
-          <p class="text-xs text-slate-400 italic">Rien de prévu aujourd'hui.</p>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-500">Tâches en cours :</span>
+          <span id="count-total-taches" class="text-sm font-black bg-slate-900 text-white px-3 py-1 rounded-xl">0</span>
         </div>
       </div>
 
-      <!-- Livraisons en Retard / Reliquats -->
-      <div class="space-y-2">
-        <div class="flex justify-between items-center">
-          <span class="text-[11px] font-bold text-rose-700 uppercase flex items-center gap-1">
-            <i class="fa-solid fa-triangle-exclamation"></i> En retard ou reliquats
-          </span>
-          <span id="badge-retard" class="text-[10px] font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full">0</span>
+      <!-- TÂCHES PLANIFIÉES -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Planifiées (par priorité de date)</h3>
         </div>
-        <div id="liste-livraisons-retard" class="space-y-3">
-          <p class="text-xs text-slate-400 italic">Aucun retard ni reliquat.</p>
-        </div>
-      </div>
-
-      <!-- Livraisons à Venir (Repliable) -->
-      <details class="bg-white border rounded-xl p-3 shadow-sm">
-        <summary class="text-xs font-bold text-slate-600 cursor-pointer flex justify-between items-center">
-          <span><i class="fa-regular fa-calendar-days text-slate-400 mr-1.5"></i> Livraisons à venir</span>
-          <span id="badge-avenir" class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">0</span>
-        </summary>
-        <div id="liste-livraisons-avenir" class="space-y-3 mt-3 pt-2 border-t border-slate-100">
-          <p class="text-xs text-slate-400 italic">Aucune livraison programmée.</p>
-        </div>
-      </details>
-    </section>
-
-    <!-- TÂCHES TERRAIN -->
-    <section class="space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-        <h2 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-emerald-600 text-sm"></i> Tâches & To-Do
-        </h2>
-        <span id="count-total-taches" class="text-xs font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0</span>
-      </div>
-
-      <!-- Tâches Planifiées (Triées par date proche) -->
-      <div class="space-y-2">
-        <span class="text-[11px] font-bold text-slate-600 uppercase flex items-center gap-1">
-          <i class="fa-solid fa-arrow-down-short-wide text-emerald-600"></i> Planifiées par priorité
-        </span>
         <div id="liste-taches-datees" class="space-y-3">
-          <p class="text-xs text-slate-400 italic">Aucune tâche planifiée.</p>
+          <p class="text-xs text-slate-400 italic">Chargement des tâches...</p>
         </div>
       </div>
 
-      <!-- Tâches Sans date -->
-      <div class="space-y-2 pt-2">
-        <span class="text-[11px] font-bold text-slate-400 uppercase flex items-center gap-1">
-          <i class="fa-solid fa-inbox"></i> À planifier (sans date)
-        </span>
+      <!-- TÂCHES SANS DATE -->
+      <div class="space-y-3 pt-3 border-t border-slate-200">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500">À planifier / Sans date limite</h3>
+        </div>
         <div id="liste-taches-sans-date" class="space-y-3">
           <p class="text-xs text-slate-400 italic">Aucune tâche sans date.</p>
         </div>
       </div>
+
+    </section>
+
+    <!-- PARTIE DROITE (25% / 3 COLONNES) : COMMANDES & LIVRAISONS -->
+    <section class="lg:col-span-3 space-y-5">
+
+      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+        <h2 class="text-sm font-black uppercase tracking-wide text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-truck-ramp-box text-amber-500"></i> Approvisionnements
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-0.5">Pointage des livraisons</p>
+      </div>
+
+      <!-- ATTENDUES AUJOURD'HUI -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-extrabold uppercase text-amber-800 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-clock"></i> Aujourd'hui
+          </h3>
+          <span id="badge-jour" class="text-xs font-black bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <div id="liste-livraisons-jour" class="space-y-2.5"></div>
+      </div>
+
+      <!-- EN RETARD / RELIQUATS -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-extrabold uppercase text-rose-700 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation"></i> Retards & Reliquats
+          </h3>
+          <span id="badge-retard" class="text-xs font-black bg-rose-100 text-rose-900 px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <div id="liste-livraisons-retard" class="space-y-2.5"></div>
+      </div>
+
+      <!-- LIVRAISONS À VENIR -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+            <i class="fa-regular fa-calendar"></i> Prochainement
+          </h3>
+          <span id="badge-avenir" class="text-xs font-black bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <div id="liste-livraisons-avenir" class="space-y-2.5"></div>
+      </div>
+
     </section>
 
   </main>
 
   <!-- MODAL : RÉCEPTION PARTIELLE -->
-  <div id="modal-reception-partielle" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-3">
-    <div class="bg-white rounded-2xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl">
-      <div class="p-4 border-b flex justify-between items-center bg-amber-50 rounded-t-2xl">
-        <h3 class="font-bold text-amber-900 text-xs flex items-center gap-1.5 uppercase tracking-wide">
-          <i class="fa-solid fa-boxes-packing text-amber-600 text-sm"></i> Réception partielle & Reliquats
+  <div id="modal-reception-partielle" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b bg-amber-500 text-slate-950 flex justify-between items-center">
+        <h3 class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
+          <i class="fa-solid fa-boxes-packing"></i> Réception partielle & Reliquats
         </h3>
-        <button onclick="fermerModalReceptionPartielle()" class="text-slate-400 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="fermerModalReceptionPartielle()" class="text-slate-900 text-lg hover:opacity-75"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="articles-reception-container" class="p-4 overflow-y-auto space-y-3 text-xs"></div>
-      <div class="p-3 border-t bg-slate-50 rounded-b-2xl flex gap-2">
-        <button onclick="fermerModalReceptionPartielle()" class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-200">Annuler</button>
-        <button onclick="validerReceptionPartielleAction()" class="flex-1 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 active:bg-amber-700">Enregistrer</button>
+      <div class="p-3 border-t bg-slate-50 flex gap-2">
+        <button onclick="fermerModalReceptionPartielle()" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="validerReceptionPartielleAction()" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400">Valider</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL : DÉTAILS ET ANNOTATION DIRECTE DE TÂCHE -->
-  <div id="modal-details-tache" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-3">
-    <div class="bg-white rounded-2xl w-full max-w-md p-4 space-y-3 text-xs shadow-2xl">
+  <!-- MODAL : DÉTAILS ET ANNOTATION TÂCHE -->
+  <div id="modal-details-tache" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl">
       <div class="flex justify-between items-start">
         <div>
-          <span id="dtl-zone" class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] uppercase"></span>
-          <h3 id="dtl-titre" class="text-sm font-bold text-slate-900 mt-1"></h3>
+          <span id="dtl-zone" class="bg-amber-100 text-amber-900 font-black px-2.5 py-1 rounded-lg text-[10px] uppercase"></span>
+          <h3 id="dtl-titre" class="text-base font-black text-slate-900 mt-2"></h3>
         </div>
-        <button onclick="fermerModalDetails()" class="text-slate-400 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="fermerModalDetails()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="bg-slate-50 p-2.5 rounded-xl space-y-1">
-        <div class="text-slate-500">Échéance : <span id="dtl-date" class="font-semibold text-slate-700"></span></div>
-        <div class="text-slate-500">Statut : <span id="dtl-statut" class="font-semibold text-slate-700"></span></div>
+      <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+        <div><span class="text-slate-400 font-bold">Échéance :</span> <span id="dtl-date" class="font-bold text-slate-800 ml-1"></span></div>
+        <div><span class="text-slate-400 font-bold">Statut :</span> <span id="dtl-statut" class="font-bold text-slate-800 ml-1"></span></div>
       </div>
 
       <div>
-        <span class="font-bold text-slate-600 block mb-1">Détails de la tâche :</span>
-        <p id="dtl-description" class="text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200 whitespace-pre-wrap"></p>
+        <span class="font-bold text-slate-700 block mb-1">Détails / Consignes :</span>
+        <p id="dtl-description" class="text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 whitespace-pre-wrap font-medium"></p>
       </div>
 
       <div class="border-t pt-3 space-y-2">
-        <label class="font-bold text-slate-700 block">Ajouter ou modifier l'annotation :</label>
+        <label class="font-bold text-slate-800 block">Ajouter ou corriger une annotation :</label>
         <div class="flex gap-2">
-          <input id="dtl-annotation-input" type="text" class="flex-1 border rounded-lg p-2 outline-none focus:ring-2 focus:ring-emerald-500 text-xs" placeholder="Ex: Matériel posé, attente raccordement...">
-          <button onclick="sauvegarderAnnotationDirecte()" class="bg-slate-900 text-white font-bold px-3 py-2 rounded-lg text-xs shrink-0">Sauvegarder</button>
+          <input id="dtl-annotation-input" type="text" class="flex-1 border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-amber-500 text-xs" placeholder="Remarque visible par tous...">
+          <button onclick="sauvegarderAnnotationDirecte()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs shrink-0">Sauvegarder</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL : AJOUT RAPIDE TÂCHE (CHEF DE CHANTIER) -->
-  <div id="modal-tache" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-3">
-    <div class="bg-white rounded-2xl w-full max-w-md p-4 space-y-3 text-xs shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-          <i class="fa-solid fa-plus-circle text-emerald-600"></i> Nouvelle tâche terrain
+  <!-- MODAL : AJOUT TÂCHE RAPIDE -->
+  <div id="modal-tache" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-amber-500"></i> Ajouter une tâche
         </h3>
-        <button onclick="fermerModalTache()" class="text-slate-400 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="fermerModalTache()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="space-y-3">
         <div>
-          <label class="font-bold text-slate-600 block mb-1">Titre de la tâche</label>
-          <input id="tache-titre" type="text" placeholder="Ex: Finition raccordement armoire" class="w-full border rounded-lg p-2 outline-none focus:ring-2 focus:ring-emerald-500">
+          <label class="font-bold text-slate-700 block mb-1">Titre de la tâche</label>
+          <input id="tache-titre" type="text" placeholder="Ex: Raccordement des projecteurs sous toiture" class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-amber-500">
         </div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="font-bold text-slate-600 block mb-1">Zone</label>
-            <select id="tache-zone" class="w-full border rounded-lg p-2 outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+            <label class="font-bold text-slate-700 block mb-1">Zone</label>
+            <select id="tache-zone" class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-amber-500 bg-white">
               <option value="RDC">RDC</option>
               <option value="N1">N1</option>
               <option value="N2">N2</option>
@@ -196,22 +227,22 @@
             </select>
           </div>
           <div>
-            <label class="font-bold text-slate-600 block mb-1">Date (optionnelle)</label>
-            <input id="tache-date" type="date" class="w-full border rounded-lg p-2 outline-none focus:ring-2 focus:ring-emerald-500">
+            <label class="font-bold text-slate-700 block mb-1">Date limite (optionnelle)</label>
+            <input id="tache-date" type="date" class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-amber-500">
           </div>
         </div>
         <div>
-          <label class="font-bold text-slate-600 block mb-1">Annotation directe</label>
-          <input id="tache-annotation" type="text" placeholder="Remarque rapide visible sur la liste..." class="w-full border rounded-lg p-2 outline-none">
+          <label class="font-bold text-slate-700 block mb-1">Annotation rapide (visible de suite)</label>
+          <input id="tache-annotation" type="text" placeholder="Ex: Attente nacelle 18m" class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-amber-500">
         </div>
         <div>
-          <label class="font-bold text-slate-600 block mb-1">Détails / Problème éventuel</label>
-          <textarea id="tache-details" rows="2" placeholder="Précisions pour le RA ou le BE..." class="w-full border rounded-lg p-2 outline-none"></textarea>
+          <label class="font-bold text-slate-700 block mb-1">Détails complémentaires</label>
+          <textarea id="tache-details" rows="2" placeholder="Précisions utiles pour l'équipe..." class="w-full border rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
         </div>
       </div>
       <div class="flex gap-2 pt-2 border-t">
-        <button onclick="fermerModalTache()" class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-200">Annuler</button>
-        <button onclick="enregistrerTache()" class="flex-1 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 active:bg-emerald-700">Créer</button>
+        <button onclick="fermerModalTache()" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="enregistrerTache()" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400">Créer la tâche</button>
       </div>
     </div>
   </div>
@@ -246,7 +277,9 @@
     let commandeSelectionneePourReception = null;
     let tacheEnCoursDetails = null;
 
-    const aujourdhuiStr = new Date().toISOString().split("T")[0];
+    const aujourdhuiDate = new Date();
+    const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
+    document.getElementById("date-du-jour").innerText = aujourdhuiDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
     // --- ÉCOUTE COMMANDES ---
     onSnapshot(collection(db, "commandes"), (snapshot) => {
@@ -262,7 +295,7 @@
       renderTaches();
     });
 
-    // --- RENDU LIVRAISONS / COMMANDES ---
+    // --- RENDU COMMANDES (COLONNE DROITE) ---
     function renderCommandes() {
       const containerJour = document.getElementById("liste-livraisons-jour");
       const containerRetard = document.getElementById("liste-livraisons-retard");
@@ -306,24 +339,24 @@
       document.getElementById("badge-retard").innerText = countRetard;
       document.getElementById("badge-avenir").innerText = countAvenir;
 
-      if (countJour === 0) containerJour.innerHTML = `<p class="text-xs text-slate-400 italic">Rien de prévu aujourd'hui.</p>`;
-      if (countRetard === 0) containerRetard.innerHTML = `<p class="text-xs text-slate-400 italic">Aucun retard ni reliquat.</p>`;
-      if (countAvenir === 0) containerAvenir.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune livraison programmée.</p>`;
+      if (countJour === 0) containerJour.innerHTML = `<p class="text-[11px] text-slate-400 italic bg-white p-2.5 rounded-xl border border-dashed border-slate-200">Aucune livraison aujourd'hui.</p>`;
+      if (countRetard === 0) containerRetard.innerHTML = `<p class="text-[11px] text-slate-400 italic bg-white p-2.5 rounded-xl border border-dashed border-slate-200">Aucun retard ni reliquat.</p>`;
+      if (countAvenir === 0) containerAvenir.innerHTML = `<p class="text-[11px] text-slate-400 italic bg-white p-2.5 rounded-xl border border-dashed border-slate-200">Aucune commande à venir.</p>`;
     }
 
     function creerCarteCommande(cmd, aReliquats) {
       const div = document.createElement("div");
-      div.className = "bg-white border rounded-xl p-3 shadow-sm space-y-2";
+      div.className = "bg-white border border-slate-200 rounded-2xl p-3 shadow-sm space-y-2.5";
 
       let articlesHtml = cmd.articles.map(a => `
-        <div class="flex items-center justify-between text-xs py-1 border-b border-slate-100 last:border-0">
+        <div class="flex items-center justify-between text-[11px] py-1 border-b border-slate-100 last:border-0">
           <div>
-            <span class="font-semibold text-slate-800">${a.ref}</span>
-            <span class="text-slate-500">(${a.qte_recue || 0} / ${a.qte})</span>
-            ${a.reliquat_date ? `<span class="text-[9px] bg-rose-50 text-rose-700 px-1 py-0.2 rounded font-bold ml-1">Reliquat: ${a.reliquat_date}</span>` : ''}
+            <span class="font-bold text-slate-800">${a.ref}</span>
+            <span class="text-slate-400">(${a.qte_recue || 0}/${a.qte})</span>
+            ${a.reliquat_date ? `<div class="text-[9px] text-rose-600 font-bold">Reliquat : ${a.reliquat_date}</div>` : ''}
           </div>
-          <span class="font-bold text-[11px] ${a.statut === 'recu' ? 'text-emerald-600' : 'text-slate-500'}">
-            ${a.statut === 'recu' ? '✓ Reçu' : (a.reliquat_date || a.date_specifique || cmd.date_globale || 'Date NC')}
+          <span class="font-bold text-[10px] ${a.statut === 'recu' ? 'text-emerald-600' : 'text-slate-500'}">
+            ${a.statut === 'recu' ? '✓ Reçu' : (a.reliquat_date || a.date_specifique || cmd.date_globale || 'NC')}
           </span>
         </div>
       `).join("");
@@ -332,30 +365,30 @@
         <div class="flex justify-between items-start">
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="font-bold text-slate-900 text-xs">${cmd.numero}</span>
-              ${aReliquats ? `<span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.2 rounded text-[9px]">Reliquat</span>` : ''}
+              <span class="font-black text-slate-900 text-xs">${cmd.numero}</span>
+              ${aReliquats ? `<span class="bg-rose-100 text-rose-800 font-black px-1.5 py-0.2 rounded text-[9px]">Reliquat</span>` : ''}
             </div>
             <p class="text-[11px] text-slate-500 font-medium">${cmd.fournisseur}</p>
           </div>
         </div>
 
-        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 space-y-1">
+        <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 space-y-1">
           ${articlesHtml}
         </div>
 
-        <div class="flex items-center gap-2 pt-1">
-          <button onclick="receptionTotale('${cmd.id}')" class="flex-1 bg-emerald-600 active:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1 shadow-sm">
-            <i class="fa-solid fa-check-double"></i> Reçu tout
+        <div class="grid grid-cols-2 gap-1.5 pt-1">
+          <button onclick="receptionTotale('${cmd.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-1.5 rounded-lg flex items-center justify-center gap-1 shadow-sm">
+            <i class="fa-solid fa-check"></i> Tout reçu
           </button>
-          <button onclick="ouvrirReceptionPartielle('${cmd.id}')" class="flex-1 bg-amber-100 active:bg-amber-200 text-amber-900 font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1">
-            <i class="fa-solid fa-boxes-packing"></i> Réception partielle
+          <button onclick="ouvrirReceptionPartielle('${cmd.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] py-1.5 rounded-lg flex items-center justify-center gap-1">
+            <i class="fa-solid fa-list-check"></i> Partiel
           </button>
         </div>
       `;
       return div;
     }
 
-    // --- GESTION DES TÂCHES ---
+    // --- RENDU TÂCHES (COLONNE GAUCHE) ---
     function renderTaches() {
       const containerDatees = document.getElementById("liste-taches-datees");
       const containerSansDate = document.getElementById("liste-taches-sans-date");
@@ -373,46 +406,57 @@
       const avecDate = taches.filter(t => t.date_limite).sort((a, b) => a.date_limite.localeCompare(b.date_limite));
       const sansDate = taches.filter(t => !t.date_limite);
 
-      avecDate.forEach(t => containerDatees.appendChild(creerCarteTache(t)));
-      sansDate.forEach(t => containerSansDate.appendChild(creerCarteTache(t)));
+      avecDate.forEach(t => containerDatees.appendChild(creerCarteTache(t, true)));
+      sansDate.forEach(t => containerSansDate.appendChild(creerCarteTache(t, false)));
 
-      if (avecDate.length === 0) containerDatees.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune tâche planifiée.</p>`;
-      if (sansDate.length === 0) containerSansDate.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune tâche sans date.</p>`;
+      if (avecDate.length === 0) containerDatees.innerHTML = `<div class="bg-white p-4 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400 font-medium">Aucune tâche planifiée sur cette zone.</div>`;
+      if (sansDate.length === 0) containerSansDate.innerHTML = `<div class="bg-white p-4 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400 font-medium">Aucune tâche sans date.</div>`;
     }
 
-    function creerCarteTache(t) {
+    function creerCarteTache(t, estDatee) {
       const card = document.createElement("div");
-      card.className = "bg-white border rounded-xl p-3.5 shadow-sm space-y-2.5 active:scale-[0.99] transition";
+      card.className = "bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition cursor-pointer";
       card.onclick = (e) => {
         if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") {
           ouvrirDetailsTache(t);
         }
       };
 
+      const dateRetard = estDatee && t.date_limite < aujourdhuiStr;
+
       card.innerHTML = `
-        <div class="flex items-start justify-between gap-2">
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] uppercase">${t.zone}</span>
-              ${t.date_limite ? `<span class="text-[10px] text-slate-500 font-medium"><i class="fa-regular fa-clock mr-1"></i>${t.date_limite}</span>` : ''}
-            </div>
-            <h4 class="font-bold text-slate-900 text-xs mt-1 leading-snug">${t.titre}</h4>
+        <div class="space-y-1.5 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="bg-slate-900 text-amber-400 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">
+              ${t.zone}
+            </span>
+            ${estDatee ? `
+              <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}">
+                <i class="fa-regular fa-calendar mr-1"></i>${t.date_limite} ${dateRetard ? '(En retard)' : ''}
+              </span>
+            ` : ''}
           </div>
-          <button onclick="cloturerTache('${t.id}')" class="bg-emerald-50 active:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
-            <i class="fa-solid fa-check"></i> Fait
-          </button>
+          <h4 class="font-bold text-slate-900 text-sm leading-snug">${t.titre}</h4>
+
+          <!-- Annotation visible directement -->
+          ${t.annotation ? `
+            <div class="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-900 px-3 py-1 rounded-xl text-xs font-semibold mt-1">
+              <i class="fa-regular fa-comment-dots text-amber-600"></i>
+              <span>${t.annotation}</span>
+            </div>
+          ` : ''}
         </div>
 
-        ${t.annotation ? `
-          <div class="bg-amber-50 border-l-2 border-amber-400 px-2 py-1 text-[11px] text-amber-900 font-medium rounded-r">
-            <i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation}
-          </div>
-        ` : ''}
+        <div class="flex items-center gap-2 shrink-0 border-t md:border-t-0 pt-2 md:pt-0">
+          <button onclick="cloturerTache('${t.id}')" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
+            <i class="fa-solid fa-check"></i> Terminer
+          </button>
+        </div>
       `;
       return card;
     }
 
-    // --- ACTIONS LIVRAISONS TERRAIN ---
+    // --- ACTIONS LIVRAISONS ---
     window.receptionTotale = async (id) => {
       const cmd = commandesCache.find(c => c.id === id);
       if (!cmd) return;
@@ -438,20 +482,20 @@
       commandeSelectionneePourReception.articles.forEach((a, idx) => {
         const reste = a.qte - (a.qte_recue || 0);
         const div = document.createElement("div");
-        div.className = "p-3 border rounded-xl bg-slate-50 space-y-2";
+        div.className = "p-3 border rounded-2xl bg-slate-50 space-y-2";
         div.innerHTML = `
           <div class="flex justify-between font-bold text-slate-800 text-xs">
             <span>${a.ref}</span>
-            <span>Total : ${a.qte} (Déjà reçu : ${a.qte_recue || 0})</span>
+            <span class="text-slate-500">Reste : ${reste} / ${a.qte}</span>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="text-[10px] text-slate-500 font-bold block mb-1">Reçu ce jour</label>
-              <input type="number" id="ch-rec-qte-${idx}" max="${reste}" value="${reste}" class="w-full border rounded-lg p-2 bg-white text-xs outline-none">
+              <input type="number" id="ch-rec-qte-${idx}" max="${reste}" value="${reste}" class="w-full border rounded-xl p-2 bg-white text-xs outline-none">
             </div>
             <div>
               <label class="text-[10px] text-slate-500 font-bold block mb-1">Date reliquat (si partiel)</label>
-              <input type="date" id="ch-rec-date-${idx}" value="${a.reliquat_date || ''}" class="w-full border rounded-lg p-2 bg-white text-xs outline-none">
+              <input type="date" id="ch-rec-date-${idx}" value="${a.reliquat_date || ''}" class="w-full border rounded-xl p-2 bg-white text-xs outline-none">
             </div>
           </div>
         `;
@@ -543,7 +587,7 @@
       tacheEnCoursDetails = t;
       document.getElementById("dtl-titre").innerText = t.titre;
       document.getElementById("dtl-zone").innerText = t.zone;
-      document.getElementById("dtl-date").innerText = t.date_limite || "Non définie";
+      document.getElementById("dtl-date").innerText = t.date_limite || "Non fixée";
       document.getElementById("dtl-statut").innerText = t.statut;
       document.getElementById("dtl-description").innerText = t.details || "Aucune note complémentaire.";
       document.getElementById("dtl-annotation-input").value = t.annotation || "";
@@ -563,14 +607,14 @@
       fermerModalDetails();
     };
 
-    // --- FILTRAGE PAR ZONE ---
+    // --- FILTRE PAR ZONE ---
     window.filtrerZone = (zone) => {
       zoneFiltre = zone;
       document.querySelectorAll(".zone-btn").forEach(btn => {
         if (btn.innerText.trim() === zone) {
-          btn.className = "zone-btn active px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-900 text-white";
+          btn.className = "zone-btn active px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-amber-500 text-slate-950";
         } else {
-          btn.className = "zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600";
+          btn.className = "zone-btn px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-white/10 text-white hover:bg-white/20";
         }
       });
       renderTaches();
