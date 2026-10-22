@@ -13,71 +13,65 @@
 </head>
 <body class="bg-slate-200 text-slate-800 min-h-screen">
 
-  <!-- BANDEAU BLEU NUIT AVEC DESSIN VECTORIEL DE LA NOUVELLE TRIBUNE -->
+  <!-- BANDEAU AVEC SILHOUETTE VECTORIELLE CONFORME AU RÉEL -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-amber-400">
     
-    <!-- Rendu SVG vectoriel fidèle de la nouvelle tribune blanche -->
-    <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-25 flex items-end justify-end">
+    <!-- Rendu SVG vectoriel basé sur la vue rasante réelle du chantier -->
+    <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ligne de sol du parvis -->
-        <line x1="0" y1="310" x2="1000" y2="310" stroke="#334155" stroke-width="2"/>
+        <!-- Ligne de sol du talus -->
+        <path d="M 0 310 L 450 310 Q 750 310 1000 295" stroke="#334155" stroke-width="2"/>
 
-        <!-- Trame des poteaux verticaux et obliques (façade mikado / chevrons) -->
-        <g stroke="#ffffff" stroke-width="2.5" opacity="0.85">
-          <!-- Partie gauche (courbe haute) -->
-          <line x1="40" y1="310" x2="45" y2="100"/>
-          <line x1="70" y1="310" x2="60" y2="105"/>
-          <line x1="90" y1="310" x2="115" y2="110"/>
-          <line x1="120" y1="310" x2="95" y2="110"/>
-          <line x1="145" y1="310" x2="150" y2="115"/>
-          <line x1="175" y1="310" x2="195" y2="120"/>
-          <line x1="205" y1="310" x2="180" y2="120"/>
-          <line x1="230" y1="310" x2="235" y2="125"/>
-          <line x1="260" y1="310" x2="285" y2="132"/>
-          <line x1="290" y1="310" x2="265" y2="132"/>
+        <!-- Poutre tubulaire arrière en sous-face de toiture -->
+        <path d="M 30 75 Q 400 95 940 255" stroke="#38bdf8" stroke-width="2.5" opacity="0.6"/>
 
-          <!-- Partie centrale -->
-          <line x1="320" y1="310" x2="325" y2="140"/>
-          <line x1="355" y1="310" x2="380" y2="148"/>
-          <line x1="385" y1="310" x2="360" y2="148"/>
-          <line x1="420" y1="310" x2="425" y2="155"/>
-          <line x1="460" y1="310" x2="485" y2="162"/>
-          <line x1="490" y1="310" x2="465" y2="162"/>
-          <line x1="530" y1="310" x2="535" y2="170"/>
-          <line x1="570" y1="310" x2="595" y2="178"/>
-          <line x1="600" y1="310" x2="575" y2="178"/>
+        <!-- Trame réelle des poteaux inclinés en V et poteaux verticaux -->
+        <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.9">
+          <!-- Travée 1 (gauche haute) -->
+          <line x1="45" y1="310" x2="35" y2="70"/>
+          <line x1="100" y1="310" x2="40" y2="70"/>
+          <line x1="125" y1="310" x2="135" y2="73"/>
+          <line x1="140" y1="310" x2="225" y2="78"/>
 
-          <!-- Partie droite (amincissement) -->
-          <line x1="640" y1="310" x2="645" y2="185"/>
-          <line x1="680" y1="310" x2="705" y2="192"/>
-          <line x1="710" y1="310" x2="685" y2="192"/>
-          <line x1="750" y1="310" x2="755" y2="200"/>
-          <line x1="790" y1="310" x2="815" y2="208"/>
-          <line x1="820" y1="310" x2="795" y2="208"/>
-          <line x1="860" y1="310" x2="865" y2="215"/>
-          <line x1="900" y1="310" x2="925" y2="225"/>
-          <line x1="930" y1="310" x2="905" y2="225"/>
-          <line x1="960" y1="310" x2="960" y2="235"/>
+          <!-- Travée 2 -->
+          <line x1="205" y1="310" x2="225" y2="78"/>
+          <line x1="225" y1="310" x2="225" y2="78"/>
+          <line x1="245" y1="310" x2="315" y2="84"/>
+          <line x1="300" y1="310" x2="315" y2="84"/>
+
+          <!-- Travée 3 (centrale haute) -->
+          <line x1="315" y1="310" x2="315" y2="84"/>
+          <line x1="330" y1="310" x2="405" y2="92"/>
+          <line x1="390" y1="310" x2="405" y2="92"/>
+          <line x1="405" y1="310" x2="405" y2="92"/>
+
+          <!-- Travée 4 (début de descente) -->
+          <line x1="420" y1="310" x2="495" y2="105"/>
+          <line x1="480" y1="310" x2="495" y2="105"/>
+          <line x1="510" y1="310" x2="580" y2="125"/>
+          <line x1="565" y1="310" x2="580" y2="125"/>
+
+          <!-- Travée 5 (pente médiane) -->
+          <line x1="590" y1="310" x2="665" y2="150"/>
+          <line x1="650" y1="310" x2="665" y2="150"/>
+          <line x1="680" y1="310" x2="745" y2="180"/>
+          <line x1="730" y1="310" x2="745" y2="180"/>
+
+          <!-- Travée 6 & 7 (descente droite serrée) -->
+          <line x1="755" y1="305" x2="815" y2="210"/>
+          <line x1="805" y1="305" x2="815" y2="210"/>
+          <line x1="830" y1="300" x2="880" y2="238"/>
+          <line x1="870" y1="300" x2="880" y2="238"/>
+          <line x1="895" y1="298" x2="935" y2="260"/>
+          <line x1="930" y1="295" x2="935" y2="260"/>
         </g>
 
-        <!-- Courbe de rive basse de toiture avec retombée en festons/triangles -->
-        <path d="M 30 100 Q 500 160 970 235" stroke="#f8fafc" stroke-width="4" stroke-linecap="round"/>
-        <path d="M 40 105 L 55 120 L 70 106 L 95 122 L 120 111 L 150 126 L 180 116 L 210 131 L 240 121 L 280 137 L 320 127 L 360 144 L 400 134 L 450 152 L 500 142 L 550 160 L 600 151 L 660 170 L 720 162 L 780 181 L 840 174 L 900 195 L 960 190" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+        <!-- Structure triangulée sous toiture -->
+        <path d="M 40 72 L 135 75 L 225 80 L 315 86 L 405 94 L 495 107 L 580 127 L 665 152 L 745 182 L 815 212 L 880 240 L 935 262" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4"/>
 
-        <!-- Courbe supérieure de toiture (enveloppe bombée) -->
-        <path d="M 30 100 Q 20 40 140 25 Q 500 90 970 235 Z" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-width="3"/>
-
-        <!-- Plis de toiture / segmentation de la membrane blanche -->
-        <g stroke="#94a3b8" stroke-width="1.2" opacity="0.6">
-          <line x1="140" y1="25" x2="150" y2="115"/>
-          <line x1="210" y1="36" x2="235" y2="125"/>
-          <line x1="290" y1="52" x2="325" y2="140"/>
-          <line x1="380" y1="70" x2="425" y2="155"/>
-          <line x1="480" y1="92" x2="535" y2="170"/>
-          <line x1="590" y1="118" x2="645" y2="185"/>
-          <line x1="710" y1="150" x2="755" y2="200"/>
-          <line x1="830" y1="188" x2="865" y2="215"/>
-        </g>
+        <!-- Grande rive de toiture courbe blanche (arche plongeante de façade) -->
+        <path d="M 25 70 Q 400 85 945 265" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 25 65 Q 400 80 945 260" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
       </svg>
     </div>
 
@@ -178,7 +172,7 @@
 
       </div>
 
-      <!-- BOUTON AJOUT RAPIDE EN BAS DE LA TO-DO -->
+      <!-- BOUTON AJOUT RAPIDE EN BAS -->
       <div class="pt-2">
         <button onclick="ouvrirModalTache()" class="w-full bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-950 font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-amber-500 flex items-center justify-center gap-3 transition active:scale-[0.99]">
           <i class="fa-solid fa-circle-plus text-xl"></i>
@@ -410,6 +404,17 @@
     const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
     document.getElementById("date-du-jour").innerText = aujourdhuiDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
+    // Fonction de formatage JJ/MM/AAAA
+    function formaterDateFr(chaineIso) {
+      if (!chaineIso) return "";
+      const datePart = chaineIso.split("T")[0];
+      const parts = datePart.split("-");
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return chaineIso;
+    }
+
     // Écoute des Commandes
     onSnapshot(collection(db, "commandes"), (snapshot) => {
       commandesCache = [];
@@ -426,7 +431,7 @@
       renderHistorique();
     });
 
-    // RENDU COMMANDES
+    // --- RENDU COMMANDES ---
     function renderCommandes() {
       const containerJour = document.getElementById("liste-livraisons-jour");
       const containerRetard = document.getElementById("liste-livraisons-retard");
@@ -486,7 +491,7 @@
               <span class="font-black text-slate-900 text-xs">${cmd.numero}</span>
               ${cmd.partie_info ? `<span class="bg-blue-100 text-blue-900 font-black px-1.5 py-0.2 rounded text-[9px]">${cmd.partie_info}</span>` : ''}
             </div>
-            <p class="text-[11px] text-slate-600 font-medium">${cmd.fournisseur} — Prévu le ${cmd.date_livraison || 'NC'}</p>
+            <p class="text-[11px] text-slate-600 font-medium">${cmd.fournisseur} — Prévu le ${formaterDateFr(cmd.date_livraison) || 'NC'}</p>
             ${cmd.reliquat_info ? `<div class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-lg font-bold mt-1"><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i>${cmd.reliquat_info}</div>` : ''}
           </div>
         </div>
@@ -502,7 +507,7 @@
       return div;
     }
 
-    // RENDU TÂCHES & ACTIONS
+    // --- RENDU TÂCHES & ACTIONS ---
     function renderTaches() {
       const containerDatees = document.getElementById("liste-taches-datees");
       const containerSansDate = document.getElementById("liste-taches-sans-date");
@@ -597,7 +602,7 @@
             ${badgesAssign}
             ${estDatee ? `
               <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
-                <i class="fa-regular fa-calendar mr-1"></i>${t.date_limite} ${dateRetard ? '(En retard)' : ''}
+                <i class="fa-regular fa-calendar mr-1"></i>${formaterDateFr(t.date_limite)} ${dateRetard ? '(En retard)' : ''}
               </span>
             ` : ''}
           </div>
@@ -677,7 +682,7 @@
         div.innerHTML = `
           <div>
             <div class="font-bold text-slate-800 text-xs">${t.titre}</div>
-            <div class="text-[10px] text-slate-500">${t.zone} — Validé le ${t.termine_le ? t.termine_le.split("T")[0] : ''}</div>
+            <div class="text-[10px] text-slate-500">${t.zone} — Validé le ${formaterDateFr(t.termine_le)}</div>
           </div>
           <button onclick="retablirTache('${t.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
             <i class="fa-solid fa-rotate-left"></i> Rétablir
@@ -701,7 +706,7 @@
         div.innerHTML = `
           <div>
             <div class="font-bold text-slate-800 text-xs">${c.numero} — ${c.fournisseur}</div>
-            <div class="text-[10px] text-slate-500">Reçu le ${c.date_reception ? c.date_reception.split("T")[0] : ''}</div>
+            <div class="text-[10px] text-slate-500">Reçu le ${formaterDateFr(c.date_reception)}</div>
           </div>
           <button onclick="retablirCommande('${c.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
             <i class="fa-solid fa-rotate-left"></i> Rétablir
@@ -775,7 +780,7 @@
         ${assigns.map(a => `<span class="bg-slate-200 text-slate-800 font-bold px-2 py-0.5 rounded-lg text-[10px] uppercase">${a}</span>`).join(" ")}
       `;
 
-      document.getElementById("dtl-date").innerText = t.date_limite || "Non fixée";
+      document.getElementById("dtl-date").innerText = formaterDateFr(t.date_limite) || "Non fixée";
       document.getElementById("dtl-statut").innerText = t.statut;
       document.getElementById("dtl-description").innerText = t.details || "Aucune note complémentaire.";
       document.getElementById("dtl-annotation-input").value = t.annotation || "";
