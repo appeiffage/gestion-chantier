@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration & Pilotage - RA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <!-- En-tête RA -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="bg-blue-600 p-2 rounded-lg text-white">
+        <i class="fa-solid fa-briefcase text-lg"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-lg leading-tight">Pilotage Affaire & Chantier</h1>
+        <p class="text-xs text-slate-400">Espace Administrateur / RA</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="ouvrirModalCommande()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-plus"></i> Nouvelle commande
+      </button>
+      <button onclick="ouvrirModalTache()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-plus"></i> Nouvelle tâche
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenu Principal -->
+  <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- COLONNE GAUCHE : COMMANDES & LIVRAISONS (7 cols) -->
+    <section class="lg:col-span-7 space-y-6">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h2 class="text-base font-extrabold uppercase tracking-wide text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-truck-fast text-blue-600"></i> Suivi des approvisionnements
+        </h2>
+      </div>
+
+      <!-- Livraisons DU JOUR -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase text-amber-700 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-clock"></i> Livraisons prévues aujourd'hui
+          </h3>
+          <span id="badge-aujourdhui" class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <div id="liste-livraisons-jour" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Aucune livraison prévue aujourd'hui.</p>
+        </div>
+      </div>
+
+      <!-- Livraisons EN RETARD OU RELIQUATS -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase text-rose-700 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation"></i> En retard ou reliquats attendus
+          </h3>
+          <span id="badge-retards" class="text-xs font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <div id="liste-livraisons-retard" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Aucun retard ni reliquat.</p>
+        </div>
+      </div>
+
+      <!-- Livraisons À VENIR -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+            <i class="fa-regular fa-calendar-days"></i> Livraisons à venir
+          </h3>
+          <span id="badge-avenir" class="text-xs font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <div id="liste-livraisons-avenir" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Aucune livraison programmée.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLONNE DROITE : TÂCHES & TO-DO (5 cols) -->
+    <section class="lg:col-span-5 space-y-6">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h2 class="text-base font-extrabold uppercase tracking-wide text-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-emerald-600"></i> To-Do List & Jalons
+        </h2>
+        <select id="filtre-zone-taches" onchange="renderTaches()" class="text-xs border border-slate-300 rounded-lg p-1 bg-white font-medium outline-none">
+          <option value="Toutes">Toutes les zones</option>
+          <option value="RDC">RDC</option>
+          <option value="N1">N1</option>
+          <option value="N2">N2</option>
+          <option value="N3">N3</option>
+          <option value="N4">N4</option>
+          <option value="N5">N5</option>
+          <option value="Billetterie">Billetterie</option>
+          <option value="Gymnase">Gymnase</option>
+          <option value="Gergovie">Gergovie</option>
+        </select>
+      </div>
+
+      <!-- Tâches Planifiées (Triées par date) -->
+      <div class="space-y-2">
+        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-arrow-down-short-wide text-emerald-600"></i> Tâches planifiées (échéance proche)
+        </h3>
+        <div id="liste-taches-datees" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Aucune tâche planifiée.</p>
+        </div>
+      </div>
+
+      <!-- Tâches En attente de planification (Sans date) -->
+      <div class="space-y-2 pt-4 border-t border-slate-200">
+        <h3 class="text-xs font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-inbox text-slate-400"></i> Sans date assignée
+        </h3>
+        <div id="liste-taches-sans-date" class="space-y-3">
+          <p class="text-xs text-slate-400 italic">Aucune tâche sans date.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL : CRÉER COMMANDE -->
+  <div id="modal-commande" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
+        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+          <i class="fa-solid fa-cart-flatbed text-blue-600"></i> Créer une commande de matériel
+        </h3>
+        <button onclick="fermerModalCommande()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-4 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="font-bold text-slate-600 mb-1 block">N° Commande / Affaire</label>
+            <input id="cmd-num" type="text" placeholder="Ex: CMD-2026-089" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 mb-1 block">Fournisseur</label>
+            <input id="cmd-fournisseur" type="text" placeholder="Ex: Rexel, Sonepar..." class="w-full border rounded-lg p-2 outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 mb-1 block">Date livraison globale</label>
+            <input id="cmd-date-globale" type="date" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="border-t pt-3">
+          <div class="flex justify-between items-center mb-2">
+            <span class="font-bold text-slate-700">Références commandées</span>
+            <button onclick="ajouterLigneArticle()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-md font-bold text-[11px] flex items-center gap-1">
+              <i class="fa-solid fa-plus"></i> Ajouter une référence
+            </button>
+          </div>
+          <div id="conteneur-articles" class="space-y-2"></div>
+        </div>
+      </div>
+      <div class="p-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-2">
+        <button onclick="fermerModalCommande()" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="enregistrerCommande()" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700">Créer la commande</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL : RÉCEPTION PARTIELLE -->
+  <div id="modal-reception-partielle" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="p-4 border-b flex justify-between items-center bg-amber-50 rounded-t-2xl">
+        <h3 class="font-bold text-amber-900 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-boxes-packing text-amber-600"></i> Réception Partielle & Reliquats
+        </h3>
+        <button onclick="fermerModalReceptionPartielle()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-5 overflow-y-auto space-y-4 text-xs">
+        <p class="text-slate-600">Indiquez les quantités reçues aujourd'hui. Pour les reliquats restants, saisissez la nouvelle date prévue.</p>
+        <div id="articles-reception-container" class="space-y-3"></div>
+      </div>
+      <div class="p-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-2">
+        <button onclick="fermerModalReceptionPartielle()" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 bg-slate-200">Annuler</button>
+        <button onclick="validerReceptionPartielleAction()" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700">Valider la réception</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL : CRÉER / ÉDITER TÂCHE -->
+  <div id="modal-tache" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-emerald-600"></i> Ajouter une tâche
+        </h3>
+        <button onclick="fermerModalTache()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-5 space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-600 mb-1 block">Titre de la tâche</label>
+          <input id="tache-titre" type="text" placeholder="Ex: Tirage câbles alimentation TGBT" class="w-full border rounded-lg p-2.5 outline-none focus:border-emerald-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-600 mb-1 block">Zone concernée</label>
+            <select id="tache-zone" class="w-full border rounded-lg p-2 outline-none focus:border-emerald-500">
+              <option value="RDC">RDC</option>
+              <option value="N1">N1</option>
+              <option value="N2">N2</option>
+              <option value="N3">N3</option>
+              <option value="N4">N4</option>
+              <option value="N5">N5</option>
+              <option value="Billetterie">Billetterie</option>
+              <option value="Gymnase">Gymnase</option>
+              <option value="Gergovie">Gergovie</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-600 mb-1 block">Date limite (optionnelle)</label>
+            <input id="tache-date" type="date" class="w-full border rounded-lg p-2 outline-none focus:border-emerald-500">
+          </div>
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 mb-1 block">Annotation / Note visible</label>
+          <input id="tache-annotation" type="text" placeholder="Ex: Attente livraison chemin de câbles" class="w-full border rounded-lg p-2 outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="font-bold text-slate-600 mb-1 block">Détails complémentaires</label>
+          <textarea id="tache-details" rows="3" placeholder="Précisions techniques, remarques BE, consignes de pose..." class="w-full border rounded-lg p-2.5 outline-none focus:border-emerald-500"></textarea>
+        </div>
+      </div>
+      <div class="p-4 border-t bg-slate-50 rounded-b-2xl flex justify-end gap-2">
+        <button onclick="fermerModalTache()" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 bg-slate-200">Annuler</button>
+        <button onclick="enregistrerTache()" class="px-5 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL : DÉTAILS & ANNOTATION RAPIDE D'UNE TÂCHE -->
+  <div id="modal-details-tache" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-5 space-y-4 text-xs">
+      <div class="flex justify-between items-start">
+        <div>
+          <span id="dtl-zone" class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] uppercase"></span>
+          <h3 id="dtl-titre" class="text-base font-bold text-slate-900 mt-1"></h3>
+        </div>
+        <button onclick="fermerModalDetails()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="bg-slate-50 p-3 rounded-xl space-y-1">
+        <div class="text-slate-500">Échéance : <span id="dtl-date" class="font-semibold text-slate-700"></span></div>
+        <div class="text-slate-500">Statut : <span id="dtl-statut" class="font-semibold text-slate-700"></span></div>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-slate-700 mb-1">Détails & Consignes :</h4>
+        <p id="dtl-description" class="text-slate-600 bg-white p-3 border rounded-xl whitespace-pre-wrap"></p>
+      </div>
+
+      <div class="border-t pt-3 space-y-2">
+        <label class="font-bold text-slate-700 block">Modifier l'annotation directe :</label>
+        <div class="flex gap-2">
+          <input id="dtl-annotation-input" type="text" class="flex-1 border rounded-lg p-2 outline-none focus:border-emerald-500" placeholder="Nouvelle note...">
+          <button onclick="sauvegarderAnnotationDirecte()" class="bg-blue-600 text-white font-bold px-3 py-2 rounded-lg">Mettre à jour</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      updateDoc, 
+      doc, 
+      onSnapshot, 
+      query, 
+      orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2rRm-cpLoA1KD0vesfxm3VZur7EknFNs",
+      authDomain: "datachantier.firebaseapp.com",
+      projectId: "datachantier",
+      storageBucket: "datachantier.firebasestorage.app",
+      messagingSenderId: "359359774794",
+      appId: "1:359359774794:web:d64063dece14398bbca6b3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let commandesCache = [];
+    let tachesCache = [];
+    let commandeSelectionneePourReception = null;
+    let tacheEnCoursDetails = null;
+
+    const aujourdhuiStr = new Date().toISOString().split("T")[0];
+
+    // --- ÉCOUTE DES COMMANDES ---
+    onSnapshot(collection(db, "commandes"), (snapshot) => {
+      commandesCache = [];
+      snapshot.forEach(d => commandesCache.push({ id: d.id, ...d.data() }));
+      renderCommandes();
+    });
+
+    // --- ÉCOUTE DES TÂCHES ---
+    onSnapshot(collection(db, "taches"), (snapshot) => {
+      tachesCache = [];
+      snapshot.forEach(d => tachesCache.push({ id: d.id, ...d.data() }));
+      renderTaches();
+    });
+
+    // --- RENDU DES COMMANDES (AUJOURD'HUI, RETARD, AVENIR) ---
+    function renderCommandes() {
+      const containerJour = document.getElementById("liste-livraisons-jour");
+      const containerRetard = document.getElementById("liste-livraisons-retard");
+      const containerAvenir = document.getElementById("liste-livraisons-avenir");
+
+      containerJour.innerHTML = "";
+      containerRetard.innerHTML = "";
+      containerAvenir.innerHTML = "";
+
+      let countJour = 0, countRetard = 0, countAvenir = 0;
+
+      commandesCache.forEach(cmd => {
+        if (cmd.statut === "reception_totale") return;
+
+        // Déterminer la date de livraison effective la plus critique
+        let dateLivraison = cmd.date_globale;
+        let aDesReliquats = cmd.articles.some(a => a.reliquat_date && a.statut !== "recu");
+        
+        let estAujourdhui = false;
+        let estEnRetard = false;
+
+        cmd.articles.forEach(art => {
+          if (art.statut === "recu") return;
+          const dateArt = art.reliquat_date || art.date_specifique || cmd.date_globale;
+          if (dateArt === aujourdhuiStr) estAujourdhui = true;
+          if (dateArt < aujourdhuiStr) estEnRetard = true;
+        });
+
+        const card = creerCarteCommande(cmd, aDesReliquats);
+
+        if (estAujourdhui) {
+          containerJour.appendChild(card);
+          countJour++;
+        } else if (estEnRetard || aDesReliquats) {
+          containerRetard.appendChild(card);
+          countRetard++;
+        } else {
+          containerAvenir.appendChild(card);
+          countAvenir++;
+        }
+      });
+
+      document.getElementById("badge-aujourdhui").innerText = countJour;
+      document.getElementById("badge-retards").innerText = countRetard;
+      document.getElementById("badge-avenir").innerText = countAvenir;
+
+      if (countJour === 0) containerJour.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune livraison prévue aujourd'hui.</p>`;
+      if (countRetard === 0) containerRetard.innerHTML = `<p class="text-xs text-slate-400 italic">Aucun retard ni reliquat en attente.</p>`;
+      if (countAvenir === 0) containerAvenir.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune livraison programmée.</p>`;
+    }
+
+    function creerCarteCommande(cmd, aReliquats) {
+      const div = document.createElement("div");
+      div.className = "bg-white border rounded-xl p-4 shadow-sm space-y-3";
+      
+      let badgeStatut = `<span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[10px]">Attendu</span>`;
+      if (aReliquats) badgeStatut = `<span class="bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded text-[10px]">Reliquat en cours</span>`;
+
+      let articlesHtml = cmd.articles.map(a => `
+        <li class="flex items-center justify-between text-xs py-1 border-b border-slate-100">
+          <div>
+            <span class="font-semibold text-slate-800">${a.ref}</span>
+            <span class="text-slate-500">(${a.qte_recue || 0} / ${a.qte} reçus)</span>
+            ${a.reliquat_date ? `<span class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.2 rounded font-medium ml-1">Reliquat: ${a.reliquat_date}</span>` : ''}
+          </div>
+          <span class="font-bold ${a.statut === 'recu' ? 'text-emerald-600' : 'text-slate-400'}">
+            ${a.statut === 'recu' ? 'Complet' : (a.date_specifique ? a.date_specifique : cmd.date_globale)}
+          </span>
+        </li>
+      `).join("");
+
+      div.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-900 text-sm">${cmd.numero}</span>
+              ${badgeStatut}
+            </div>
+            <p class="text-xs text-slate-500 font-medium">${cmd.fournisseur} — Date prévue : <span class="text-slate-800 font-semibold">${cmd.date_globale || 'Non définie'}</span></p>
+          </div>
+        </div>
+
+        <ul class="space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+          ${articlesHtml}
+        </ul>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onclick="receptionTotale('${cmd.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <i class="fa-solid fa-check-double"></i> Réception totale
+          </button>
+          <button onclick="ouvrirReceptionPartielle('${cmd.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1">
+            <i class="fa-solid fa-list-check"></i> Réception partielle / reliquat
+          </button>
+        </div>
+      `;
+      return div;
+    }
+
+    // --- RENDU DES TÂCHES ---
+    window.renderTaches = function() {
+      const containerDatees = document.getElementById("liste-taches-datees");
+      const containerSansDate = document.getElementById("liste-taches-sans-date");
+      const zoneSelect = document.getElementById("filtre-zone-taches").value;
+
+      containerDatees.innerHTML = "";
+      containerSansDate.innerHTML = "";
+
+      let taches = tachesCache.filter(t => t.statut !== "termine");
+      if (zoneSelect !== "Toutes") {
+        taches = taches.filter(t => t.zone === zoneSelect);
+      }
+
+      // Séparation datées / non datées
+      const avecDate = taches.filter(t => t.date_limite).sort((a, b) => a.date_limite.localeCompare(b.date_limite));
+      const sansDate = taches.filter(t => !t.date_limite);
+
+      avecDate.forEach(t => containerDatees.appendChild(creerCarteTache(t)));
+      sansDate.forEach(t => containerSansDate.appendChild(creerCarteTache(t)));
+
+      if (avecDate.length === 0) containerDatees.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune tâche planifiée.</p>`;
+      if (sansDate.length === 0) containerSansDate.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune tâche en attente.</p>`;
+    };
+
+    function creerCarteTache(t) {
+      const card = document.createElement("div");
+      card.className = "bg-white border rounded-xl p-3.5 shadow-sm space-y-2 hover:border-slate-400 transition cursor-pointer";
+      card.onclick = (e) => {
+        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") {
+          ouvrirDetailsTache(t);
+        }
+      };
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[10px] uppercase">${t.zone}</span>
+              ${t.date_limite ? `<span class="text-[10px] text-slate-500 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${t.date_limite}</span>` : ''}
+            </div>
+            <h4 class="font-bold text-slate-900 text-xs mt-1">${t.titre}</h4>
+          </div>
+          <button onclick="cloturerTache('${t.id}')" title="Marquer terminée" class="text-slate-300 hover:text-emerald-600 text-base">
+            <i class="fa-regular fa-circle-check"></i>
+          </button>
+        </div>
+
+        <!-- Annotation visible directement -->
+        ${t.annotation ? `
+          <div class="bg-amber-50 border-l-2 border-amber-400 px-2 py-1 text-[11px] text-amber-900 font-medium rounded-r">
+            <i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation}
+          </div>
+        ` : ''}
+      `;
+      return card;
+    }
+
+    // --- GESTION FORMULAIRE COMMANDE ---
+    let articlesLignes = [];
+
+    window.ouvrirModalCommande = () => {
+      articlesLignes = [];
+      document.getElementById("conteneur-articles").innerHTML = "";
+      ajouterLigneArticle();
+      document.getElementById("modal-commande").classList.remove("hidden");
+    };
+
+    window.fermerModalCommande = () => {
+      document.getElementById("modal-commande").classList.add("hidden");
+    };
+
+    window.ajouterLigneArticle = () => {
+      const id = Date.now();
+      const div = document.createElement("div");
+      div.id = `ligne-${id}`;
+      div.className = "grid grid-cols-1 md:grid-cols-12 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200 items-center";
+      div.innerHTML = `
+        <input type="text" placeholder="Référence / Désignation" class="md:col-span-5 border rounded p-1.5 bg-white outline-none art-ref">
+        <input type="number" placeholder="Qté" class="md:col-span-2 border rounded p-1.5 bg-white outline-none art-qte">
+        <input type="date" title="Date spécifique (si différente)" class="md:col-span-4 border rounded p-1.5 bg-white outline-none art-date">
+        <button onclick="document.getElementById('ligne-${id}').remove()" class="md:col-span-1 text-rose-500 hover:text-rose-700 text-center"><i class="fa-solid fa-trash"></i></button>
+      `;
+      document.getElementById("conteneur-articles").appendChild(div);
+    };
+
+    window.enregistrerCommande = async () => {
+      const numero = document.getElementById("cmd-num").value.trim();
+      const fournisseur = document.getElementById("cmd-fournisseur").value.trim();
+      const dateGlobale = document.getElementById("cmd-date-globale").value;
+
+      const articles = [];
+      document.querySelectorAll("#conteneur-articles > div").forEach(l => {
+        const ref = l.querySelector(".art-ref").value.trim();
+        const qte = parseInt(l.querySelector(".art-qte").value) || 1;
+        const dateSpec = l.querySelector(".art-date").value;
+        if (ref) {
+          articles.push({
+            ref,
+            qte,
+            qte_recue: 0,
+            date_specifique: dateSpec || null,
+            statut: "en_attente",
+            reliquat_date: null
+          });
+        }
+      });
+
+      if (!numero || articles.length === 0) {
+        alert("Indiquez au moins un numéro de commande et une référence.");
+        return;
+      }
+
+      await addDoc(collection(db, "commandes"), {
+        numero,
+        fournisseur,
+        date_globale: dateGlobale,
+        articles,
+        statut: "en_cours",
+        cree_le: new Date().toISOString()
+      });
+
+      fermerModalCommande();
+    };
+
+    // --- ACTIONS LIVRAISONS ---
+    window.receptionTotale = async (id) => {
+      const cmd = commandesCache.find(c => c.id === id);
+      if (!cmd) return;
+      const articlesMaj = cmd.articles.map(a => ({
+        ...a,
+        qte_recue: a.qte,
+        statut: "recu"
+      }));
+      await updateDoc(doc(db, "commandes", id), {
+        articles: articlesMaj,
+        statut: "reception_totale",
+        date_reception: new Date().toISOString()
+      });
+    };
+
+    window.ouvrirReceptionPartielle = (id) => {
+      commandeSelectionneePourReception = commandesCache.find(c => c.id === id);
+      if (!commandeSelectionneePourReception) return;
+
+      const container = document.getElementById("articles-reception-container");
+      container.innerHTML = "";
+
+      commandeSelectionneePourReception.articles.forEach((a, idx) => {
+        const reste = a.qte - (a.qte_recue || 0);
+        const div = document.createElement("div");
+        div.className = "p-3 border rounded-xl bg-slate-50 space-y-2";
+        div.innerHTML = `
+          <div class="flex justify-between font-bold text-slate-800">
+            <span>${a.ref}</span>
+            <span>Total : ${a.qte} (Déjà reçu : ${a.qte_recue || 0})</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block">Quantité reçue aujourd'hui</label>
+              <input type="number" id="rec-qte-${idx}" max="${reste}" value="${reste}" class="w-full border rounded p-1.5 bg-white">
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-500 font-bold block">Date reliquat (si partiel)</label>
+              <input type="date" id="rec-date-${idx}" value="${a.reliquat_date || ''}" class="w-full border rounded p-1.5 bg-white">
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById("modal-reception-partielle").classList.remove("hidden");
+    };
+
+    window.fermerModalReceptionPartielle = () => {
+      document.getElementById("modal-reception-partielle").classList.add("hidden");
+    };
+
+    window.validerReceptionPartielleAction = async () => {
+      const cmd = commandeSelectionneePourReception;
+      let tousComplets = true;
+
+      const articlesMaj = cmd.articles.map((a, idx) => {
+        const recuAujourdhui = parseInt(document.getElementById(`rec-qte-${idx}`).value) || 0;
+        const totalRecu = (a.qte_recue || 0) + recuAujourdhui;
+        const nouvelleDateReliquat = document.getElementById(`rec-date-${idx}`).value;
+
+        const estFini = totalRecu >= a.qte;
+        if (!estFini) tousComplets = false;
+
+        return {
+          ...a,
+          qte_recue: totalRecu,
+          statut: estFini ? "recu" : "reliquat",
+          reliquat_date: estFini ? null : (nouvelleDateReliquat || a.reliquat_date)
+        };
+      });
+
+      await updateDoc(doc(db, "commandes", cmd.id), {
+        articles: articlesMaj,
+        statut: tousComplets ? "reception_totale" : "partielle",
+        derniere_maj: new Date().toISOString()
+      });
+
+      fermerModalReceptionPartielle();
+    };
+
+    // --- GESTION DES TÂCHES ---
+    window.ouvrirModalTache = () => {
+      document.getElementById("modal-tache").classList.remove("hidden");
+    };
+
+    window.fermerModalTache = () => {
+      document.getElementById("modal-tache").classList.add("hidden");
+    };
+
+    window.enregistrerTache = async () => {
+      const titre = document.getElementById("tache-titre").value.trim();
+      const zone = document.getElementById("tache-zone").value;
+      const dateLimite = document.getElementById("tache-date").value || null;
+      const annotation = document.getElementById("tache-annotation").value.trim();
+      const details = document.getElementById("tache-details").value.trim();
+
+      if (!titre) {
+        alert("Donnez un titre à la tâche.");
+        return;
+      }
+
+      await addDoc(collection(db, "taches"), {
+        titre,
+        zone,
+        date_limite: dateLimite,
+        annotation,
+        details,
+        statut: "a_faire",
+        cree_le: new Date().toISOString()
+      });
+
+      fermerModalTache();
+    };
+
+    window.cloturerTache = async (id) => {
+      await updateDoc(doc(db, "taches", id), {
+        statut: "termine",
+        termine_le: new Date().toISOString()
+      });
+    };
+
+    // --- MODAL DÉTAILS TÂCHE & ANNOTATION ---
+    window.ouvrirDetailsTache = (t) => {
+      tacheEnCoursDetails = t;
+      document.getElementById("dtl-titre").innerText = t.titre;
+      document.getElementById("dtl-zone").innerText = t.zone;
+      document.getElementById("dtl-date").innerText = t.date_limite || "Aucune";
+      document.getElementById("dtl-statut").innerText = t.statut;
+      document.getElementById("dtl-description").innerText = t.details || "Aucune description détaillée renseignée.";
+      document.getElementById("dtl-annotation-input").value = t.annotation || "";
+      document.getElementById("modal-details-tache").classList.remove("hidden");
+    };
+
+    window.fermerModalDetails = () => {
+      document.getElementById("modal-details-tache").classList.add("hidden");
+    };
+
+    window.sauvegarderAnnotationDirecte = async () => {
+      if (!tacheEnCoursDetails) return;
+      const nouvelleNote = document.getElementById("dtl-annotation-input").value.trim();
+      await updateDoc(doc(db, "taches", tacheEnCoursDetails.id), {
+        annotation: nouvelleNote
+      });
+      fermerModalDetails();
+    };
+  </script>
+</body>
+</html>
