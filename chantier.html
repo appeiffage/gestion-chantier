@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chantier - Suivi Terrain</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 pb-20">
+
+  <!-- En-tête fixe -->
+  <header class="bg-amber-500 text-slate-900 sticky top-0 z-30 shadow px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <i class="fa-solid fa-hard-hat text-2xl"></i>
+      <div>
+        <h1 class="font-black text-lg leading-tight uppercase">Terrain / Chantier</h1>
+        <p class="text-xs font-semibold opacity-80">datachantier</p>
+      </div>
+    </div>
+    <span id="sync-badge" class="text-xs bg-black/10 px-2.5 py-1 rounded-full font-bold">
+      <i class="fa-solid fa-circle text-emerald-600 mr-1 text-[10px]"></i> En direct
+    </span>
+  </header>
+
+  <!-- Filtre rapide par Zone -->
+  <section class="p-3 bg-white border-b border-slate-200 sticky top-[57px] z-20 flex gap-2 overflow-x-auto no-scrollbar">
+    <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-900 text-white">Toutes</button>
+    <button onclick="filtrerZone('Sous-sol')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">Sous-sol</button>
+    <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">RDC</button>
+    <button onclick="filtrerZone('R+1')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">R+1</button>
+    <button onclick="filtrerZone('Extérieur')" class="zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600">Extérieur</button>
+  </section>
+
+  <!-- Contenu Principal -->
+  <main class="p-4 space-y-6 max-w-lg mx-auto">
+
+    <!-- Section Livraisons Prévues -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-extrabold text-slate-500 tracking-wider uppercase flex items-center gap-2">
+          <i class="fa-solid fa-truck text-amber-500"></i> Livraisons attendues
+        </h2>
+        <span id="count-livraisons" class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="liste-livraisons" class="space-y-2">
+        <p class="text-xs text-slate-400 italic">Chargement des livraisons...</p>
+      </div>
+    </section>
+
+    <!-- Section Tâches du Chantier -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-extrabold text-slate-500 tracking-wider uppercase flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-slate-800"></i> Tâches en cours
+        </h2>
+        <span id="count-taches" class="text-xs font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full">0</span>
+      </div>
+      <div id="liste-taches" class="space-y-3">
+        <p class="text-xs text-slate-400 italic">Chargement des tâches...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Signalement Blocage -->
+  <div id="modal-blocage" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md p-5 space-y-4">
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2 text-rose-600">
+        <i class="fa-solid fa-triangle-exclamation"></i> Signaler un blocage terrain
+      </h3>
+      <p id="blocage-titre-tache" class="text-xs text-slate-500 font-medium"></p>
+      <textarea id="motif-blocage" rows="3" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 outline-none" placeholder="Ex: Réservation non faite par le maçon, attente validation plan BE..."></textarea>
+      <div class="flex gap-2">
+        <button onclick="fermerModalBlocage()" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700">Annuler</button>
+        <button onclick="validerBlocage()" class="flex-1 py-2.5 rounded-xl text-sm font-bold bg-rose-600 text-white">Transmettre</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Firebase & Logique Firestore -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      doc, 
+      updateDoc,
+      query,
+      orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2rRm-cpLoA1KD0vesfxm3VZur7EknFNs",
+      authDomain: "datachantier.firebaseapp.com",
+      projectId: "datachantier",
+      storageBucket: "datachantier.firebasestorage.app",
+      messagingSenderId: "359359774794",
+      appId: "1:359359774794:web:d64063dece14398bbca6b3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let zoneFiltre = 'Toutes';
+    let tachesCache = [];
+    let tacheEnCoursBlocage = null;
+
+    // --- Écoute en temps réel des Tâches ---
+    onSnapshot(collection(db, "taches"), (snapshot) => {
+      tachesCache = [];
+      snapshot.forEach(docSnap => {
+        tachesCache.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      renderTaches();
+    });
+
+    // --- Écoute en temps réel des Livraisons ---
+    onSnapshot(collection(db, "livraisons"), (snapshot) => {
+      const container = document.getElementById("liste-livraisons");
+      container.innerHTML = "";
+      let count = 0;
+
+      snapshot.forEach(docSnap => {
+        const liv = docSnap.data();
+        if (liv.statut === "recu") return; // masque les déjà livrés
+        count++;
+
+        const div = document.createElement("div");
+        div.className = "bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between";
+        div.innerHTML = `
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
+              ${liv.date_prevue || 'Date non fixée'}
+            </span>
+            <h4 class="font-bold text-slate-800 text-sm mt-1">${liv.materiel || 'Matériel sans titre'}</h4>
+            <p class="text-xs text-slate-500">${liv.fournisseur || 'Fournisseur NC'}</p>
+          </div>
+          <button onclick="pointerLivraison('${docSnap.id}')" class="bg-emerald-600 active:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-check"></i> Reçu
+          </button>
+        `;
+        container.appendChild(div);
+      });
+
+      document.getElementById("count-livraisons").innerText = count;
+      if (count === 0) {
+        container.innerHTML = `<div class="bg-white p-3 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400 font-medium">Aucune livraison en attente</div>`;
+      }
+    });
+
+    // --- Rendu des tâches avec filtres ---
+    function renderTaches() {
+      const container = document.getElementById("liste-taches");
+      container.innerHTML = "";
+
+      const tachesFiltrees = tachesCache.filter(t => {
+        if (t.statut === "termine") return false;
+        if (zoneFiltre !== "Toutes" && t.zone !== zoneFiltre) return false;
+        return true;
+      });
+
+      document.getElementById("count-taches").innerText = tachesFiltrees.length;
+
+      if (tachesFiltrees.length === 0) {
+        container.innerHTML = `<div class="bg-white p-4 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400 font-medium">Toutes les tâches de cette zone sont à jour !</div>`;
+        return;
+      }
+
+      tachesFiltrees.forEach(t => {
+        const estBloque = t.statut === "bloque";
+        const card = document.createElement("div");
+        card.className = `p-4 rounded-xl border bg-white shadow-sm flex flex-col gap-3 ${estBloque ? 'border-rose-400 bg-rose-50/30' : 'border-slate-200'}`;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${estBloque ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}">
+                ${t.zone || 'Général'}
+              </span>
+              <h3 class="font-bold text-slate-900 text-sm mt-1">${t.titre}</h3>
+              ${t.notes ? `<p class="text-xs text-slate-500 mt-1">${t.notes}</p>` : ''}
+              ${estBloque && t.motif_blocage ? `<div class="mt-2 text-xs text-rose-700 bg-rose-100/70 p-2 rounded-lg font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${t.motif_blocage}</div>` : ''}
+            </div>
+            ${t.date_limite ? `<span class="text-[10px] text-slate-400 font-medium whitespace-nowrap"><i class="fa-regular fa-clock mr-1"></i>${t.date_limite}</span>` : ''}
+          </div>
+
+          <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+            <button onclick="validerTache('${t.id}')" class="flex-1 bg-emerald-600 active:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-check"></i> Fait
+            </button>
+            ${!estBloque ? `
+              <button onclick="ouvrirModalBlocage('${t.id}', '${t.titre.replace(/'/g, "\\'")}')" class="bg-rose-50 active:bg-rose-100 text-rose-600 border border-rose-200 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation"></i> Bloqué
+              </button>
+            ` : `
+              <button onclick="debloquerTache('${t.id}')" class="bg-slate-100 active:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-lg flex items-center gap-1">
+                <i class="fa-solid fa-rotate-left"></i> Reprendre
+              </button>
+            `}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- Actions Firestore ---
+    window.validerTache = async (id) => {
+      await updateDoc(doc(db, "taches", id), {
+        statut: "termine",
+        termine_le: new Date().toISOString()
+      });
+    };
+
+    window.pointerLivraison = async (id) => {
+      await updateDoc(doc(db, "livraisons", id), {
+        statut: "recu",
+        recu_le: new Date().toISOString()
+      });
+    };
+
+    window.debloquerTache = async (id) => {
+      await updateDoc(doc(db, "taches", id), {
+        statut: "en_cours",
+        motif_blocage: ""
+      });
+    };
+
+    // --- Gestion Modal Blocage ---
+    window.ouvrirModalBlocage = (id, titre) => {
+      tacheEnCoursBlocage = id;
+      document.getElementById("blocage-titre-tache").innerText = titre;
+      document.getElementById("motif-blocage").value = "";
+      document.getElementById("modal-blocage").classList.remove("hidden");
+    };
+
+    window.fermerModalBlocage = () => {
+      tacheEnCoursBlocage = null;
+      document.getElementById("modal-blocage").classList.add("hidden");
+    };
+
+    window.validerBlocage = async () => {
+      const motif = document.getElementById("motif-blocage").value.trim();
+      if (!motif) return;
+      await updateDoc(doc(db, "taches", tacheEnCoursBlocage), {
+        statut: "bloque",
+        motif_blocage: motif,
+        date_blocage: new Date().toISOString()
+      });
+      fermerModalBlocage();
+    };
+
+    // --- Filtres de boutons ---
+    window.filtrerZone = (zone) => {
+      zoneFiltre = zone;
+      document.querySelectorAll(".zone-btn").forEach(btn => {
+        if (btn.innerText.trim() === zone) {
+          btn.className = "zone-btn active px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-900 text-white";
+        } else {
+          btn.className = "zone-btn px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 bg-slate-100 text-slate-600";
+        }
+      });
+      renderTaches();
+    };
+  </script>
+</body>
+</html>
