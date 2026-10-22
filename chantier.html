@@ -15,49 +15,32 @@
 
   <!-- BANDEAU AVEC SILHOUETTE VECTORIELLE CONFORME AU RÉEL -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-amber-400">
-    
-    <!-- Rendu SVG vectoriel basé sur la vue rasante réelle du chantier -->
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ligne de sol du talus -->
         <path d="M 0 310 L 450 310 Q 750 310 1000 295" stroke="#334155" stroke-width="2"/>
-
-        <!-- Poutre tubulaire arrière en sous-face de toiture -->
         <path d="M 30 75 Q 400 95 940 255" stroke="#38bdf8" stroke-width="2.5" opacity="0.6"/>
 
-        <!-- Trame réelle des poteaux inclinés en V et poteaux verticaux -->
         <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.9">
-          <!-- Travée 1 (gauche haute) -->
           <line x1="45" y1="310" x2="35" y2="70"/>
           <line x1="100" y1="310" x2="40" y2="70"/>
           <line x1="125" y1="310" x2="135" y2="73"/>
           <line x1="140" y1="310" x2="225" y2="78"/>
-
-          <!-- Travée 2 -->
           <line x1="205" y1="310" x2="225" y2="78"/>
           <line x1="225" y1="310" x2="225" y2="78"/>
           <line x1="245" y1="310" x2="315" y2="84"/>
           <line x1="300" y1="310" x2="315" y2="84"/>
-
-          <!-- Travée 3 (centrale haute) -->
           <line x1="315" y1="310" x2="315" y2="84"/>
           <line x1="330" y1="310" x2="405" y2="92"/>
           <line x1="390" y1="310" x2="405" y2="92"/>
           <line x1="405" y1="310" x2="405" y2="92"/>
-
-          <!-- Travée 4 (début de descente) -->
           <line x1="420" y1="310" x2="495" y2="105"/>
           <line x1="480" y1="310" x2="495" y2="105"/>
           <line x1="510" y1="310" x2="580" y2="125"/>
           <line x1="565" y1="310" x2="580" y2="125"/>
-
-          <!-- Travée 5 (pente médiane) -->
           <line x1="590" y1="310" x2="665" y2="150"/>
           <line x1="650" y1="310" x2="665" y2="150"/>
           <line x1="680" y1="310" x2="745" y2="180"/>
           <line x1="730" y1="310" x2="745" y2="180"/>
-
-          <!-- Travée 6 & 7 (descente droite serrée) -->
           <line x1="755" y1="305" x2="815" y2="210"/>
           <line x1="805" y1="305" x2="815" y2="210"/>
           <line x1="830" y1="300" x2="880" y2="238"/>
@@ -66,16 +49,12 @@
           <line x1="930" y1="295" x2="935" y2="260"/>
         </g>
 
-        <!-- Structure triangulée sous toiture -->
         <path d="M 40 72 L 135 75 L 225 80 L 315 86 L 405 94 L 495 107 L 580 127 L 665 152 L 745 182 L 815 212 L 880 240 L 935 262" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4"/>
-
-        <!-- Grande rive de toiture courbe blanche (arche plongeante de façade) -->
         <path d="M 25 70 Q 400 85 945 265" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
         <path d="M 25 65 Q 400 80 945 260" stroke="#f59e0b" stroke-width="2" opacity="0.9"/>
       </svg>
     </div>
 
-    <!-- Contenu du bandeau -->
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center space-x-4">
         <div class="bg-amber-400 text-slate-950 w-13 h-13 p-3 rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shrink-0">
@@ -92,14 +71,13 @@
         </div>
       </div>
 
-      <!-- Bouton Historique & Rétablir -->
       <button onclick="ouvrirModalHistorique()" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
         <i class="fa-solid fa-rotate-left text-amber-400"></i>
         <span>Historique & Rétablir</span>
       </button>
     </div>
 
-    <!-- Filtres rapides par Zone -->
+    <!-- Barre des Zones -->
     <div class="relative border-t border-white/10 bg-slate-950/60 backdrop-blur-md px-4 sm:px-6 py-2.5">
       <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
         <span class="text-xs font-black text-sky-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Filtre :</span>
@@ -120,7 +98,7 @@
   <!-- CONTENU PRINCIPAL (3/4 - 1/4) -->
   <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- COLONNE GAUCHE (75% / 9 COLS) : TÂCHES ET REMONTÉES -->
+    <!-- COLONNE GAUCHE (75% / 9 COLS) -->
     <section class="lg:col-span-9 space-y-5">
 
       <!-- REMONTÉES RA / BE -->
@@ -172,7 +150,7 @@
 
       </div>
 
-      <!-- BOUTON AJOUT RAPIDE EN BAS -->
+      <!-- BOUTON AJOUT RAPIDE -->
       <div class="pt-2">
         <button onclick="ouvrirModalTache()" class="w-full bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-950 font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-amber-500 flex items-center justify-center gap-3 transition active:scale-[0.99]">
           <i class="fa-solid fa-circle-plus text-xl"></i>
@@ -303,7 +281,6 @@
           </div>
         </div>
 
-        <!-- Attribution Multiple par Checkboxes -->
         <div>
           <label class="font-bold text-slate-800 block mb-1">Assigner à (un ou plusieurs) :</label>
           <div class="grid grid-cols-3 gap-2">
@@ -404,7 +381,6 @@
     const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
     document.getElementById("date-du-jour").innerText = aujourdhuiDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    // Fonction de formatage JJ/MM/AAAA
     function formaterDateFr(chaineIso) {
       if (!chaineIso) return "";
       const datePart = chaineIso.split("T")[0];
@@ -415,7 +391,6 @@
       return chaineIso;
     }
 
-    // Écoute des Commandes
     onSnapshot(collection(db, "commandes"), (snapshot) => {
       commandesCache = [];
       snapshot.forEach(d => commandesCache.push({ id: d.id, ...d.data() }));
@@ -423,7 +398,6 @@
       renderHistorique();
     });
 
-    // Écoute des Tâches
     onSnapshot(collection(db, "taches"), (snapshot) => {
       tachesCache = [];
       snapshot.forEach(d => tachesCache.push({ id: d.id, ...d.data() }));
@@ -431,7 +405,7 @@
       renderHistorique();
     });
 
-    // --- RENDU COMMANDES ---
+    // RENDU COMMANDES (TRI CHRONOLOGIQUE)
     function renderCommandes() {
       const containerJour = document.getElementById("liste-livraisons-jour");
       const containerRetard = document.getElementById("liste-livraisons-retard");
@@ -443,9 +417,11 @@
 
       let countJour = 0, countRetard = 0, countAvenir = 0;
 
-      commandesCache.forEach(cmd => {
-        if (cmd.statut === "recu") return;
+      const commandesTriees = [...commandesCache]
+        .filter(cmd => cmd.statut !== "recu")
+        .sort((a, b) => (a.date_livraison || "").localeCompare(b.date_livraison || ""));
 
+      commandesTriees.forEach(cmd => {
         const dateLiv = cmd.date_livraison || "";
         const estAujourdhui = dateLiv === aujourdhuiStr;
         const estEnRetard = dateLiv && dateLiv < aujourdhuiStr;
@@ -507,7 +483,7 @@
       return div;
     }
 
-    // --- RENDU TÂCHES & ACTIONS ---
+    // RENDU TÂCHES & REMONTÉES RA/BE
     function renderTaches() {
       const containerDatees = document.getElementById("liste-taches-datees");
       const containerSansDate = document.getElementById("liste-taches-sans-date");
@@ -523,7 +499,6 @@
         taches = taches.filter(t => t.zone === zoneFiltre || t.zone === "Toutes zones");
       }
 
-      // Remontées pour le RA ou le BE
       const remontees = taches.filter(t => {
         const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
         return assigns.includes("RA") || assigns.includes("BE");
@@ -562,7 +537,6 @@
         containerRemontees.innerHTML = `<p class="text-xs text-amber-900/70 italic col-span-2">Aucun point bloquant transmis au RA/BE.</p>`;
       }
 
-      // Tâches assignées au Chantier
       const tachesChantier = taches.filter(t => {
         const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
         return assigns.includes("Chantier");
@@ -602,7 +576,7 @@
             ${badgesAssign}
             ${estDatee ? `
               <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
-                <i class="fa-regular fa-calendar mr-1"></i>${formaterDateFr(t.date_limite)} ${dateRetard ? '(En retard)' : ''}
+                <i class="fa-regular fa-calendar mr-1"></i>${formaterDateFr(t.date_limite)}${dateRetard ? '(En retard)' : ''}
               </span>
             ` : ''}
           </div>
