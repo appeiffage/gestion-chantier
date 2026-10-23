@@ -13,42 +13,27 @@
 </head>
 <body class="bg-slate-200 text-slate-800 min-h-screen">
 
-  <!-- BANDEAU BUREAU D'ÉTUDES AVEC DESSIN VECTORIEL DU STADE -->
+  <!-- BANDEAU HAUT -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-purple-500">
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M 0 310 L 450 310 Q 750 310 1000 295" stroke="#334155" stroke-width="2"/>
         <path d="M 30 75 Q 400 95 940 255" stroke="#a855f7" stroke-width="2.5" opacity="0.6"/>
-
         <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.9">
-          <line x1="45" y1="310" x2="35" y2="70"/>
-          <line x1="100" y1="310" x2="40" y2="70"/>
-          <line x1="125" y1="310" x2="135" y2="73"/>
-          <line x1="140" y1="310" x2="225" y2="78"/>
-          <line x1="205" y1="310" x2="225" y2="78"/>
-          <line x1="225" y1="310" x2="225" y2="78"/>
-          <line x1="245" y1="310" x2="315" y2="84"/>
-          <line x1="300" y1="310" x2="315" y2="84"/>
-          <line x1="315" y1="310" x2="315" y2="84"/>
-          <line x1="330" y1="310" x2="405" y2="92"/>
-          <line x1="390" y1="310" x2="405" y2="92"/>
-          <line x1="405" y1="310" x2="405" y2="92"/>
-          <line x1="420" y1="310" x2="495" y2="105"/>
-          <line x1="480" y1="310" x2="495" y2="105"/>
-          <line x1="510" y1="310" x2="580" y2="125"/>
-          <line x1="565" y1="310" x2="580" y2="125"/>
-          <line x1="590" y1="310" x2="665" y2="150"/>
-          <line x1="650" y1="310" x2="665" y2="150"/>
-          <line x1="680" y1="310" x2="745" y2="180"/>
-          <line x1="730" y1="310" x2="745" y2="180"/>
-          <line x1="755" y1="305" x2="815" y2="210"/>
-          <line x1="805" y1="305" x2="815" y2="210"/>
-          <line x1="830" y1="300" x2="880" y2="238"/>
-          <line x1="870" y1="300" x2="880" y2="238"/>
-          <line x1="895" y1="298" x2="935" y2="260"/>
-          <line x1="930" y1="295" x2="935" y2="260"/>
+          <line x1="45" y1="310" x2="35" y2="70"/><line x1="100" y1="310" x2="40" y2="70"/>
+          <line x1="125" y1="310" x2="135" y2="73"/><line x1="140" y1="310" x2="225" y2="78"/>
+          <line x1="205" y1="310" x2="225" y2="78"/><line x1="225" y1="310" x2="225" y2="78"/>
+          <line x1="245" y1="310" x2="315" y2="84"/><line x1="300" y1="310" x2="315" y2="84"/>
+          <line x1="315" y1="310" x2="315" y2="84"/><line x1="330" y1="310" x2="405" y2="92"/>
+          <line x1="390" y1="310" x2="405" y2="92"/><line x1="405" y1="310" x2="405" y2="92"/>
+          <line x1="420" y1="310" x2="495" y2="105"/><line x1="480" y1="310" x2="495" y2="105"/>
+          <line x1="510" y1="310" x2="580" y2="125"/><line x1="565" y1="310" x2="580" y2="125"/>
+          <line x1="590" y1="310" x2="665" y2="150"/><line x1="650" y1="310" x2="665" y2="150"/>
+          <line x1="680" y1="310" x2="745" y2="180"/><line x1="730" y1="310" x2="745" y2="180"/>
+          <line x1="755" y1="305" x2="815" y2="210"/><line x1="805" y1="305" x2="815" y2="210"/>
+          <line x1="830" y1="300" x2="880" y2="238"/><line x1="870" y1="300" x2="880" y2="238"/>
+          <line x1="895" y1="298" x2="935" y2="260"/><line x1="930" y1="295" x2="935" y2="260"/>
         </g>
-
         <path d="M 40 72 L 135 75 L 225 80 L 315 86 L 405 94 L 495 107 L 580 127 L 665 152 L 745 182 L 815 212 L 880 240 L 935 262" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4 4"/>
         <path d="M 25 70 Q 400 85 945 265" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
         <path d="M 25 65 Q 400 80 945 260" stroke="#c084fc" stroke-width="2" opacity="0.9"/>
@@ -66,13 +51,13 @@
             <span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-400/50 px-2 py-0.5 rounded-full font-bold">Bureau d'Études</span>
           </div>
           <p class="text-sm text-slate-300 font-medium mt-0.5">
-            Suivi des études & arbitrages techniques — <span id="date-du-jour" class="capitalize"></span>
+            Suivi des études & visas techniques — <span id="date-du-jour" class="capitalize"></span>
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-2.5 flex-wrap">
-        <button onclick="ouvrirModalTache()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
+        <button onclick="ouvrirModalAjoutTache()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
           <i class="fa-solid fa-plus-circle"></i>
           <span>Créer une tâche technique</span>
         </button>
@@ -100,7 +85,7 @@
       </div>
     </div>
 
-    <!-- Barre des Rôles (BE par défaut, Chantier, RA, Tous) -->
+    <!-- Barre des Rôles (BE par défaut) -->
     <div class="relative border-t border-white/5 bg-slate-950/80 px-4 sm:px-6 py-2">
       <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
         <span class="text-xs font-black text-amber-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-users-gear mr-1"></i> Rôle :</span>
@@ -120,10 +105,10 @@
     </div>
   </header>
 
-  <!-- CONTENU PRINCIPAL DU BE -->
+  <!-- CONTENU PRINCIPAL -->
   <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-    <!-- SECTION PRIORITAIRE : ACTIONS REQUISES BE (VISIBLE LORSQUE BE EST COCHÉ OU EN VUE TOUS) -->
+    <!-- ACTIONS REQUISES BE -->
     <section id="bloc-actions-be" class="bg-purple-100/80 border-2 border-purple-300 rounded-3xl p-5 shadow-sm space-y-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
@@ -139,10 +124,9 @@
       </div>
     </section>
 
-    <!-- SECTION : ENSEMBLE DES TÂCHES -->
+    <!-- LISTE DES TÂCHES -->
     <section class="space-y-4">
-
-      <!-- TÂCHES PLANIFIÉES -->
+      <!-- PLANIFIÉES -->
       <div class="bg-emerald-50/60 border border-emerald-200 rounded-3xl p-4 md:p-5 shadow-sm space-y-3">
         <div class="flex items-center justify-between pb-1 border-b border-emerald-200">
           <div class="flex items-center gap-2">
@@ -159,7 +143,7 @@
         </div>
       </div>
 
-      <!-- TÂCHES SANS DATE -->
+      <!-- SANS DATE -->
       <div class="bg-white border border-slate-300 rounded-3xl p-4 md:p-5 shadow-sm space-y-3">
         <div class="flex items-center gap-2 pb-1 border-b border-slate-200">
           <span class="w-3 h-3 rounded-full bg-slate-400"></span>
@@ -170,25 +154,27 @@
         </div>
       </div>
 
-      <!-- BOUTON AJOUT RAPIDE EN BAS -->
+      <!-- BOUTON AJOUT RAPIDE -->
       <div class="pt-2">
-        <button onclick="ouvrirModalTache()" class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-purple-400 flex items-center justify-center gap-3 transition active:scale-[0.99]">
+        <button onclick="ouvrirModalAjoutTache()" class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-purple-400 flex items-center justify-center gap-3 transition active:scale-[0.99]">
           <i class="fa-solid fa-circle-plus text-xl"></i>
           <span>Créer une note, diffuser un plan ou solliciter le Chantier / RA</span>
         </button>
       </div>
-
     </section>
 
   </main>
 
-  <!-- MODAL : HISTORIQUE ET RÉTABLISSEMENT -->
+  <!-- MODAL : HISTORIQUE PURGÉ AUTOMATIQUEMENT À 60 JOURS -->
   <div id="modal-historique" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
-        <h3 class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
-          <i class="fa-solid fa-clock-rotate-left text-purple-400"></i> Historique des tâches validées
-        </h3>
+        <div>
+          <h3 class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
+            <i class="fa-solid fa-clock-rotate-left text-purple-400"></i> Historique des 60 derniers jours
+          </h3>
+          <p class="text-[10px] text-slate-400">Purge automatique des éléments terminés depuis plus de 60 jours.</p>
+        </div>
         <button onclick="fermerModalHistorique()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="p-5 overflow-y-auto space-y-3 text-xs">
@@ -202,17 +188,17 @@
     </div>
   </div>
 
-  <!-- MODAL : AJOUT TÂCHE TECHNIQUE BE -->
+  <!-- MODAL UNIQUE : AJOUT & MODIFICATION COMPLÈTE DE TÂCHE AVEC PHOTOS -->
   <div id="modal-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl border border-slate-300">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
-          <i class="fa-solid fa-plus-circle text-purple-600"></i> Nouvelle tâche / Action
+    <div class="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 text-xs overflow-hidden">
+      <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
+        <h3 id="modal-tache-titre" class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
+          <i class="fa-solid fa-pen-to-square text-purple-400"></i> Édition de l'action technique
         </h3>
         <button onclick="fermerModalTache()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="space-y-3">
+      <div class="p-5 overflow-y-auto space-y-4">
         <div>
           <label class="font-bold text-slate-800 block mb-1">Titre de l'action / Étude</label>
           <input id="tache-titre" type="text" placeholder="Ex: Diffusion indice B schéma TGBT" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-semibold text-slate-800">
@@ -241,7 +227,7 @@
         </div>
 
         <div>
-          <label class="font-bold text-slate-800 block mb-1">Assigner la réalisation à :</label>
+          <label class="font-bold text-slate-800 block mb-1">Assigner à (un ou plusieurs) :</label>
           <div class="grid grid-cols-3 gap-2">
             <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-emerald-100 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-950 font-bold transition">
               <input type="checkbox" name="assigne_chk" value="Chantier" class="accent-emerald-600">
@@ -259,50 +245,30 @@
         </div>
 
         <div>
-          <label class="font-bold text-slate-800 block mb-1">Remarque rapide (visible de suite)</label>
-          <input id="tache-annotation" type="text" placeholder="Ex: Soumis au bureau de contrôle pour visa" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium">
+          <label class="font-bold text-slate-800 block mb-1">Remarque rapide</label>
+          <input id="tache-annotation" type="text" placeholder="Ex: Soumis au bureau de contrôle..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium">
+          <p id="tache-auteur-annotation" class="text-[10px] text-slate-400 mt-1 italic"></p>
         </div>
 
-        <div>
-          <label class="font-bold text-slate-800 block mb-1">Détails techniques / Références de documents</label>
-          <textarea id="tache-details" rows="2" placeholder="Références de plans, modifications de puissance, normes..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-medium"></textarea>
+        <!-- ZONE PHOTOS -->
+        <div class="border-t pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-purple-600 mr-1"></i> Pièces jointes & Schémas</span>
+            <label class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-xl font-bold text-xs border border-slate-300 cursor-pointer flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-paperclip"></i> Parcourir
+              <input type="file" id="tache-photos-input" accept="image/*" multiple class="hidden" onchange="gererFichiersPhotos(this.files)">
+            </label>
+          </div>
+          <div id="drop-zone-paste" class="border-2 border-dashed border-slate-300 rounded-2xl p-3 text-center text-slate-400 hover:border-purple-400 transition cursor-pointer" onclick="document.getElementById('tache-photos-input').click()">
+            <span class="text-[11px]">Cliquez ou collez une capture d'écran directement (<kbd class="bg-slate-100 px-1 py-0.5 rounded border">Ctrl+V</kbd>)</span>
+          </div>
+          <div id="miniatures-photos" class="grid grid-cols-3 gap-2 mt-2"></div>
         </div>
       </div>
 
-      <div class="flex gap-2 pt-2 border-t">
+      <div class="flex gap-2 p-3 border-t bg-slate-50">
         <button onclick="fermerModalTache()" class="flex-1 py-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Annuler</button>
         <button onclick="enregistrerTache()" class="flex-1 py-3 rounded-xl text-xs font-black text-white bg-purple-600 hover:bg-purple-500 shadow">Enregistrer</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL : DÉTAILS ET MODIFICATION ANNOTATION -->
-  <div id="modal-details-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl w-full max-w-lg p-6 space-y-4 text-xs shadow-2xl border border-slate-300">
-      <div class="flex justify-between items-start">
-        <div>
-          <div id="dtl-badges-zone" class="flex flex-wrap gap-1.5 items-center"></div>
-          <h3 id="dtl-titre" class="text-base font-black text-slate-900 mt-2"></h3>
-        </div>
-        <button onclick="fermerModalDetails()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-        <div><span class="text-slate-400 font-bold">Échéance :</span> <span id="dtl-date" class="font-bold text-slate-800 ml-1"></span></div>
-        <div><span class="text-slate-400 font-bold">Statut :</span> <span id="dtl-statut" class="font-bold text-slate-800 ml-1"></span></div>
-      </div>
-
-      <div>
-        <span class="font-bold text-slate-700 block mb-1">Détails de la tâche :</span>
-        <p id="dtl-description" class="text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 whitespace-pre-wrap font-medium"></p>
-      </div>
-
-      <div class="border-t pt-3 space-y-2">
-        <label class="font-bold text-slate-800 block">Mettre à jour l'annotation directe :</label>
-        <div class="flex gap-2">
-          <input id="dtl-annotation-input" type="text" class="flex-1 border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 text-xs font-medium" placeholder="Note technique...">
-          <button onclick="sauvegarderAnnotationDirecte()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs shrink-0 shadow">Enregistrer</button>
-        </div>
       </div>
     </div>
   </div>
@@ -315,6 +281,7 @@
       collection, 
       addDoc, 
       updateDoc, 
+      deleteDoc,
       doc, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
@@ -331,10 +298,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const ROLE_ACTUEL = "BE"; // Rôle de cette page
+
     let tachesCache = [];
     let zoneFiltre = "Toutes";
-    let roleFiltre = "BE"; // Filtrage par défaut sur le BE
-    let tacheEnCoursDetails = null;
+    let roleFiltre = "BE"; // Filtré sur le BE par défaut
+    let tacheEnCoursEdition = null;
+    let photosTemporaires = [];
 
     const aujourdhuiDate = new Date();
     const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
@@ -344,9 +314,7 @@
       if (!chaineIso) return "";
       const datePart = chaineIso.split("T")[0];
       const parts = datePart.split("-");
-      if (parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
       return chaineIso;
     }
 
@@ -354,7 +322,7 @@
       tachesCache = [];
       snapshot.forEach(d => tachesCache.push({ id: d.id, ...d.data() }));
       renderTaches();
-      renderHistorique();
+      purgerEtAfficherHistorique();
     });
 
     function renderTaches() {
@@ -369,12 +337,12 @@
 
       let taches = tachesCache.filter(t => t.statut !== "termine");
 
-      // 1. Filtrage par zone
+      // Filtrage par zone
       if (zoneFiltre !== "Toutes") {
         taches = taches.filter(t => t.zone === zoneFiltre || t.zone === "Toutes zones");
       }
 
-      // 2. Gestion du bloc prioritaire BE (affiché uniquement quand roleFiltre est 'BE' ou 'Tous')
+      // Bloc d'alertes BE
       if (roleFiltre === "BE" || roleFiltre === "Tous") {
         blocActionsBE.classList.remove("hidden");
         const actionsBE = taches.filter(t => {
@@ -385,18 +353,22 @@
         document.getElementById("badge-actions-be").innerText = actionsBE.length;
 
         actionsBE.forEach(t => {
+          const auteurBadge = t.annotation_auteur ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 ml-1">[${t.annotation_auteur}]</span>` : '';
+          const photosCount = (t.photos && t.photos.length) ? `<span class="text-[10px] text-purple-700 font-bold ml-2"><i class="fa-solid fa-image mr-1"></i>${t.photos.length}</span>` : '';
+
           const item = document.createElement("div");
           item.className = "bg-white p-3.5 rounded-2xl border-2 border-purple-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-purple-400 transition";
-          item.onclick = () => ouvrirDetailsTache(t);
+          item.onclick = () => ouvrirModalEditionTache(t);
           item.innerHTML = `
             <div>
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="bg-purple-600 text-white font-black text-[9px] px-2 py-0.5 rounded">Action BE</span>
                 <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
+                ${photosCount}
                 ${t.date_limite ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200"><i class="fa-regular fa-clock mr-1"></i>${formaterDateFr(t.date_limite)}</span>` : ''}
               </div>
               <h4 class="font-bold text-xs text-slate-900 mt-1">${t.titre}</h4>
-              ${t.annotation ? `<p class="text-[11px] text-purple-950 font-semibold mt-0.5"><i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation}</p>` : ''}
+              ${t.annotation ? `<p class="text-[11px] text-purple-950 font-semibold mt-0.5"><i class="fa-regular fa-comment-dots mr-1"></i>${t.annotation} ${auteurBadge}</p>` : ''}
             </div>
             <button onclick="event.stopPropagation(); cloturerTache('${t.id}')" title="Marquer fait" class="bg-slate-100 hover:bg-emerald-100 text-slate-500 hover:text-emerald-700 p-2.5 rounded-xl text-sm transition">
               <i class="fa-solid fa-check"></i>
@@ -412,7 +384,7 @@
         blocActionsBE.classList.add("hidden");
       }
 
-      // 3. Filtrage des tâches de la liste générale selon le rôle choisi
+      // Filtrage par rôle sélectionné
       let tachesAffichees = taches;
       if (roleFiltre !== "Tous") {
         tachesAffichees = taches.filter(t => {
@@ -437,9 +409,7 @@
       const card = document.createElement("div");
       card.className = "bg-white border-2 border-slate-200 hover:border-slate-400 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition cursor-pointer";
       card.onclick = (e) => {
-        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") {
-          ouvrirDetailsTache(t);
-        }
+        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") ouvrirModalEditionTache(t);
       };
 
       const dateRetard = estDatee && t.date_limite < aujourdhuiStr;
@@ -450,13 +420,15 @@
         return `<span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[9px] uppercase border">${a}</span>`;
       }).join(" ");
 
+      const auteurBadge = t.annotation_auteur ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-200 text-amber-900 ml-1">[${t.annotation_auteur}]</span>` : '';
+      const photosCount = (t.photos && t.photos.length) ? `<span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-lg border ml-1"><i class="fa-solid fa-camera mr-1 text-purple-600"></i>${t.photos.length}</span>` : '';
+
       card.innerHTML = `
         <div class="space-y-1.5 flex-1">
           <div class="flex flex-wrap items-center gap-1.5">
-            <span class="bg-slate-900 text-amber-300 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">
-              ${t.zone}
-            </span>
+            <span class="bg-slate-900 text-amber-300 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">${t.zone}</span>
             ${badgesAssign}
+            ${photosCount}
             ${estDatee ? `
               <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
                 <i class="fa-regular fa-calendar mr-1"></i>${formaterDateFr(t.date_limite)} ${dateRetard ? '(En retard)' : ''}
@@ -469,6 +441,7 @@
             <div class="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-950 px-3 py-1 rounded-xl text-xs font-semibold mt-1">
               <i class="fa-regular fa-comment-dots text-amber-600"></i>
               <span>${t.annotation}</span>
+              ${auteurBadge}
             </div>
           ` : ''}
         </div>
@@ -480,22 +453,26 @@
       return card;
     }
 
+    // ACTIONS FIREBASE AVEC AUTEUR
     window.cloturerTache = async (id) => {
       await updateDoc(doc(db, "taches", id), {
         statut: "termine",
-        termine_le: new Date().toISOString()
+        termine_le: new Date().toISOString(),
+        valide_par: ROLE_ACTUEL
       });
     };
 
     window.retablirTache = async (id) => {
       await updateDoc(doc(db, "taches", id), {
         statut: "a_faire",
-        termine_le: null
+        termine_le: null,
+        valide_par: null
       });
     };
 
+    // PURGE 60 JOURS
     window.ouvrirModalHistorique = () => {
-      renderHistorique();
+      purgerEtAfficherHistorique();
       document.getElementById("modal-historique").classList.remove("hidden");
     };
 
@@ -503,23 +480,35 @@
       document.getElementById("modal-historique").classList.add("hidden");
     };
 
-    function renderHistorique() {
+    async function purgerEtAfficherHistorique() {
       const containerTaches = document.getElementById("historique-taches");
       if (!containerTaches) return;
       containerTaches.innerHTML = "";
 
-      const tachesTerminees = tachesCache
-        .filter(t => t.statut === "termine")
-        .sort((a, b) => (b.termine_le || "").localeCompare(a.termine_le || ""))
-        .slice(0, 15);
+      const limite60j = new Date();
+      limite60j.setDate(limite60j.getDate() - 60);
+      const limiteIso = limite60j.toISOString();
 
-      tachesTerminees.forEach(t => {
+      const tachesTerminees = tachesCache.filter(t => t.statut === "termine");
+      for (const t of tachesTerminees) {
+        if (t.termine_le && t.termine_le < limiteIso) {
+          await deleteDoc(doc(db, "taches", t.id));
+        }
+      }
+
+      const tachesValidesRecentes = tachesTerminees
+        .filter(t => !t.termine_le || t.termine_le >= limiteIso)
+        .sort((a, b) => (b.termine_le || "").localeCompare(a.termine_le || ""));
+
+      tachesValidesRecentes.forEach(t => {
         const div = document.createElement("div");
         div.className = "bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center";
         div.innerHTML = `
           <div>
             <div class="font-bold text-slate-800 text-xs">${t.titre}</div>
-            <div class="text-[10px] text-slate-500">${t.zone} — Validé le ${formaterDateFr(t.termine_le)}</div>
+            <div class="text-[10px] text-slate-500">
+              ${t.zone} — Validé le ${formaterDateFr(t.termine_le)} par <span class="font-bold text-slate-700">${t.valide_par || 'Inconnu'}</span>
+            </div>
           </div>
           <button onclick="retablirTache('${t.id}')" class="bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
             <i class="fa-solid fa-rotate-left"></i> Rétablir
@@ -528,12 +517,119 @@
         containerTaches.appendChild(div);
       });
 
-      if (tachesTerminees.length === 0) {
-        containerTaches.innerHTML = `<p class="text-slate-400 italic">Aucune tâche clôturée récemment.</p>`;
+      if (tachesValidesRecentes.length === 0) {
+        containerTaches.innerHTML = `<p class="text-slate-400 italic">Aucune tâche clôturée sur les 60 derniers jours.</p>`;
       }
     }
 
-    window.ouvrirModalTache = () => {
+    // PHOTOS & COLLER (CTRL+V)
+    function compresserImage(file, maxDimension = 1200, qualite = 0.7) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxDimension) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", qualite));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    window.gererFichiersPhotos = async (files) => {
+      for (const f of files) {
+        if (!f.type.startsWith("image/")) continue;
+        const base64 = await compresserImage(f);
+        photosTemporaires.push(base64);
+      }
+      renderMiniaturesPhotos();
+    };
+
+    document.addEventListener("paste", async (e) => {
+      const modalTache = document.getElementById("modal-tache");
+      if (modalTache.classList.contains("hidden")) return;
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (const item of items) {
+        if (item.type.indexOf("image") !== -1) {
+          const file = item.getAsFile();
+          const base64 = await compresserImage(file);
+          photosTemporaires.push(base64);
+          renderMiniaturesPhotos();
+        }
+      }
+    });
+
+    function renderMiniaturesPhotos() {
+      const cont = document.getElementById("miniatures-photos");
+      cont.innerHTML = "";
+      photosTemporaires.forEach((src, idx) => {
+        const div = document.createElement("div");
+        div.className = "relative rounded-xl overflow-hidden border border-slate-300 h-20 bg-slate-100 group";
+        div.innerHTML = `
+          <img src="${src}" class="w-full h-full object-cover">
+          <button onclick="supprimerPhoto(${idx})" class="absolute top-1 right-1 bg-black/70 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    window.supprimerPhoto = (idx) => {
+      photosTemporaires.splice(idx, 1);
+      renderMiniaturesPhotos();
+    };
+
+    // OUVERTURE MODAL : CRÉATION OU MODIFICATION COMPLETE
+    window.ouvrirModalAjoutTache = () => {
+      tacheEnCoursEdition = null;
+      photosTemporaires = [];
+      document.getElementById("modal-tache-titre").innerHTML = `<i class="fa-solid fa-plus-circle text-purple-400"></i> Nouvelle action technique`;
+      document.getElementById("tache-titre").value = "";
+      document.getElementById("tache-zone").value = "RDC";
+      document.getElementById("tache-date").value = "";
+      document.getElementById("tache-annotation").value = "";
+      document.getElementById("tache-auteur-annotation").innerText = "";
+      document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => chk.checked = chk.value === "BE");
+      renderMiniaturesPhotos();
+      document.getElementById("modal-tache").classList.remove("hidden");
+    };
+
+    window.ouvrirModalEditionTache = (t) => {
+      tacheEnCoursEdition = t;
+      photosTemporaires = Array.isArray(t.photos) ? [...t.photos] : [];
+      document.getElementById("modal-tache-titre").innerHTML = `<i class="fa-solid fa-pen-to-square text-purple-400"></i> Modifier l'action`;
+      document.getElementById("tache-titre").value = t.titre || "";
+      document.getElementById("tache-zone").value = t.zone || "RDC";
+      document.getElementById("tache-date").value = t.date_limite || "";
+      document.getElementById("tache-annotation").value = t.annotation || "";
+      document.getElementById("tache-auteur-annotation").innerText = t.annotation_auteur ? `Dernière modification par [${t.annotation_auteur}]` : "";
+
+      const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
+      document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => {
+        chk.checked = assigns.includes(chk.value);
+      });
+
+      renderMiniaturesPhotos();
       document.getElementById("modal-tache").classList.remove("hidden");
     };
 
@@ -546,78 +642,57 @@
       const zone = document.getElementById("tache-zone").value;
       const dateLimite = document.getElementById("tache-date").value || null;
       const annotation = document.getElementById("tache-annotation").value.trim();
-      const details = document.getElementById("tache-details").value.trim();
 
       const assignes = [];
-      document.querySelectorAll('input[name="assigne_chk"]:checked').forEach(chk => {
-        assignes.push(chk.value);
-      });
+      document.querySelectorAll('input[name="assigne_chk"]:checked').forEach(chk => assignes.push(chk.value));
 
       if (!titre) {
         alert("Indiquez un titre.");
         return;
       }
-
       if (assignes.length === 0) {
-        alert("Cochez au moins un responsable (Chantier, RA ou BE).");
+        alert("Cochez au moins un responsable.");
         return;
       }
 
-      await addDoc(collection(db, "taches"), {
-        titre,
-        zone,
-        assignes,
-        date_limite: dateLimite,
-        annotation,
-        details,
-        statut: "a_faire",
-        cree_le: new Date().toISOString()
-      });
+      if (tacheEnCoursEdition) {
+        const dataMaj = {
+          titre,
+          zone,
+          assignes,
+          date_limite: dateLimite,
+          photos: photosTemporaires
+        };
+        if (annotation !== (tacheEnCoursEdition.annotation || "")) {
+          dataMaj.annotation = annotation;
+          dataMaj.annotation_auteur = annotation ? ROLE_ACTUEL : null;
+        }
+        await updateDoc(doc(db, "taches", tacheEnCoursEdition.id), dataMaj);
+      } else {
+        await addDoc(collection(db, "taches"), {
+          titre,
+          zone,
+          assignes,
+          date_limite: dateLimite,
+          annotation,
+          annotation_auteur: annotation ? ROLE_ACTUEL : null,
+          photos: photosTemporaires,
+          statut: "a_faire",
+          cree_le: new Date().toISOString()
+        });
+      }
 
-      document.getElementById("tache-titre").value = "";
-      document.getElementById("tache-annotation").value = "";
-      document.getElementById("tache-details").value = "";
       fermerModalTache();
     };
 
-    window.ouvrirDetailsTache = (t) => {
-      tacheEnCoursDetails = t;
-      document.getElementById("dtl-titre").innerText = t.titre;
-
-      const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
-      const badgesContainer = document.getElementById("dtl-badges-zone");
-      badgesContainer.innerHTML = `
-        <span class="bg-amber-100 text-amber-950 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase">${t.zone}</span>
-        ${assigns.map(a => `<span class="bg-slate-200 text-slate-800 font-bold px-2 py-0.5 rounded-lg text-[10px] uppercase">${a}</span>`).join(" ")}
-      `;
-
-      document.getElementById("dtl-date").innerText = formaterDateFr(t.date_limite) || "Non fixée";
-      document.getElementById("dtl-statut").innerText = t.statut;
-      document.getElementById("dtl-description").innerText = t.details || "Aucune note complémentaire.";
-      document.getElementById("dtl-annotation-input").value = t.annotation || "";
-      document.getElementById("modal-details-tache").classList.remove("hidden");
-    };
-
-    window.fermerModalDetails = () => {
-      document.getElementById("modal-details-tache").classList.add("hidden");
-    };
-
-    window.sauvegarderAnnotationDirecte = async () => {
-      if (!tacheEnCoursDetails) return;
-      const nouvelleNote = document.getElementById("dtl-annotation-input").value.trim();
-      await updateDoc(doc(db, "taches", tacheEnCoursDetails.id), {
-        annotation: nouvelleNote
-      });
-      fermerModalDetails();
-    };
-
+    // FILTRES DE ZONE ET RÔLE
     window.filtrerZone = (zone) => {
       zoneFiltre = zone;
       document.querySelectorAll(".zone-btn").forEach(btn => {
         if (btn.innerText.trim() === zone || (zone === "Toutes" && btn.innerText.includes("Toutes"))) {
-          btn.className = "zone-btn active px-3 py-1 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow";
+          btn.className = "zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-purple-500 text-white shadow";
         } else {
-          btn.className = "zone-btn px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
+          btn.className = "zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
         }
       });
       renderTaches();
