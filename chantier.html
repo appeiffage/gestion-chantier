@@ -317,7 +317,7 @@
           <p id="tache-auteur-annotation" class="text-[10px] text-slate-400 mt-1 italic"></p>
         </div>
 
-        <!-- ZONE PHOTOS (MOBILE & PC + COLLER CTRL+V) -->
+        <!-- ZONE PHOTOS -->
         <div class="border-t pt-3">
           <div class="flex items-center justify-between mb-2">
             <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-amber-500 mr-1"></i> Photos terrain</span>
@@ -337,6 +337,31 @@
         <button onclick="fermerModalTache()" class="flex-1 py-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Annuler</button>
         <button onclick="enregistrerTache()" class="flex-1 py-3 rounded-xl text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-300 shadow">Enregistrer</button>
       </div>
+    </div>
+  </div>
+
+  <!-- VISIONNEUSE PLEIN ÉCRAN AVEC ZOOM ET PAN -->
+  <div id="lightbox-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[100] hidden flex flex-col justify-between p-4 select-none touch-none">
+    <!-- Barre d'outils supérieure -->
+    <div class="flex items-center justify-between z-10">
+      <div class="flex items-center gap-2 bg-slate-900/80 backdrop-blur px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs">
+        <button onclick="modifierZoom(0.25)" class="hover:text-amber-400 p-1.5" title="Zoom avant"><i class="fa-solid fa-magnifying-glass-plus text-base"></i></button>
+        <button onclick="modifierZoom(-0.25)" class="hover:text-amber-400 p-1.5" title="Zoom arrière"><i class="fa-solid fa-magnifying-glass-minus text-base"></i></button>
+        <button onclick="reinitialiserZoom()" class="hover:text-amber-400 p-1.5 font-bold" title="Taille réelle">100%</button>
+      </div>
+      <button onclick="fermerLightbox()" class="bg-slate-900/80 hover:bg-rose-600 text-white rounded-full w-10 h-10 flex items-center justify-center border border-white/10 text-lg transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Zone d'affichage et manipulation de l'image -->
+    <div id="lightbox-container" class="relative flex-1 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing">
+      <img id="lightbox-img" src="" alt="Photo plein écran" class="max-h-full max-w-full object-contain transition-transform duration-75 origin-center will-change-transform">
+    </div>
+
+    <!-- Info bas -->
+    <div class="text-center text-slate-400 text-[11px] pointer-events-none pb-1">
+      Molette pour zoomer • Glisser pour déplacer • Pincer sur mobile
     </div>
   </div>
 
@@ -365,7 +390,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const ROLE_ACTUEL = "Chantier"; // Rôle de cette page
+    const ROLE_ACTUEL = "Chantier";
 
     let commandesCache = [];
     let tachesCache = [];
@@ -373,6 +398,15 @@
     let tacheEnCoursEdition = null;
     let commandeEnCoursPartielle = null;
     let photosTemporaires = [];
+
+    // Paramètres de zoom / pan pour la visionneuse
+    let zoomLevel = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialPinchDistance = null;
 
     const aujourdhuiDate = new Date();
     const aujourdhuiStr = aujourdhuiDate.toISOString().split("T")[0];
@@ -386,7 +420,6 @@
       return chaineIso;
     }
 
-    // Réception temps réel
     onSnapshot(collection(db, "commandes"), (snapshot) => {
       commandesCache = [];
       snapshot.forEach(d => commandesCache.push({ id: d.id, ...d.data() }));
@@ -401,7 +434,6 @@
       purgerEtAfficherHistorique();
     });
 
-    // RENDU COMMANDES
     function renderCommandes() {
       const containerJour = document.getElementById("liste-livraisons-jour");
       const containerRetard = document.getElementById("liste-livraisons-retard");
@@ -473,10 +505,10 @@
         </div>
 
         <div class="grid grid-cols-2 gap-1.5 pt-1">
-          <button onclick="validerReceptionCommande('${cmd.id}')" class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 shadow transition">
+          <button onclick="validerReceptionCommande('${cmd.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 shadow transition">
             <i class="fa-solid fa-check"></i> Reçu tout
           </button>
-          <button onclick="ouvrirReceptionPartielle('${cmd.id}')" class="bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-950 font-bold text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 border border-amber-300 transition">
+          <button onclick="ouvrirReceptionPartielle('${cmd.id}')" class="w-full bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-950 font-bold text-[11px] py-2 rounded-xl flex items-center justify-center gap-1 border border-amber-300 transition">
             <i class="fa-solid fa-boxes-packing"></i> Partiel / Reliquat
           </button>
         </div>
@@ -484,7 +516,6 @@
       return div;
     }
 
-    // RENDU TÂCHES
     function renderTaches() {
       const containerDatees = document.getElementById("liste-taches-datees");
       const containerSansDate = document.getElementById("liste-taches-sans-date");
@@ -602,7 +633,6 @@
       return card;
     }
 
-    // ACTIONS FIREBASE AVEC AUTEUR
     window.cloturerTache = async (id) => {
       await updateDoc(doc(db, "taches", id), {
         statut: "termine",
@@ -639,7 +669,6 @@
       });
     };
 
-    // RÉCEPTION PARTIELLE
     window.ouvrirReceptionPartielle = (id) => {
       commandeEnCoursPartielle = commandesCache.find(c => c.id === id);
       if (!commandeEnCoursPartielle) return;
@@ -705,7 +734,6 @@
       fermerModalReceptionPartielle();
     };
 
-    // PURGE AUTOMATIQUE 60 JOURS & HISTORIQUE
     window.ouvrirModalHistorique = () => {
       purgerEtAfficherHistorique();
       document.getElementById("modal-historique").classList.remove("hidden");
@@ -727,11 +755,10 @@
       limite60j.setDate(limite60j.getDate() - 60);
       const limiteIso = limite60j.toISOString();
 
-      // Purge et affichage des tâches
       const tachesTerminees = tachesCache.filter(t => t.statut === "termine");
       for (const t of tachesTerminees) {
         if (t.termine_le && t.termine_le < limiteIso) {
-          await deleteDoc(doc(db, "taches", t.id)); // Purge définitive Firestore
+          await deleteDoc(doc(db, "taches", t.id));
         }
       }
 
@@ -760,11 +787,10 @@
         containerTaches.innerHTML = `<p class="text-slate-400 italic">Aucune tâche validée sur les 60 derniers jours.</p>`;
       }
 
-      // Purge et affichage des commandes
       const commandesRecues = commandesCache.filter(c => c.statut === "recu");
       for (const c of commandesRecues) {
         if (c.date_reception && c.date_reception < limiteIso) {
-          await deleteDoc(doc(db, "commandes", c.id)); // Purge définitive Firestore
+          await deleteDoc(doc(db, "commandes", c.id));
         }
       }
 
@@ -794,8 +820,7 @@
       }
     }
 
-    // GESTION DES PHOTOS (COMPRESSION & REDIMENSIONNEMENT BASE64 LÉGER)
-    function compresserImage(file, maxDimension = 1200, qualite = 0.7) {
+    function compresserImage(file, maxDimension = 1400, qualite = 0.75) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -836,7 +861,6 @@
       renderMiniaturesPhotos();
     };
 
-    // ÉCOUTE COLLER CLAVIER (CTRL+V) SUR PC
     document.addEventListener("paste", async (e) => {
       const modalTache = document.getElementById("modal-tache");
       if (modalTache.classList.contains("hidden")) return;
@@ -856,10 +880,10 @@
       cont.innerHTML = "";
       photosTemporaires.forEach((src, idx) => {
         const div = document.createElement("div");
-        div.className = "relative rounded-xl overflow-hidden border border-slate-300 h-20 bg-slate-100 group";
+        div.className = "relative rounded-xl overflow-hidden border border-slate-300 h-20 bg-slate-100 group cursor-pointer shadow-sm";
         div.innerHTML = `
-          <img src="${src}" class="w-full h-full object-cover">
-          <button onclick="supprimerPhoto(${idx})" class="absolute top-1 right-1 bg-black/70 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
+          <img src="${src}" class="w-full h-full object-cover" onclick="ouvrirLightbox('${src}')" title="Cliquer pour agrandir">
+          <button onclick="event.stopPropagation(); supprimerPhoto(${idx})" class="absolute top-1 right-1 bg-black/70 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
             <i class="fa-solid fa-xmark"></i>
           </button>
         `;
@@ -872,7 +896,114 @@
       renderMiniaturesPhotos();
     };
 
-    // OUVERTURE MODAL : CRÉATION OU ÉDITION COMPLETE
+    // --- VISIONNEUSE / LIGHTBOX AVEC ZOOM ET PAN ---
+    function appliquerTransformationImage() {
+      const img = document.getElementById("lightbox-img");
+      img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    }
+
+    window.ouvrirLightbox = (src) => {
+      const modal = document.getElementById("lightbox-modal");
+      const img = document.getElementById("lightbox-img");
+      img.src = src;
+      zoomLevel = 1;
+      panX = 0;
+      panY = 0;
+      appliquerTransformationImage();
+      modal.classList.remove("hidden");
+    };
+
+    window.fermerLightbox = () => {
+      document.getElementById("lightbox-modal").classList.add("hidden");
+    };
+
+    window.modifierZoom = (delta) => {
+      zoomLevel = Math.min(Math.max(0.5, zoomLevel + delta), 4);
+      appliquerTransformationImage();
+    };
+
+    window.reinitialiserZoom = () => {
+      zoomLevel = 1;
+      panX = 0;
+      panY = 0;
+      appliquerTransformationImage();
+    };
+
+    // Interactions souris & molette (PC)
+    const lightboxContainer = document.getElementById("lightbox-container");
+
+    lightboxContainer.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.2 : -0.2;
+      window.modifierZoom(delta);
+    }, { passive: false });
+
+    lightboxContainer.addEventListener("mousedown", (e) => {
+      if (e.target.id === "lightbox-img" || e.currentTarget === lightboxContainer) {
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      appliquerTransformationImage();
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+
+    // Pincement & Glissement tactile (Smartphone & Tablette)
+    lightboxContainer.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - panX;
+        startY = e.touches[0].clientY - panY;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    lightboxContainer.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 1 && isDragging) {
+        panX = e.touches[0].clientX - startX;
+        panY = e.touches[0].clientY - startY;
+        appliquerTransformationImage();
+      } else if (e.touches.length === 2 && initialPinchDistance) {
+        const currentDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const ratio = currentDistance / initialPinchDistance;
+        zoomLevel = Math.min(Math.max(0.5, zoomLevel * ratio), 4);
+        initialPinchDistance = currentDistance;
+        appliquerTransformationImage();
+      }
+    }, { passive: true });
+
+    lightboxContainer.addEventListener("touchend", () => {
+      isDragging = false;
+      initialPinchDistance = null;
+    });
+
+    // Raccourci clavier Échap
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        fermerLightbox();
+        fermerModalTache();
+        fermerModalHistorique();
+      }
+    });
+
+    // GESTION MODAL TÂCHE
     window.ouvrirModalAjoutTache = () => {
       tacheEnCoursEdition = null;
       photosTemporaires = [];
@@ -929,7 +1060,6 @@
       }
 
       if (tacheEnCoursEdition) {
-        // Mise à jour de la tâche existante
         const dataMaj = {
           titre,
           zone,
@@ -937,14 +1067,12 @@
           date_limite: dateLimite,
           photos: photosTemporaires
         };
-        // Mise à jour de l'auteur si l'annotation a été modifiée
         if (annotation !== (tacheEnCoursEdition.annotation || "")) {
           dataMaj.annotation = annotation;
           dataMaj.annotation_auteur = annotation ? ROLE_ACTUEL : null;
         }
         await updateDoc(doc(db, "taches", tacheEnCoursEdition.id), dataMaj);
       } else {
-        // Création nouvelle tâche
         await addDoc(collection(db, "taches"), {
           titre,
           zone,
@@ -961,7 +1089,6 @@
       fermerModalTache();
     };
 
-    // FILTRE PAR ZONE
     window.filtrerZone = (zone) => {
       zoneFiltre = zone;
       document.querySelectorAll(".zone-btn").forEach(btn => {
