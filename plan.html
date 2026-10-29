@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Plans d'Implantation - Gabriel-Montpied</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Moteur de rendu PDF natif dans le navigateur -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    #plan-viewport {
+      touch-action: none;
+      overscroll-behavior: contain;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col overflow-hidden">
+
+  <!-- BANDEAU NAVIGATION -->
+  <header class="bg-slate-950 border-b border-slate-800 px-4 py-3 shrink-0 flex items-center justify-between z-20">
+    <div class="flex items-center gap-3">
+      <a id="btn-retour" href="chantier.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition active:scale-95">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span id="label-retour">Retour</span>
+      </a>
+      <div>
+        <h1 class="text-sm font-black tracking-tight text-white flex items-center gap-2">
+          <i class="fa-solid fa-map-location-dot text-amber-400"></i>
+          <span>Plans d'Implantation</span>
+        </h1>
+        <p class="text-[10px] text-slate-400 font-medium">Stade Gabriel-Montpied — Mode <span id="badge-role" class="font-bold text-amber-400 uppercase">Chantier</span></p>
+      </div>
+    </div>
+
+    <!-- Actions du bandeau -->
+    <div class="flex items-center gap-2">
+      <!-- Dépôt réservé RA & BE -->
+      <label id="btn-upload-plan" class="hidden bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow cursor-pointer flex items-center gap-1.5 transition active:scale-95">
+        <i class="fa-solid fa-file-arrow-up"></i>
+        <span class="hidden sm:inline">Déposer PDF</span>
+        <input type="file" id="input-pdf-plan" accept="application/pdf,image/*" class="hidden" onchange="importerPlanFichier(this.files[0])">
+      </label>
+
+      <!-- Bouton mode repère -->
+      <button id="btn-mode-pin" onclick="basculerModeAjoutPin()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95">
+        <i class="fa-solid fa-location-dot"></i>
+        <span id="label-mode-pin" class="hidden sm:inline">Placer tâche</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- BARRE DES NIVEAUX / ZONES -->
+  <nav class="bg-slate-950/80 border-b border-slate-800/80 px-4 py-2 shrink-0 overflow-x-auto no-scrollbar z-20 flex items-center gap-2">
+    <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Niveau :</span>
+    <button onclick="changerZone('RDC')" class="zone-tab active px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-amber-400 text-slate-950 shadow">RDC</button>
+    <button onclick="changerZone('N1')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N1</button>
+    <button onclick="changerZone('N2')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N2</button>
+    <button onclick="changerZone('N3')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N3</button>
+    <button onclick="changerZone('N4')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N4</button>
+    <button onclick="changerZone('N5')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N5</button>
+    <button onclick="changerZone('Billetterie')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Billetterie</button>
+    <button onclick="changerZone('Gymnase')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gymnase</button>
+    <button onclick="changerZone('Gergovie')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gergovie</button>
+  </nav>
+
+  <!-- ZONE DU PLAN AVEC ZOOM / GLISSEMENT STRICT -->
+  <main id="plan-viewport" class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing flex items-center justify-center">
+
+    <!-- Message si aucun plan déposé -->
+    <div id="aucun-plan-msg" class="text-center p-6 max-w-sm hidden pointer-events-none">
+      <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center mx-auto mb-3 text-2xl text-slate-500">
+        <i class="fa-solid fa-map"></i>
+      </div>
+      <h3 class="font-bold text-sm text-slate-300">Aucun plan pour cette zone</h3>
+      <p id="aucun-plan-desc" class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer un plan d'implantation au format PDF ci-dessus.</p>
+    </div>
+
+    <!-- Spinner de conversion PDF -->
+    <div id="loading-pdf" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
+      <i class="fa-solid fa-circle-notch fa-spin text-3xl text-amber-400"></i>
+      <span class="text-xs font-bold text-slate-200">Conversion du plan PDF en image haute définition...</span>
+    </div>
+
+    <!-- Conteneur transformable (Zoom & Pan) -->
+    <div id="plan-stage" class="relative origin-center will-change-transform inline-block">
+      <img id="plan-image" src="" alt="Plan" class="max-w-none pointer-events-none hidden select-none">
+      <!-- Les pastilles de tâches sont injectées ici dynamiquement -->
+      <div id="pins-container" class="absolute inset-0"></div>
+    </div>
+
+    <!-- Barre d'outils flottante de zoom -->
+    <div class="absolute bottom-5 right-5 z-20 flex flex-col gap-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-2xl">
+      <button onclick="modifierZoom(0.3)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom avant"><i class="fa-solid fa-plus"></i></button>
+      <button onclick="modifierZoom(-0.3)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom arrière"><i class="fa-solid fa-minus"></i></button>
+      <button onclick="reinitialiserVue()" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-xs font-bold" title="Ajuster">100%</button>
+    </div>
+
+    <!-- Indicateur mode placement actif -->
+    <div id="indicateur-mode-pin" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 font-black text-xs px-4 py-2 rounded-full shadow-xl hidden z-20 animate-pulse pointer-events-none">
+      <i class="fa-solid fa-crosshairs mr-1"></i> Touchez l'endroit exact sur le plan pour poser la tâche
+    </div>
+  </main>
+
+  <!-- MODAL : SÉLECTIONNER OU CRÉER LA TÂCHE LIÉE AU REPÈRE -->
+  <div id="modal-associer-tache" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-4 text-xs">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 class="font-black text-sm uppercase tracking-wide flex items-center gap-1.5">
+          <i class="fa-solid fa-location-dot text-amber-500"></i> Lier une tâche à cet emplacement
+        </h3>
+        <button onclick="fermerModalAssocier()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Choisir parmi les tâches existantes de cette zone :</label>
+          <select id="select-taches-existantes" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none font-semibold text-slate-800 bg-white">
+            <option value="">-- Créer une nouvelle tâche à cet endroit --</option>
+          </select>
+        </div>
+
+        <div id="form-nouvelle-tache-plan" class="space-y-2 border-t pt-2">
+          <label class="font-bold text-slate-700 block">Ou saisir directement une nouvelle tâche :</label>
+          <input id="new-tache-titre" type="text" placeholder="Intitulé de la tâche..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none font-semibold">
+          <input id="new-tache-comm" type="text" placeholder="Annotation rapide..." class="w-full border border-slate-200 rounded-xl p-2 outline-none">
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2 border-t">
+        <button onclick="fermerModalAssocier()" class="flex-1 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="confirmerLiaisonTache()" class="flex-1 py-2.5 rounded-xl font-black text-slate-950 bg-amber-400 hover:bg-amber-300 shadow">Valider l'emplacement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL : FICHE DÉTAIL D'UNE TÂCHE CLIQUE SUR LE PLAN -->
+  <div id="modal-fiche-pin" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-3 text-xs">
+      <div class="flex justify-between items-start border-b pb-2">
+        <div>
+          <span id="fiche-pin-zone" class="bg-slate-900 text-amber-300 font-black px-2 py-0.5 rounded text-[10px] uppercase"></span>
+          <h3 id="fiche-pin-titre" class="font-black text-sm text-slate-900 mt-1"></h3>
+        </div>
+        <button onclick="fermerFichePin()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Commentaires par métier -->
+      <div id="fiche-pin-comms" class="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200"></div>
+
+      <!-- Miniatures photos si existantes -->
+      <div id="fiche-pin-photos" class="grid grid-cols-3 gap-2"></div>
+
+      <div class="flex gap-2 pt-2 border-t">
+        <button onclick="supprimerReperePlan()" class="py-2.5 px-3 rounded-xl font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200" title="Retirer du plan"><i class="fa-solid fa-trash"></i></button>
+        <button onclick="cloturerTacheDepuisPlan()" class="flex-1 py-2.5 rounded-xl font-black text-white bg-emerald-600 hover:bg-emerald-500 shadow flex items-center justify-center gap-1.5"><i class="fa-solid fa-check"></i> Marquer terminée</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Firebase & Moteur de Plan -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      doc, 
+      getDoc, 
+      setDoc, 
+      addDoc, 
+      updateDoc, 
+      onSnapshot 
+    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2rRm-cpLoA1KD0vesfxm3VZur7EknFNs",
+      authDomain: "datachantier.firebaseapp.com",
+      projectId: "datachantier",
+      storageBucket: "datachantier.firebasestorage.app",
+      messagingSenderId: "359359774794",
+      appId: "1:359359774794:web:d64063dece14398bbca6b3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Détection du rôle appelant via URL (ex: plans.html?role=ra ou plans.html?role=be)
+    const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = (urlParams.get("role") || "chantier").toLowerCase();
+    let roleActuel = "Chantier";
+    let pageRetour = "chantier.html";
+
+    if (roleParam === "ra") {
+      roleActuel = "RA";
+      pageRetour = "ra.html";
+    } else if (roleParam === "be") {
+      roleActuel = "BE";
+      pageRetour = "be.html";
+    }
+
+    // Configuration de l'en-tête selon le rôle
+    document.getElementById("btn-retour").href = pageRetour;
+    document.getElementById("label-retour").innerText = `Retour ${roleActuel}`;
+    document.getElementById("badge-role").innerText = roleActuel;
+
+    if (roleActuel === "RA" || roleActuel === "BE") {
+      document.getElementById("btn-upload-plan").classList.remove("hidden");
+    }
+
+    let zoneActive = "RDC";
+    let planDataActuel = null;
+    let tachesCache = [];
+    let modeAjoutPin = false;
+    let coordTemporaire = null;
+    let tacheEnConsultation = null;
+
+    // Paramètres Zoom & Pan
+    let zoomLevel = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialPinchDistance = null;
+
+    const viewport = document.getElementById("plan-viewport");
+    const stage = document.getElementById("plan-stage");
+    const planImage = document.getElementById("plan-image");
+
+    // Écoute des tâches pour l'affichage des repères
+    onSnapshot(collection(db, "taches"), (snapshot) => {
+      tachesCache = [];
+      snapshot.forEach(d => tachesCache.push({ id: d.id, ...d.data() }));
+      renderPins();
+    });
+
+    // Chargement du plan de la zone sélectionnée
+    window.changerZone = async (zone) => {
+      zoneActive = zone;
+      document.querySelectorAll(".zone-tab").forEach(b => {
+        if (b.innerText.trim() === zone) {
+          b.className = "zone-tab active px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-amber-400 text-slate-950 shadow";
+        } else {
+          b.className = "zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700";
+        }
+      });
+      await chargerPlanZone(zone);
+    };
+
+    async function chargerPlanZone(zone) {
+      const docSnap = await getDoc(doc(db, "plans", zone));
+      if (docSnap.exists() && docSnap.data().image_base64) {
+        planDataActuel = docSnap.data();
+        planImage.src = planDataActuel.image_base64;
+        planImage.classList.remove("hidden");
+        document.getElementById("aucun-plan-msg").classList.add("hidden");
+        reinitialiserVue();
+      } else {
+        planDataActuel = null;
+        planImage.src = "";
+        planImage.classList.add("hidden");
+        document.getElementById("aucun-plan-msg").classList.remove("hidden");
+      }
+      renderPins();
+    }
+
+    // CONVERSION PDF -> IMAGE HAUTE RÉSOLUTION DIRECTE
+    window.importerPlanFichier = async (file) => {
+      if (!file) return;
+
+      document.getElementById("loading-pdf").classList.remove("hidden");
+
+      try {
+        let imageBase64Finale = "";
+
+        if (file.type === "application/pdf") {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const page = await pdf.getPage(1); // Première page du plan
+
+          // Rendu haute résolution (scale 2.0 pour garder les textes lisibles)
+          const viewportPdf = page.getViewport({ scale: 2.0 });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.width = viewportPdf.width;
+          canvas.height = viewportPdf.height;
+
+          await page.render({ canvasContext: ctx, viewport: viewportPdf }).promise;
+          // Compression en WebP/JPEG pour respecter le quota Firestore
+          imageBase64Finale = canvas.toDataURL("image/webp", 0.8) || canvas.toDataURL("image/jpeg", 0.8);
+        } else if (file.type.startsWith("image/")) {
+          imageBase64Finale = await compresserImagePlan(file);
+        }
+
+        // Sauvegarde dans Firestore (collection plans, document = id zone)
+        await setDoc(doc(db, "plans", zoneActive), {
+          zone: zoneActive,
+          image_base64: imageBase64Finale,
+          mis_a_jour_par: roleActuel,
+          date_maj: new Date().toISOString()
+        });
+
+        await chargerPlanZone(zoneActive);
+      } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la lecture du plan. Vérifiez le format du fichier.");
+      } finally {
+        document.getElementById("loading-pdf").classList.add("hidden");
+        document.getElementById("input-pdf-plan").value = "";
+      }
+    };
+
+    function compresserImagePlan(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/webp", 0.8) || canvas.toDataURL("image/jpeg", 0.8));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // RENDU DES PASTILLES (PINS)
+    function renderPins() {
+      const container = document.getElementById("pins-container");
+      container.innerHTML = "";
+      if (!planDataActuel) return;
+
+      const tachesZone = tachesCache.filter(t => t.zone === zoneActive && t.statut !== "termine" && t.plan_pos);
+
+      tachesZone.forEach(t => {
+        const pin = document.createElement("button");
+        pin.className = "absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition active:scale-90 z-10";
+        
+        // Couleur selon l'assignation principale
+        const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
+        if (assigns.includes("BE")) pin.classList.add("bg-purple-600", "text-white");
+        else if (assigns.includes("RA")) pin.classList.add("bg-blue-600", "text-white");
+        else pin.classList.add("bg-amber-400", "text-slate-950");
+
+        pin.style.left = `${t.plan_pos.x}%`;
+        pin.style.top = `${t.plan_pos.y}%`;
+        pin.innerHTML = `<i class="fa-solid fa-location-dot text-xs"></i>`;
+
+        pin.onclick = (e) => {
+          e.stopPropagation();
+          ouvrirFichePin(t);
+        };
+
+        container.appendChild(pin);
+      });
+    }
+
+    // INTERACTIONS TACTILES & SOURIS SUR LE PLAN (ZOOM / PAN STRICT)
+    function appliquerTransformation() {
+      stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    }
+
+    window.modifierZoom = (delta) => {
+      zoomLevel = Math.min(Math.max(0.4, zoomLevel + delta), 4);
+      appliquerTransformation();
+    };
+
+    window.reinitialiserVue = () => {
+      zoomLevel = 1;
+      panX = 0;
+      panY = 0;
+      appliquerTransformation();
+    };
+
+    viewport.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.2 : -0.2;
+      window.modifierZoom(delta);
+    }, { passive: false });
+
+    viewport.addEventListener("mousedown", (e) => {
+      if (modeAjoutPin) return;
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      appliquerTransformation();
+    });
+
+    window.addEventListener("mouseup", () => isDragging = false);
+
+    // Tactile (1 doigt = pan, 2 doigts = pinch)
+    viewport.addEventListener("touchstart", (e) => {
+      if (modeAjoutPin) return;
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - panX;
+        startY = e.touches[0].clientY - panY;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    viewport.addEventListener("touchmove", (e) => {
+      if (modeAjoutPin) return;
+      if (e.touches.length === 1 && isDragging) {
+        panX = e.touches[0].clientX - startX;
+        panY = e.touches[0].clientY - startY;
+        appliquerTransformation();
+      } else if (e.touches.length === 2 && initialPinchDistance) {
+        const currentDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const ratio = currentDist / initialPinchDistance;
+        zoomLevel = Math.min(Math.max(0.4, zoomLevel * ratio), 4);
+        initialPinchDistance = currentDist;
+        appliquerTransformation();
+      }
+    }, { passive: true });
+
+    viewport.addEventListener("touchend", () => {
+      isDragging = false;
+      initialPinchDistance = null;
+    });
+
+    // MODE PLACEMENT D'UNE TÂCHE
+    window.basculerModeAjoutPin = () => {
+      if (!planDataActuel) {
+        alert("Déposez d'abord un plan pour cette zone.");
+        return;
+      }
+      modeAjoutPin = !modeAjoutPin;
+      const btn = document.getElementById("btn-mode-pin");
+      const ind = document.getElementById("indicateur-mode-pin");
+
+      if (modeAjoutPin) {
+        btn.className = "bg-rose-500 text-white font-black text-xs px-3 py-2 rounded-xl shadow";
+        document.getElementById("label-mode-pin").innerText = "Annuler placement";
+        ind.classList.remove("hidden");
+        viewport.classList.add("cursor-crosshair");
+      } else {
+        btn.className = "bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow";
+        document.getElementById("label-mode-pin").innerText = "Placer tâche";
+        ind.classList.add("hidden");
+        viewport.classList.remove("cursor-crosshair");
+      }
+    };
+
+    stage.addEventListener("click", (e) => {
+      if (!modeAjoutPin) return;
+      const rect = planImage.getBoundingClientRect();
+      const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
+      const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
+
+      if (xPercent >= 0 && xPercent <= 100 && yPercent >= 0 && yPercent <= 100) {
+        coordTemporaire = { x: Math.round(xPercent * 10) / 10, y: Math.round(yPercent * 10) / 10 };
+        ouvrirModalAssocier();
+        basculerModeAjoutPin();
+      }
+    });
+
+    function ouvrirModalAssocier() {
+      const select = document.getElementById("select-taches-existantes");
+      select.innerHTML = `<option value="">-- Créer une nouvelle tâche à cet endroit --</option>`;
+
+      const sansRepere = tachesCache.filter(t => t.zone === zoneActive && t.statut !== "termine" && !t.plan_pos);
+      sansRepere.forEach(t => {
+        select.innerHTML += `<option value="${t.id}">${t.titre}</option>`;
+      });
+
+      document.getElementById("new-tache-titre").value = "";
+      document.getElementById("new-tache-comm").value = "";
+      document.getElementById("modal-associer-tache").classList.remove("hidden");
+    }
+
+    window.fermerModalAssocier = () => {
+      document.getElementById("modal-associer-tache").classList.add("hidden");
+      coordTemporaire = null;
+    };
+
+    window.confirmerLiaisonTache = async () => {
+      if (!coordTemporaire) return;
+      const tacheId = document.getElementById("select-taches-existantes").value;
+
+      if (tacheId) {
+        // Associer position à une tâche existante
+        await updateDoc(doc(db, "taches", tacheId), {
+          plan_pos: coordTemporaire
+        });
+      } else {
+        // Créer une nouvelle tâche directement
+        const titre = document.getElementById("new-tache-titre").value.trim();
+        const comm = document.getElementById("new-tache-comm").value.trim();
+        if (!titre) {
+          alert("Indiquez un titre pour la tâche.");
+          return;
+        }
+
+        const commObj = { chantier: "", ra: "", be: "" };
+        if (roleActuel === "BE") commObj.be = comm;
+        else if (roleActuel === "RA") commObj.ra = comm;
+        else commObj.chantier = comm;
+
+        await addDoc(collection(db, "taches"), {
+          titre,
+          zone: zoneActive,
+          assignes: [roleActuel],
+          commentaires: commObj,
+          plan_pos: coordTemporaire,
+          statut: "a_faire",
+          cree_le: new Date().toISOString()
+        });
+      }
+
+      fermerModalAssocier();
+    };
+
+    // FICHE CONSULTATION RAPIDE D'UNE TÂCHE REPERÉE
+    function ouvrirFichePin(t) {
+      tacheEnConsultation = t;
+      document.getElementById("fiche-pin-titre").innerText = t.titre;
+      document.getElementById("fiche-pin-zone").innerText = t.zone;
+
+      // Commentaires
+      const comms = t.commentaires || {};
+      let commsHtml = "";
+      if (comms.chantier) commsHtml += `<div class="text-[11px]"><b class="text-amber-800">Chantier :</b> ${comms.chantier}</div>`;
+      if (comms.ra) commsHtml += `<div class="text-[11px]"><b class="text-blue-800">RA :</b> ${comms.ra}</div>`;
+      if (comms.be) commsHtml += `<div class="text-[11px]"><b class="text-purple-800">BE :</b> ${comms.be}</div>`;
+      document.getElementById("fiche-pin-comms").innerHTML = commsHtml || `<span class="text-slate-400 italic">Aucun commentaire enregistré.</span>`;
+
+      // Photos
+      const contPhotos = document.getElementById("fiche-pin-photos");
+      contPhotos.innerHTML = "";
+      (t.photos || []).forEach(src => {
+        contPhotos.innerHTML += `<img src="${src}" class="h-16 w-full object-cover rounded-xl border">`;
+      });
+
+      document.getElementById("modal-fiche-pin").classList.remove("hidden");
+    }
+
+    window.fermerFichePin = () => {
+      document.getElementById("modal-fiche-pin").classList.add("hidden");
+      tacheEnConsultation = null;
+    };
+
+    window.supprimerReperePlan = async () => {
+      if (!tacheEnConsultation) return;
+      await updateDoc(doc(db, "taches", tacheEnConsultation.id), {
+        plan_pos: null
+      });
+      fermerFichePin();
+    };
+
+    window.cloturerTacheDepuisPlan = async () => {
+      if (!tacheEnConsultation) return;
+      await updateDoc(doc(db, "taches", tacheEnConsultation.id), {
+        statut: "termine",
+        termine_le: new Date().toISOString(),
+        valide_par: roleActuel
+      });
+      fermerFichePin();
+    };
+
+    // Initialisation
+    changerZone("RDC");
+  </script>
+</body>
+</html>
