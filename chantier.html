@@ -13,6 +13,7 @@
 </head>
 <body class="bg-slate-200 text-slate-800 min-h-screen">
 
+  <!-- BANDEAU HAUT -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-amber-400">
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -55,10 +56,16 @@
         </div>
       </div>
 
-      <button onclick="ouvrirModalHistorique()" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
-        <i class="fa-solid fa-rotate-left text-amber-400"></i>
-        <span>Historique & Rétablir</span>
-      </button>
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <a href="plans.html?role=chantier" class="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>Plans d'implantation</span>
+        </a>
+        <button onclick="ouvrirModalHistorique()" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-600 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-rotate-left text-amber-400"></i>
+          <span>Historique & Rétablir</span>
+        </button>
+      </div>
     </div>
 
     <div class="relative border-t border-white/10 bg-slate-950/60 backdrop-blur-md px-4 sm:px-6 py-2.5">
@@ -292,11 +299,9 @@
           </div>
         </div>
 
-        <!-- SYSTÈME DES 3 COMMENTAIRES VERROUILLÉS -->
         <div class="border-t pt-3 space-y-3">
           <span class="font-bold text-slate-800 block text-[11px] uppercase tracking-wider">Commentaires par métier</span>
 
-          <!-- 1. CHANTIER (ÉDITABLE ICI) -->
           <div class="bg-amber-50/80 border-2 border-amber-300 p-2.5 rounded-2xl">
             <label class="font-black text-amber-950 flex items-center gap-1.5 mb-1 text-[11px]">
               <i class="fa-solid fa-helmet-safety text-amber-600"></i> Commentaire Chantier (Modifiable)
@@ -304,26 +309,23 @@
             <input id="comm-chantier" type="text" placeholder="Ajouter ou modifier le commentaire Chantier..." class="w-full border border-amber-300 rounded-xl p-2 outline-none focus:ring-2 focus:ring-amber-500 font-medium text-slate-800 bg-white">
           </div>
 
-          <!-- 2. RA (LECTURE SEULE SUR CETTE PAGE) -->
           <div class="bg-blue-50/50 border border-blue-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-blue-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-briefcase text-blue-600"></i> Commentaire RA</span>
-              <span class="text-[9px] text-blue-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable par le RA</span>
+              <span class="text-[9px] text-blue-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable sur ra.html</span>
             </label>
             <input id="comm-ra" type="text" readonly disabled class="w-full border border-blue-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
 
-          <!-- 3. BE (LECTURE SEULE SUR CETTE PAGE) -->
           <div class="bg-purple-50/50 border border-purple-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-purple-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-compass-drafting text-purple-600"></i> Commentaire BE</span>
-              <span class="text-[9px] text-purple-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable par le BE</span>
+              <span class="text-[9px] text-purple-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable sur be.html</span>
             </label>
             <input id="comm-be" type="text" readonly disabled class="w-full border border-purple-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
         </div>
 
-        <!-- ZONE PHOTOS -->
         <div class="border-t pt-3">
           <div class="flex items-center justify-between mb-2">
             <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-amber-500 mr-1"></i> Photos terrain</span>
@@ -375,7 +377,7 @@
       collection, 
       addDoc, 
       updateDoc, 
-      deleteDoc,
+      deleteDoc, 
       doc, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
@@ -511,7 +513,6 @@
       return div;
     }
 
-    // GÉNÉRATEUR HTML DES 3 COMMENTAIRES
     function genererHtmlCommentaires(t) {
       const comms = t.commentaires || {};
       const cChantier = comms.chantier || (t.annotation_auteur === 'Chantier' ? t.annotation : '');
@@ -1014,7 +1015,6 @@
       }
     });
 
-    // CHARGEMENT MODAL (AVEC RENSEIGNEMENT DES 3 COMMENTAIRES)
     window.ouvrirModalAjoutTache = () => {
       tacheEnCoursEdition = null;
       photosTemporaires = [];
@@ -1040,7 +1040,6 @@
       document.getElementById("tache-zone").value = t.zone || "RDC";
       document.getElementById("tache-date").value = t.date_limite || "";
 
-      // Récupération des 3 commentaires distincts
       const comms = t.commentaires || {};
       document.getElementById("comm-chantier").value = comms.chantier || (t.annotation_auteur === 'Chantier' ? t.annotation : '') || "";
       document.getElementById("comm-ra").value = comms.ra || (t.annotation_auteur === 'RA' ? t.annotation : '') || "";
@@ -1064,7 +1063,6 @@
       const zone = document.getElementById("tache-zone").value;
       const dateLimite = document.getElementById("tache-date").value || null;
 
-      // On récupère uniquement la saisie autorisée pour cette page
       const texteChantier = document.getElementById("comm-chantier").value.trim();
 
       const assignes = [];
@@ -1083,7 +1081,7 @@
         const commsExistants = tacheEnCoursEdition.commentaires || {};
         const commentairesMaj = {
           ...commsExistants,
-          chantier: texteChantier // Seul Chantier est mis à jour
+          chantier: texteChantier
         };
 
         await updateDoc(doc(db, "taches", tacheEnCoursEdition.id), {
