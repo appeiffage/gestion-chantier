@@ -40,6 +40,12 @@
 
     <!-- Actions du bandeau -->
     <div class="flex items-center gap-2">
+      <!-- Supprimer plan -->
+      <button id="btn-supprimer-plan" onclick="supprimerPlanZoneActuelle()" class="hidden bg-rose-600/80 hover:bg-rose-600 text-white font-bold text-xs px-3 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95" title="Supprimer ce plan">
+        <i class="fa-solid fa-trash"></i>
+        <span class="hidden sm:inline">Effacer plan</span>
+      </button>
+
       <!-- Dépôt réservé RA & BE -->
       <label id="btn-upload-plan" class="hidden bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow cursor-pointer flex items-center gap-1.5 transition active:scale-95">
         <i class="fa-solid fa-file-arrow-up"></i>
@@ -72,16 +78,14 @@
   <!-- ZONE D'AFFICHAGE DU PLAN -->
   <main id="plan-viewport" class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing flex items-center justify-center">
 
-    <!-- Message si aucun plan déposé -->
     <div id="aucun-plan-msg" class="text-center p-6 max-w-sm hidden pointer-events-none">
       <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center mx-auto mb-3 text-2xl text-slate-500">
         <i class="fa-solid fa-map"></i>
       </div>
       <h3 class="font-bold text-sm text-slate-300">Aucun plan pour cette zone</h3>
-      <p id="aucun-plan-desc" class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer un plan d'implantation en PDF ci-dessus.</p>
+      <p class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer un plan d'implantation en PDF ci-dessus.</p>
     </div>
 
-    <!-- Indicateur de chargement & découpage -->
     <div id="loading-pdf" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
       <i class="fa-solid fa-circle-notch fa-spin text-3xl text-amber-400"></i>
       <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Génération du plan haute définition...</span>
@@ -89,14 +93,12 @@
 
     <!-- Scène interactive (Zoom & Pan) -->
     <div id="plan-stage" class="relative origin-center will-change-transform inline-block">
-      <!-- Grille réassemblant les 4 tuiles haute définition -->
       <div id="plan-grid" class="grid grid-cols-2 gap-0 leading-none pointer-events-none hidden select-none">
         <img id="tile-tl" class="block w-auto h-auto max-w-none">
         <img id="tile-tr" class="block w-auto h-auto max-w-none">
         <img id="tile-bl" class="block w-auto h-auto max-w-none">
         <img id="tile-br" class="block w-auto h-auto max-w-none">
       </div>
-      <!-- Pastilles de tâches -->
       <div id="pins-container" class="absolute inset-0 pointer-events-auto"></div>
     </div>
 
@@ -107,7 +109,6 @@
       <button onclick="reinitialiserVue()" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-xs font-bold" title="Ajuster">100%</button>
     </div>
 
-    <!-- Indicateur mode placement actif -->
     <div id="indicateur-mode-pin" class="absolute top-4 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 font-black text-xs px-4 py-2 rounded-full shadow-xl hidden z-20 animate-pulse pointer-events-none">
       <i class="fa-solid fa-crosshairs mr-1"></i> Touchez l'endroit exact sur le plan pour poser la tâche
     </div>
@@ -166,7 +167,6 @@
     </div>
   </div>
 
-  <!-- Scripts Firebase & Moteur de Plan Multi-Tuiles -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { 
@@ -175,6 +175,7 @@
       doc, 
       getDoc, 
       setDoc, 
+      deleteDoc,
       addDoc, 
       updateDoc, 
       onSnapshot 
@@ -220,13 +221,7 @@
     let coordTemporaire = null;
     let tacheEnConsultation = null;
 
-    let zoomLevel = 1;
-    let panX = 0;
-    let panY = 0;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let initialPinchDistance = null;
+    let zoomLevel = 1, panX = 0, panY = 0, isDragging = false, startX = 0, startY = 0, initialPinchDistance = null;
 
     const viewport = document.getElementById("plan-viewport");
     const stage = document.getElementById("plan-stage");
@@ -250,42 +245,73 @@
       await chargerPlanZone(zone);
     };
 
-    // CHARGEMENT DU PLAN (MONO-IMAGE OU MULTI-TUILES HD)
+    // CHARGEMENT DU PLAN DEPUIS SES SOUS-DOCUMENTS DE TUILES
     async function chargerPlanZone(zone) {
       const docSnap = await getDoc(doc(db, "plans", zone));
-      if (docSnap.exists()) {
+      const btnSuppr = document.getElementById("btn-supprimer-plan");
+
+      if (docSnap.exists() && docSnap.data().has_plan) {
         planDataActuel = docSnap.data();
 
-        if (planDataActuel.tiles) {
-          // Mode Haute Définition (4 tuiles)
-          document.getElementById("tile-tl").src = planDataActuel.tiles.tl;
-          document.getElementById("tile-tr").src = planDataActuel.tiles.tr;
-          document.getElementById("tile-bl").src = planDataActuel.tiles.bl;
-          document.getElementById("tile-br").src = planDataActuel.tiles.br;
-        } else if (planDataActuel.image_base64) {
-          // Rétrocompatibilité mono-image
-          document.getElementById("tile-tl").src = planDataActuel.image_base64;
-          document.getElementById("tile-tr").src = "";
-          document.getElementById("tile-bl").src = "";
-          document.getElementById("tile-br").src = "";
-        }
+        // Récupération en parallèle des 4 sous-documents de tuiles
+        const [snapTl, snapTr, snapBl, snapBr] = await Promise.all([
+          getDoc(doc(db, `plans/${zone}/tuiles`, "tl")),
+          getDoc(doc(db, `plans/${zone}/tuiles`, "tr")),
+          getDoc(doc(db, `plans/${zone}/tuiles`, "bl")),
+          getDoc(doc(db, `plans/${zone}/tuiles`, "br"))
+        ]);
 
-        planGrid.classList.remove("hidden");
-        document.getElementById("aucun-plan-msg").classList.add("hidden");
-        reinitialiserVue();
-      } else {
-        planDataActuel = null;
-        document.getElementById("tile-tl").src = "";
-        document.getElementById("tile-tr").src = "";
-        document.getElementById("tile-bl").src = "";
-        document.getElementById("tile-br").src = "";
-        planGrid.classList.add("hidden");
-        document.getElementById("aucun-plan-msg").classList.remove("hidden");
+        if (snapTl.exists() && snapTr.exists() && snapBl.exists() && snapBr.exists()) {
+          document.getElementById("tile-tl").src = snapTl.data().data_url;
+          document.getElementById("tile-tr").src = snapTr.data().data_url;
+          document.getElementById("tile-bl").src = snapBl.data().data_url;
+          document.getElementById("tile-br").src = snapBr.data().data_url;
+
+          planGrid.classList.remove("hidden");
+          document.getElementById("aucun-plan-msg").classList.add("hidden");
+          if (roleActuel === "RA" || roleActuel === "BE") {
+            btnSuppr.classList.remove("hidden");
+          }
+          reinitialiserVue();
+          renderPins();
+          return;
+        }
       }
+
+      // Aucun plan
+      planDataActuel = null;
+      document.getElementById("tile-tl").src = "";
+      document.getElementById("tile-tr").src = "";
+      document.getElementById("tile-bl").src = "";
+      document.getElementById("tile-br").src = "";
+      planGrid.classList.add("hidden");
+      document.getElementById("aucun-plan-msg").classList.remove("hidden");
+      btnSuppr.classList.add("hidden");
       renderPins();
     }
 
-    // RENDU HD + DÉCOUPAGE EN 4 TUILES INDÉPENDANTES
+    // SUPPRESSION DU PLAN ET DE SES TUILES
+    window.supprimerPlanZoneActuelle = async () => {
+      if (!planDataActuel) return;
+      const confirmation = confirm(`Voulez-vous supprimer le plan HD de la zone "${zoneActive}" ?`);
+      if (!confirmation) return;
+
+      try {
+        await Promise.all([
+          deleteDoc(doc(db, "plans", zoneActive)),
+          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "tl")),
+          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "tr")),
+          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "bl")),
+          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "br"))
+        ]);
+        await chargerPlanZone(zoneActive);
+      } catch (err) {
+        console.error("Erreur suppression plan:", err);
+        alert("Erreur lors de la suppression : " + err.message);
+      }
+    };
+
+    // CONVERSION HAUTE QUALITÉ ET ÉCRITURE EN 4 SOUS-DOCUMENTS SÉPARÉS
     window.importerPlanFichier = async (file) => {
       if (!file) return;
 
@@ -294,7 +320,7 @@
       loader.classList.remove("hidden");
 
       try {
-        loaderText.innerText = "Génération du plan en haute résolution...";
+        loaderText.innerText = "Rendu du PDF en très haute définition...";
 
         let mainCanvas;
 
@@ -308,11 +334,11 @@
           }).promise;
           const page = await pdf.getPage(1);
 
-          // Résolution HD (plafond à ~3600px pour préserver la finesse des schémas)
+          // Résolution 4200px pour une lisibilité parfaite des cotes et symboles
           const unscaled = page.getViewport({ scale: 1.0 });
-          const targetDimension = 3600;
+          const targetDimension = 4200;
           const maxDim = Math.max(unscaled.width, unscaled.height);
-          const scale = maxDim > targetDimension ? (targetDimension / maxDim) : 2.5;
+          const scale = maxDim > targetDimension ? (targetDimension / maxDim) : 2.8;
 
           const viewportPdf = page.getViewport({ scale });
           mainCanvas = document.createElement("canvas");
@@ -322,12 +348,11 @@
 
           await page.render({ canvasContext: ctx, viewport: viewportPdf }).promise;
         } else {
-          mainCanvas = await imageVersCanvas(file, 3600);
+          mainCanvas = await imageVersCanvas(file, 4200);
         }
 
-        loaderText.innerText = "Découpage en tuiles haute netteté...";
+        loaderText.innerText = "Découpage en tuiles haute qualité...";
 
-        // Découpage en 4 tuiles égales (2x2)
         const w = mainCanvas.width;
         const h = mainCanvas.height;
         const halfW = Math.floor(w / 2);
@@ -339,26 +364,30 @@
           tCanvas.height = height;
           const tCtx = tCanvas.getContext("2d");
           tCtx.drawImage(mainCanvas, x, y, width, height, 0, 0, width, height);
-          return tCanvas.toDataURL("image/jpeg", 0.82);
+          return tCanvas.toDataURL("image/jpeg", 0.85);
         };
 
-        const tiles = {
-          tl: extraireTuile(0, 0, halfW, halfH),
-          tr: extraireTuile(halfW, 0, w - halfW, halfH),
-          bl: extraireTuile(0, halfH, halfW, h - halfH),
-          br: extraireTuile(halfW, halfH, w - halfW, h - halfH)
-        };
+        const tuileTL = extraireTuile(0, 0, halfW, halfH);
+        const tuileTR = extraireTuile(halfW, 0, w - halfW, halfH);
+        const tuileBL = extraireTuile(0, halfH, halfW, h - halfH);
+        const tuileBR = extraireTuile(halfW, halfH, w - halfW, h - halfH);
 
         loaderText.innerText = "Sauvegarde sur le serveur...";
 
-        // Enregistrement dans Firestore (chaque tuile reste sous les 400 Ko)
-        await setDoc(doc(db, "plans", zoneActive), {
-          zone: zoneActive,
-          tiles: tiles,
-          dimensions: { width: w, height: h },
-          mis_a_jour_par: roleActuel,
-          date_maj: new Date().toISOString()
-        });
+        // Écriture de chaque tuile dans son propre sous-document (chacun pèse ~300 Ko, loin du 1 Mo max)
+        await Promise.all([
+          setDoc(doc(db, "plans", zoneActive), {
+            zone: zoneActive,
+            has_plan: true,
+            dimensions: { width: w, height: h },
+            mis_a_jour_par: roleActuel,
+            date_maj: new Date().toISOString()
+          }),
+          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "tl"), { data_url: tuileTL }),
+          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "tr"), { data_url: tuileTR }),
+          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "bl"), { data_url: tuileBL }),
+          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "br"), { data_url: tuileBR })
+        ]);
 
         await chargerPlanZone(zoneActive);
       } catch (err) {
@@ -404,7 +433,6 @@
       });
     }
 
-    // RENDU DES PASTILLES SUR LE PLAN (CALCUL EN POURCENTAGES)
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -434,7 +462,6 @@
       });
     }
 
-    // GESTION DU ZOOM ET DÉPLACEMENT
     function appliquerTransformation() {
       stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
     }
@@ -473,7 +500,6 @@
 
     window.addEventListener("mouseup", () => isDragging = false);
 
-    // Gestes tactiles
     viewport.addEventListener("touchstart", (e) => {
       if (modeAjoutPin) return;
       if (e.touches.length === 1) {
@@ -645,7 +671,6 @@
       fermerFichePin();
     };
 
-    // Chargement initial
     changerZone("RDC");
   </script>
 </body>
