@@ -13,6 +13,7 @@
 </head>
 <body class="bg-slate-200 text-slate-800 min-h-screen">
 
+  <!-- BANDEAU HAUT -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-amber-400">
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -56,6 +57,10 @@
       </div>
 
       <div class="flex items-center gap-2.5 flex-wrap">
+        <a href="plans.html?role=ra" class="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>Plans d'implantation</span>
+        </a>
         <button onclick="ouvrirModalCommande()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow flex items-center gap-2 transition active:scale-95">
           <i class="fa-solid fa-cart-plus"></i>
           <span>Créer une commande</span>
@@ -343,20 +348,17 @@
           </div>
         </div>
 
-        <!-- SYSTÈME DES 3 COMMENTAIRES VERROUILLÉS -->
         <div class="border-t pt-3 space-y-3">
           <span class="font-bold text-slate-800 block text-[11px] uppercase tracking-wider">Commentaires par métier</span>
 
-          <!-- 1. CHANTIER (LECTURE SEULE SUR RA) -->
           <div class="bg-amber-50/50 border border-amber-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-amber-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-helmet-safety text-amber-600"></i> Commentaire Chantier</span>
-              <span class="text-[9px] text-amber-600 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable par le chantier</span>
+              <span class="text-[9px] text-amber-600 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable sur chantier.html</span>
             </label>
             <input id="comm-chantier" type="text" readonly disabled class="w-full border border-amber-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
 
-          <!-- 2. RA (ÉDITABLE ICI) -->
           <div class="bg-blue-50/80 border-2 border-blue-400 p-2.5 rounded-2xl">
             <label class="font-black text-blue-950 flex items-center gap-1.5 mb-1 text-[11px]">
               <i class="fa-solid fa-briefcase text-blue-600"></i> Commentaire RA (Modifiable)
@@ -364,17 +366,15 @@
             <input id="comm-ra" type="text" placeholder="Ajouter ou modifier le commentaire RA..." class="w-full border border-blue-300 rounded-xl p-2 outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 bg-white">
           </div>
 
-          <!-- 3. BE (LECTURE SEULE SUR RA) -->
           <div class="bg-purple-50/50 border border-purple-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-purple-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-compass-drafting text-purple-600"></i> Commentaire BE</span>
-              <span class="text-[9px] text-purple-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable par le BE</span>
+              <span class="text-[9px] text-purple-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Modifiable sur be.html</span>
             </label>
             <input id="comm-be" type="text" readonly disabled class="w-full border border-purple-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
         </div>
 
-        <!-- ZONE PHOTOS -->
         <div class="border-t pt-3">
           <div class="flex items-center justify-between mb-2">
             <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-amber-500 mr-1"></i> Pièces jointes & Photos</span>
@@ -426,7 +426,7 @@
       collection, 
       addDoc, 
       updateDoc, 
-      deleteDoc,
+      deleteDoc, 
       doc, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
@@ -1140,7 +1140,6 @@
       }
     });
 
-    // CHARGEMENT MODAL RA
     window.ouvrirModalAjoutTache = () => {
       tacheEnCoursEdition = null;
       photosTemporaires = [];
@@ -1189,7 +1188,6 @@
       const zone = document.getElementById("tache-zone").value;
       const dateLimite = document.getElementById("tache-date").value || null;
 
-      // On récupère uniquement la saisie autorisée pour cette page
       const texteRa = document.getElementById("comm-ra").value.trim();
 
       const assignes = [];
@@ -1208,7 +1206,7 @@
         const commsExistants = tacheEnCoursEdition.commentaires || {};
         const commentairesMaj = {
           ...commsExistants,
-          ra: texteRa // Seul RA est mis à jour
+          ra: texteRa
         };
 
         await updateDoc(doc(db, "taches", tacheEnCoursEdition.id), {
