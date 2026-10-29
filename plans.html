@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plans d'Implantation HD - Gabriel-Montpied</title>
+  <title>Plans d'Implantation Vectoriels - Gabriel-Montpied</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -32,28 +32,25 @@
       <div>
         <h1 class="text-sm font-black tracking-tight text-white flex items-center gap-2">
           <i class="fa-solid fa-map-location-dot text-amber-400"></i>
-          <span>Plans d'Implantation HD</span>
+          <span>Plans d'Implantation (Vectoriel)</span>
         </h1>
         <p class="text-[10px] text-slate-400 font-medium">Stade Gabriel-Montpied — Mode <span id="badge-role" class="font-bold text-amber-400 uppercase">Chantier</span></p>
       </div>
     </div>
 
-    <!-- Actions du bandeau -->
+    <!-- Actions -->
     <div class="flex items-center gap-2">
-      <!-- Supprimer plan -->
       <button id="btn-supprimer-plan" onclick="supprimerPlanZoneActuelle()" class="hidden bg-rose-600/80 hover:bg-rose-600 text-white font-bold text-xs px-3 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95" title="Supprimer ce plan">
         <i class="fa-solid fa-trash"></i>
         <span class="hidden sm:inline">Effacer plan</span>
       </button>
 
-      <!-- Dépôt réservé RA & BE -->
       <label id="btn-upload-plan" class="hidden bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow cursor-pointer flex items-center gap-1.5 transition active:scale-95">
         <i class="fa-solid fa-file-arrow-up"></i>
-        <span class="hidden sm:inline">Déposer Plan HD</span>
-        <input type="file" id="input-pdf-plan" accept="application/pdf,image/*" class="hidden" onchange="importerPlanFichier(this.files[0])">
+        <span class="hidden sm:inline">Déposer PDF du plan</span>
+        <input type="file" id="input-pdf-plan" accept="application/pdf" class="hidden" onchange="importerPlanFichier(this.files[0])">
       </label>
 
-      <!-- Bouton mode repère -->
       <button id="btn-mode-pin" onclick="basculerModeAjoutPin()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95">
         <i class="fa-solid fa-location-dot"></i>
         <span id="label-mode-pin" class="hidden sm:inline">Placer tâche</span>
@@ -75,7 +72,7 @@
     <button onclick="changerZone('Gergovie')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gergovie</button>
   </nav>
 
-  <!-- ZONE D'AFFICHAGE DU PLAN -->
+  <!-- ZONE VIEWPORT DU PLAN -->
   <main id="plan-viewport" class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing flex items-center justify-center">
 
     <div id="aucun-plan-msg" class="text-center p-6 max-w-sm hidden pointer-events-none">
@@ -83,26 +80,21 @@
         <i class="fa-solid fa-map"></i>
       </div>
       <h3 class="font-bold text-sm text-slate-300">Aucun plan pour cette zone</h3>
-      <p class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer un plan d'implantation en PDF ci-dessus.</p>
+      <p class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer le plan PDF de ce niveau ci-dessus.</p>
     </div>
 
     <div id="loading-pdf" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
       <i class="fa-solid fa-circle-notch fa-spin text-3xl text-amber-400"></i>
-      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Génération du plan haute définition...</span>
+      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Rendu vectoriel du plan...</span>
     </div>
 
-    <!-- Scène interactive (Zoom & Pan) -->
+    <!-- Scène Unique Canvas (Zéro raccord / Zéro coupure) -->
     <div id="plan-stage" class="relative origin-center will-change-transform inline-block">
-      <div id="plan-grid" class="grid grid-cols-2 gap-0 leading-none pointer-events-none hidden select-none">
-        <img id="tile-tl" class="block w-auto h-auto max-w-none">
-        <img id="tile-tr" class="block w-auto h-auto max-w-none">
-        <img id="tile-bl" class="block w-auto h-auto max-w-none">
-        <img id="tile-br" class="block w-auto h-auto max-w-none">
-      </div>
+      <canvas id="plan-canvas" class="block shadow-2xl bg-white"></canvas>
       <div id="pins-container" class="absolute inset-0 pointer-events-auto"></div>
     </div>
 
-    <!-- Barre d'outils flottante de zoom -->
+    <!-- Contrôles flottants de zoom -->
     <div class="absolute bottom-5 right-5 z-20 flex flex-col gap-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-2xl">
       <button onclick="modifierZoom(0.35)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom avant"><i class="fa-solid fa-plus"></i></button>
       <button onclick="modifierZoom(-0.35)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom arrière"><i class="fa-solid fa-minus"></i></button>
@@ -114,7 +106,7 @@
     </div>
   </main>
 
-  <!-- MODAL : SÉLECTIONNER OU CRÉER LA TÂCHE LIÉE AU REPÈRE -->
+  <!-- MODAL : ASSOCIER TÂCHE -->
   <div id="modal-associer-tache" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-4 text-xs">
       <div class="flex justify-between items-center border-b pb-2">
@@ -146,7 +138,7 @@
     </div>
   </div>
 
-  <!-- MODAL : FICHE DÉTAIL D'UNE TÂCHE CLIQUE SUR LE PLAN -->
+  <!-- MODAL : FICHE DÉTAIL D'UNE TÂCHE -->
   <div id="modal-fiche-pin" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-3 text-xs">
       <div class="flex justify-between items-start border-b pb-2">
@@ -175,7 +167,7 @@
       doc, 
       getDoc, 
       setDoc, 
-      deleteDoc,
+      deleteDoc, 
       addDoc, 
       updateDoc, 
       onSnapshot 
@@ -216,6 +208,7 @@
 
     let zoneActive = "RDC";
     let planDataActuel = null;
+    let pdfDocActuel = null;
     let tachesCache = [];
     let modeAjoutPin = false;
     let coordTemporaire = null;
@@ -225,7 +218,7 @@
 
     const viewport = document.getElementById("plan-viewport");
     const stage = document.getElementById("plan-stage");
-    const planGrid = document.getElementById("plan-grid");
+    const canvas = document.getElementById("plan-canvas");
 
     onSnapshot(collection(db, "taches"), (snapshot) => {
       tachesCache = [];
@@ -245,194 +238,122 @@
       await chargerPlanZone(zone);
     };
 
-    // CHARGEMENT DU PLAN DEPUIS SES SOUS-DOCUMENTS DE TUILES
+    // CHARGEMENT DU PDF VECTORIEL BRUT ET RENDU SANS RACCORD
     async function chargerPlanZone(zone) {
       const docSnap = await getDoc(doc(db, "plans", zone));
       const btnSuppr = document.getElementById("btn-supprimer-plan");
 
-      if (docSnap.exists() && docSnap.data().has_plan) {
+      if (docSnap.exists() && docSnap.data().pdf_base64) {
         planDataActuel = docSnap.data();
+        if (roleActuel === "RA" || roleActuel === "BE") btnSuppr.classList.remove("hidden");
+        document.getElementById("aucun-plan-msg").classList.add("hidden");
 
-        // Récupération en parallèle des 4 sous-documents de tuiles
-        const [snapTl, snapTr, snapBl, snapBr] = await Promise.all([
-          getDoc(doc(db, `plans/${zone}/tuiles`, "tl")),
-          getDoc(doc(db, `plans/${zone}/tuiles`, "tr")),
-          getDoc(doc(db, `plans/${zone}/tuiles`, "bl")),
-          getDoc(doc(db, `plans/${zone}/tuiles`, "br"))
-        ]);
-
-        if (snapTl.exists() && snapTr.exists() && snapBl.exists() && snapBr.exists()) {
-          document.getElementById("tile-tl").src = snapTl.data().data_url;
-          document.getElementById("tile-tr").src = snapTr.data().data_url;
-          document.getElementById("tile-bl").src = snapBl.data().data_url;
-          document.getElementById("tile-br").src = snapBr.data().data_url;
-
-          planGrid.classList.remove("hidden");
-          document.getElementById("aucun-plan-msg").classList.add("hidden");
-          if (roleActuel === "RA" || roleActuel === "BE") {
-            btnSuppr.classList.remove("hidden");
-          }
-          reinitialiserVue();
-          renderPins();
-          return;
+        // Conversion base64 -> Uint8Array pour chargement direct dans PDF.js
+        const binaryString = atob(planDataActuel.pdf_base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
         }
-      }
 
-      // Aucun plan
-      planDataActuel = null;
-      document.getElementById("tile-tl").src = "";
-      document.getElementById("tile-tr").src = "";
-      document.getElementById("tile-bl").src = "";
-      document.getElementById("tile-br").src = "";
-      planGrid.classList.add("hidden");
-      document.getElementById("aucun-plan-msg").classList.remove("hidden");
-      btnSuppr.classList.add("hidden");
+        pdfDocActuel = await pdfjsLib.getDocument({ data: bytes }).promise;
+        await rendrePageCanvas();
+        reinitialiserVue();
+      } else {
+        planDataActuel = null;
+        pdfDocActuel = null;
+        canvas.width = 0;
+        canvas.height = 0;
+        document.getElementById("aucun-plan-msg").classList.remove("hidden");
+        btnSuppr.classList.add("hidden");
+      }
       renderPins();
     }
 
-    // SUPPRESSION DU PLAN ET DE SES TUILES
-    window.supprimerPlanZoneActuelle = async () => {
-      if (!planDataActuel) return;
-      const confirmation = confirm(`Voulez-vous supprimer le plan HD de la zone "${zoneActive}" ?`);
-      if (!confirmation) return;
+    // RENDU VECTORIEL HAUTE DÉFINITION
+    async function rendrePageCanvas() {
+      if (!pdfDocActuel) return;
+      const loader = document.getElementById("loading-pdf");
+      loader.classList.remove("hidden");
 
       try {
-        await Promise.all([
-          deleteDoc(doc(db, "plans", zoneActive)),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "tl")),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "tr")),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "bl")),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "br"))
-        ]);
-        await chargerPlanZone(zoneActive);
-      } catch (err) {
-        console.error("Erreur suppression plan:", err);
-        alert("Erreur lors de la suppression : " + err.message);
-      }
-    };
+        const page = await pdfDocActuel.getPage(1);
+        const unscaledViewport = page.getViewport({ scale: 1.0 });
 
-    // CONVERSION HAUTE QUALITÉ ET ÉCRITURE EN 4 SOUS-DOCUMENTS SÉPARÉS
+        // Résolution optimale sans aucune coupure (environ 3000px de large)
+        const targetDim = 3200;
+        const scale = targetDim / unscaledViewport.width;
+        const viewportPdf = page.getViewport({ scale });
+
+        canvas.width = Math.round(viewportPdf.width);
+        canvas.height = Math.round(viewportPdf.height);
+
+        const ctx = canvas.getContext("2d");
+        await page.render({ canvasContext: ctx, viewport: viewportPdf }).promise;
+      } finally {
+        loader.classList.add("hidden");
+      }
+    }
+
+    // IMPORT ET SAUVEGARDE DU PDF VECTORIEL COMPLET
     window.importerPlanFichier = async (file) => {
-      if (!file) return;
+      if (!file || file.type !== "application/pdf") {
+        alert("Veuillez sélectionner un fichier PDF valide.");
+        return;
+      }
+
+      // Vérification de sécurité sur le fichier PDF
+      if (file.size > 950000) {
+        alert("Ce fichier PDF pèse plus de 950 Ko (limite Firestore). Enregistrez-le en 'PDF optimisé' ou réduisez ses calques inutiles avant import.");
+        return;
+      }
 
       const loader = document.getElementById("loading-pdf");
       const loaderText = document.getElementById("loading-pdf-text");
       loader.classList.remove("hidden");
+      loaderText.innerText = "Téléversement du fichier vectoriel...";
 
       try {
-        loaderText.innerText = "Rendu du PDF en très haute définition...";
-
-        let mainCanvas;
-
-        if (file.type === "application/pdf") {
-          const arrayBuffer = await file.arrayBuffer();
-          const typedarray = new Uint8Array(arrayBuffer);
-          const pdf = await pdfjsLib.getDocument({
-            data: typedarray,
-            cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-            cMapPacked: true
-          }).promise;
-          const page = await pdf.getPage(1);
-
-          // Résolution 4200px pour une lisibilité parfaite des cotes et symboles
-          const unscaled = page.getViewport({ scale: 1.0 });
-          const targetDimension = 4200;
-          const maxDim = Math.max(unscaled.width, unscaled.height);
-          const scale = maxDim > targetDimension ? (targetDimension / maxDim) : 2.8;
-
-          const viewportPdf = page.getViewport({ scale });
-          mainCanvas = document.createElement("canvas");
-          mainCanvas.width = Math.round(viewportPdf.width);
-          mainCanvas.height = Math.round(viewportPdf.height);
-          const ctx = mainCanvas.getContext("2d");
-
-          await page.render({ canvasContext: ctx, viewport: viewportPdf }).promise;
-        } else {
-          mainCanvas = await imageVersCanvas(file, 4200);
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        
+        // Conversion en chaîne Base64
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
         }
+        const pdfBase64 = btoa(binary);
 
-        loaderText.innerText = "Découpage en tuiles haute qualité...";
-
-        const w = mainCanvas.width;
-        const h = mainCanvas.height;
-        const halfW = Math.floor(w / 2);
-        const halfH = Math.floor(h / 2);
-
-        const extraireTuile = (x, y, width, height) => {
-          const tCanvas = document.createElement("canvas");
-          tCanvas.width = width;
-          tCanvas.height = height;
-          const tCtx = tCanvas.getContext("2d");
-          tCtx.drawImage(mainCanvas, x, y, width, height, 0, 0, width, height);
-          return tCanvas.toDataURL("image/jpeg", 0.85);
-        };
-
-        const tuileTL = extraireTuile(0, 0, halfW, halfH);
-        const tuileTR = extraireTuile(halfW, 0, w - halfW, halfH);
-        const tuileBL = extraireTuile(0, halfH, halfW, h - halfH);
-        const tuileBR = extraireTuile(halfW, halfH, w - halfW, h - halfH);
-
-        loaderText.innerText = "Sauvegarde sur le serveur...";
-
-        // Écriture de chaque tuile dans son propre sous-document (chacun pèse ~300 Ko, loin du 1 Mo max)
-        await Promise.all([
-          setDoc(doc(db, "plans", zoneActive), {
-            zone: zoneActive,
-            has_plan: true,
-            dimensions: { width: w, height: h },
-            mis_a_jour_par: roleActuel,
-            date_maj: new Date().toISOString()
-          }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "tl"), { data_url: tuileTL }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "tr"), { data_url: tuileTR }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "bl"), { data_url: tuileBL }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "br"), { data_url: tuileBR })
-        ]);
+        await setDoc(doc(db, "plans", zoneActive), {
+          zone: zoneActive,
+          pdf_base64: pdfBase64,
+          mis_a_jour_par: roleActuel,
+          date_maj: new Date().toISOString()
+        });
 
         await chargerPlanZone(zoneActive);
       } catch (err) {
-        console.error("Erreur import plan:", err);
-        alert("Erreur lors de la préparation du plan :\n" + (err.message || err));
+        console.error(err);
+        alert("Erreur lors de l'enregistrement du PDF : " + err.message);
       } finally {
         loader.classList.add("hidden");
         document.getElementById("input-pdf-plan").value = "";
       }
     };
 
-    function imageVersCanvas(file, maxDimension) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            let width = img.width;
-            let height = img.height;
-            if (width > height) {
-              if (width > maxDimension) {
-                height = Math.round((height * maxDimension) / width);
-                width = maxDimension;
-              }
-            } else {
-              if (height > maxDimension) {
-                width = Math.round((width * maxDimension) / height);
-                height = maxDimension;
-              }
-            }
-            const canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas);
-          };
-          img.onerror = reject;
-          img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
+    window.supprimerPlanZoneActuelle = async () => {
+      if (!planDataActuel) return;
+      if (!confirm(`Supprimer définitivement le plan PDF de la zone "${zoneActive}" ?`)) return;
 
+      try {
+        await deleteDoc(doc(db, "plans", zoneActive));
+        await chargerPlanZone(zoneActive);
+      } catch (err) {
+        alert("Erreur : " + err.message);
+      }
+    };
+
+    // PASTILLES DE TÂCHES (SUR BASE DU CANEVAS COMPLET SANS COUPURE)
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -462,6 +383,7 @@
       });
     }
 
+    // GESTION DU ZOOM ET DÉPLACEMENT
     function appliquerTransformation() {
       stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
     }
@@ -562,7 +484,7 @@
 
     stage.addEventListener("click", (e) => {
       if (!modeAjoutPin) return;
-      const rect = planGrid.getBoundingClientRect();
+      const rect = canvas.getBoundingClientRect();
       const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
       const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
 
@@ -597,9 +519,7 @@
       const tacheId = document.getElementById("select-taches-existantes").value;
 
       if (tacheId) {
-        await updateDoc(doc(db, "taches", tacheId), {
-          plan_pos: coordTemporaire
-        });
+        await updateDoc(doc(db, "taches", tacheId), { plan_pos: coordTemporaire });
       } else {
         const titre = document.getElementById("new-tache-titre").value.trim();
         const comm = document.getElementById("new-tache-comm").value.trim();
@@ -655,9 +575,7 @@
 
     window.supprimerReperePlan = async () => {
       if (!tacheEnConsultation) return;
-      await updateDoc(doc(db, "taches", tacheEnConsultation.id), {
-        plan_pos: null
-      });
+      await updateDoc(doc(db, "taches", tacheEnConsultation.id), { plan_pos: null });
       fermerFichePin();
     };
 
