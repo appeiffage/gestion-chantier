@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plans d'Implantation HD - Gabriel-Montpied</title>
+  <title>Plans d'Implantation Vectoriels HD - Gabriel-Montpied</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -32,7 +32,7 @@
       <div>
         <h1 class="text-sm font-black tracking-tight text-white flex items-center gap-2">
           <i class="fa-solid fa-map-location-dot text-amber-400"></i>
-          <span>Plans d'Implantation HD</span>
+          <span>Plans d'Implantation Vectoriels HD</span>
         </h1>
         <p class="text-[10px] text-slate-400 font-medium">Stade Gabriel-Montpied — Mode <span id="badge-role" class="font-bold text-amber-400 uppercase">Chantier</span></p>
       </div>
@@ -47,8 +47,8 @@
 
       <label id="btn-upload-plan" class="hidden bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow cursor-pointer flex items-center gap-1.5 transition active:scale-95">
         <i class="fa-solid fa-file-arrow-up"></i>
-        <span class="hidden sm:inline">Déposer Plan (PDF/Image)</span>
-        <input type="file" id="input-pdf-plan" accept="application/pdf,image/*" class="hidden" onchange="importerPlanFichier(this.files[0])">
+        <span class="hidden sm:inline">Déposer PDF Vectoriel</span>
+        <input type="file" id="input-pdf-plan" accept="application/pdf" class="hidden" onchange="importerPlanFichier(this.files[0])">
       </label>
 
       <button id="btn-mode-pin" onclick="basculerModeAjoutPin()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs px-3 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95">
@@ -80,21 +80,21 @@
         <i class="fa-solid fa-map"></i>
       </div>
       <h3 class="font-bold text-sm text-slate-300">Aucun plan pour cette zone</h3>
-      <p class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer un plan d'implantation en PDF ci-dessus.</p>
+      <p class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer le plan PDF de ce niveau ci-dessus.</p>
     </div>
 
     <div id="loading-pdf" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
       <i class="fa-solid fa-circle-notch fa-spin text-3xl text-amber-400"></i>
-      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Traitement en cours...</span>
+      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Rendu vectoriel net...</span>
     </div>
 
-    <!-- Scène Unique Canvas (Zéro jointure visible, continuité parfaite) -->
-    <div id="plan-stage" class="relative origin-center will-change-transform inline-block">
+    <!-- Scène Unique Canvas Vectorielle (Zéro découpe, netteté native) -->
+    <div id="plan-stage" class="relative origin-top-left will-change-transform inline-block">
       <canvas id="plan-canvas" class="block shadow-2xl bg-white"></canvas>
       <div id="pins-container" class="absolute inset-0 pointer-events-auto"></div>
     </div>
 
-    <!-- Contrôles de zoom -->
+    <!-- Contrôles flottants de zoom -->
     <div class="absolute bottom-5 right-5 z-20 flex flex-col gap-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-2xl">
       <button onclick="modifierZoom(0.35)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom avant"><i class="fa-solid fa-plus"></i></button>
       <button onclick="modifierZoom(-0.35)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom arrière"><i class="fa-solid fa-minus"></i></button>
@@ -166,6 +166,7 @@
       collection, 
       doc, 
       getDoc, 
+      getDocs,
       setDoc, 
       deleteDoc, 
       addDoc, 
@@ -207,18 +208,20 @@
     }
 
     let zoneActive = "RDC";
-    let planDataActuel = null;
+    let pdfDocActuel = null;
+    let baseViewportPdf = null;
     let tachesCache = [];
     let modeAjoutPin = false;
     let coordTemporaire = null;
     let tacheEnConsultation = null;
 
     let zoomLevel = 1, panX = 0, panY = 0, isDragging = false, startX = 0, startY = 0, initialPinchDistance = null;
+    let renderTaskEnCours = null;
+    let renderTimeout = null;
 
     const viewport = document.getElementById("plan-viewport");
     const stage = document.getElementById("plan-stage");
     const canvas = document.getElementById("plan-canvas");
-    const ctx = canvas.getContext("2d");
 
     onSnapshot(collection(db, "taches"), (snapshot) => {
       tachesCache = [];
@@ -238,211 +241,171 @@
       await chargerPlanZone(zone);
     };
 
-    // CHARGEMENT ET RÉASSEMBLAGE CONTINU SUR LE CANVAS UNIQUE SANS AUCUN DÉCALAGE
+    // CHARGEMENT DU PDF BINAIRE RECONSTITUÉ DEPUIS LES SEGMENTS
     async function chargerPlanZone(zone) {
       const docSnap = await getDoc(doc(db, "plans", zone));
       const btnSuppr = document.getElementById("btn-supprimer-plan");
 
-      if (docSnap.exists() && docSnap.data().has_plan) {
-        planDataActuel = docSnap.data();
+      if (docSnap.exists() && docSnap.data().total_chunks) {
+        const totalChunks = docSnap.data().total_chunks;
+        document.getElementById("loading-pdf").classList.remove("hidden");
+        document.getElementById("loading-pdf-text").innerText = "Chargement du plan vectoriel...";
 
-        const [snapTl, snapTr, snapBl, snapBr] = await Promise.all([
-          getDoc(doc(db, `plans/${zone}/tuiles`, "tl")),
-          getDoc(doc(db, `plans/${zone}/tuiles`, "tr")),
-          getDoc(doc(db, `plans/${zone}/tuiles`, "bl")),
-          getDoc(doc(db, `plans/${zone}/tuiles`, "br"))
-        ]);
-
-        if (snapTl.exists() && snapTr.exists() && snapBl.exists() && snapBr.exists()) {
-          const dims = planDataActuel.dimensions;
-          canvas.width = dims.width;
-          canvas.height = dims.height;
-
-          // Chargement asynchrone des 4 images
-          const chargerImg = (src) => new Promise((res) => {
-            const img = new Image();
-            img.onload = () => res(img);
-            img.src = src;
-          });
-
-          const [imgTl, imgTr, imgBl, imgBr] = await Promise.all([
-            chargerImg(snapTl.data().data_url),
-            chargerImg(snapTr.data().data_url),
-            chargerImg(snapBl.data().data_url),
-            chargerImg(snapBr.data().data_url)
-          ]);
-
-          // Dessin sans aucun joint ni sous-pixel
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(imgTl, 0, 0);
-          ctx.drawImage(imgTr, imgTl.width, 0);
-          ctx.drawImage(imgBl, 0, imgTl.height);
-          ctx.drawImage(imgBr, imgTl.width, imgTl.height);
-
-          canvas.classList.remove("hidden");
-          document.getElementById("aucun-plan-msg").classList.add("hidden");
-          if (roleActuel === "RA" || roleActuel === "BE") btnSuppr.classList.remove("hidden");
-          reinitialiserVue();
-          renderPins();
-          return;
+        // Récupération de tous les segments
+        const promises = [];
+        for (let i = 0; i < totalChunks; i++) {
+          promises.push(getDoc(doc(db, `plans/${zone}/chunks`, `chunk_${i}`)));
         }
-      }
+        const chunkSnaps = await Promise.all(promises);
 
-      planDataActuel = null;
-      canvas.width = 0;
-      canvas.height = 0;
-      canvas.classList.add("hidden");
-      document.getElementById("aucun-plan-msg").classList.remove("hidden");
-      btnSuppr.classList.add("hidden");
+        let pdfBase64Complet = "";
+        chunkSnaps.forEach(s => {
+          if (s.exists()) pdfBase64Complet += s.data().data;
+        });
+
+        // Conversion en bytes
+        const binaryString = atob(pdfBase64Complet);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        pdfDocActuel = await pdfjsLib.getDocument({ data: bytes }).promise;
+        const page1 = await pdfDocActuel.getPage(1);
+        baseViewportPdf = page1.getViewport({ scale: 1.0 });
+
+        if (roleActuel === "RA" || roleActuel === "BE") btnSuppr.classList.remove("hidden");
+        document.getElementById("aucun-plan-msg").classList.add("hidden");
+
+        reinitialiserVue();
+        await reeffectuerRenduVectorielNet();
+      } else {
+        pdfDocActuel = null;
+        baseViewportPdf = null;
+        canvas.width = 0;
+        canvas.height = 0;
+        document.getElementById("aucun-plan-msg").classList.remove("hidden");
+        btnSuppr.classList.add("hidden");
+      }
       renderPins();
     }
 
-    // TRAITEMENT SANS LIMITE DE TAILLE DU PDF : RENDU HD PUIS ENREGISTREMENT MULTI-DOCUMENTS
+    // REDESSIN DYNAMIQUE À CHAQUE NIVEAU DE ZOOM (NETTETÉ VECTORIELLE PURE)
+    async function reeffectuerRenduVectorielNet() {
+      if (!pdfDocActuel || !baseViewportPdf) return;
+
+      const page = await pdfDocActuel.getPage(1);
+
+      // Le scale est adapté en temps réel au zoom de l'écran avec une marge de netteté
+      const pixelRatio = window.devicePixelRatio || 1;
+      const targetScale = Math.min(Math.max(zoomLevel * pixelRatio * 1.5, 1.0), 6.0);
+      const viewportPdf = page.getViewport({ scale: targetScale });
+
+      canvas.width = Math.round(viewportPdf.width);
+      canvas.height = Math.round(viewportPdf.height);
+
+      // La taille CSS affichée correspond toujours à la taille de base du plan
+      canvas.style.width = `${Math.round(baseViewportPdf.width)}px`;
+      canvas.style.height = `${Math.round(baseViewportPdf.height)}px`;
+
+      if (renderTaskEnCours) {
+        try { renderTaskEnCours.cancel(); } catch(e){}
+      }
+
+      const ctx = canvas.getContext("2d");
+      renderTaskEnCours = page.render({ canvasContext: ctx, viewport: viewportPdf });
+      await renderTaskEnCours.promise;
+      renderTaskEnCours = null;
+
+      document.getElementById("loading-pdf").classList.add("hidden");
+      renderPins();
+    }
+
+    function planifierRenduNet() {
+      clearTimeout(renderTimeout);
+      renderTimeout = setTimeout(() => {
+        reeffectuerRenduVectorielNet();
+      }, 250);
+    }
+
+    // DÉPÔT SANS LIMITE DE TAILLE : DÉCOUPAGE EN MORCEAUX DE 500 KO DANS FIRESTORE
     window.importerPlanFichier = async (file) => {
-      if (!file) return;
+      if (!file || file.type !== "application/pdf") {
+        alert("Veuillez sélectionner un fichier PDF vectoriel.");
+        return;
+      }
 
       const loader = document.getElementById("loading-pdf");
       const loaderText = document.getElementById("loading-pdf-text");
       loader.classList.remove("hidden");
+      loaderText.innerText = "Préparation et découpage sécurisé...";
 
       try {
-        loaderText.innerText = "Lecture et vectorisation du fichier...";
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
 
-        let mainCanvas;
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const fullBase64 = btoa(binary);
 
-        if (file.type === "application/pdf") {
-          const arrayBuffer = await file.arrayBuffer();
-          const typedarray = new Uint8Array(arrayBuffer);
-          const pdf = await pdfjsLib.getDocument({
-            data: typedarray,
-            cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-            cMapPacked: true
-          }).promise;
-          const page = await pdf.getPage(1);
+        // Découpage en blocs de 500 Ko pour passer sous le 1 Mo Firestore sans jamais être bloqué
+        const chunkSize = 500000;
+        const totalChunks = Math.ceil(fullBase64.length / chunkSize);
 
-          // Rendu haute netteté (largeur de calcul ~3800px pour des textes impeccables)
-          const unscaled = page.getViewport({ scale: 1.0 });
-          const targetDim = 3800;
-          const maxDim = Math.max(unscaled.width, unscaled.height);
-          const scale = maxDim > targetDim ? (targetDim / maxDim) : 2.5;
+        loaderText.innerText = `Enregistrement sur le serveur (${totalChunks} segments)...`;
 
-          const viewportPdf = page.getViewport({ scale });
-          mainCanvas = document.createElement("canvas");
-          mainCanvas.width = Math.round(viewportPdf.width);
-          mainCanvas.height = Math.round(viewportPdf.height);
-          const mainCtx = mainCanvas.getContext("2d");
-
-          await page.render({ canvasContext: mainCtx, viewport: viewportPdf }).promise;
-        } else {
-          mainCanvas = await imageVersCanvas(file, 3800);
+        const batchWrites = [];
+        for (let i = 0; i < totalChunks; i++) {
+          const chunk = fullBase64.substring(i * chunkSize, (i + 1) * chunkSize);
+          batchWrites.push(
+            setDoc(doc(db, `plans/${zoneActive}/chunks`, `chunk_${i}`), { data: chunk })
+          );
         }
 
-        loaderText.innerText = "Découpage en tuiles haute définition...";
+        await Promise.all(batchWrites);
 
-        const w = mainCanvas.width;
-        const h = mainCanvas.height;
-        const halfW = Math.floor(w / 2);
-        const halfH = Math.floor(h / 2);
-
-        // Découpe en 4 tuiles avec 1 pixel de chevauchement pour garantir une continuité parfaite
-        const extraireTuile = (x, y, width, height) => {
-          const tCanvas = document.createElement("canvas");
-          tCanvas.width = width;
-          tCanvas.height = height;
-          const tCtx = tCanvas.getContext("2d");
-          tCtx.drawImage(mainCanvas, x, y, width, height, 0, 0, width, height);
-          return tCanvas.toDataURL("image/jpeg", 0.85);
-        };
-
-        const tuileTL = extraireTuile(0, 0, halfW, halfH);
-        const tuileTR = extraireTuile(halfW, 0, w - halfW, halfH);
-        const tuileBL = extraireTuile(0, halfH, halfW, h - halfH);
-        const tuileBR = extraireTuile(halfW, halfH, w - halfW, h - halfH);
-
-        loaderText.innerText = "Sauvegarde sur le serveur...";
-
-        // Écriture dans 4 documents Firestore indépendants pour contourner la limite de 1 Mo par document
-        await Promise.all([
-          setDoc(doc(db, "plans", zoneActive), {
-            zone: zoneActive,
-            has_plan: true,
-            dimensions: { width: w, height: h },
-            mis_a_jour_par: roleActuel,
-            date_maj: new Date().toISOString()
-          }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "tl"), { data_url: tuileTL }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "tr"), { data_url: tuileTR }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "bl"), { data_url: tuileBL }),
-          setDoc(doc(db, `plans/${zoneActive}/tuiles`, "br"), { data_url: tuileBR })
-        ]);
+        await setDoc(doc(db, "plans", zoneActive), {
+          zone: zoneActive,
+          total_chunks: totalChunks,
+          mis_a_jour_par: roleActuel,
+          date_maj: new Date().toISOString()
+        });
 
         await chargerPlanZone(zoneActive);
       } catch (err) {
-        console.error("Erreur import plan:", err);
-        alert("Erreur lors de la préparation du plan :\n" + (err.message || err));
+        console.error("Erreur téléversement:", err);
+        alert("Erreur lors de l'enregistrement : " + err.message);
       } finally {
         loader.classList.add("hidden");
         document.getElementById("input-pdf-plan").value = "";
       }
     };
 
-    function imageVersCanvas(file, maxDimension) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            let width = img.width;
-            let height = img.height;
-            if (width > height) {
-              if (width > maxDimension) {
-                height = Math.round((height * maxDimension) / width);
-                width = maxDimension;
-              }
-            } else {
-              if (height > maxDimension) {
-                width = Math.round((width * maxDimension) / height);
-                height = maxDimension;
-              }
-            }
-            const can = document.createElement("canvas");
-            can.width = width;
-            can.height = height;
-            const c = can.getContext("2d");
-            c.drawImage(img, 0, 0, width, height);
-            resolve(can);
-          };
-          img.onerror = reject;
-          img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
     window.supprimerPlanZoneActuelle = async () => {
-      if (!planDataActuel) return;
-      if (!confirm(`Supprimer définitivement le plan HD de la zone "${zoneActive}" ?`)) return;
+      if (!pdfDocActuel) return;
+      if (!confirm(`Supprimer définitivement le plan vectoriel de la zone "${zoneActive}" ?`)) return;
 
       try {
-        await Promise.all([
-          deleteDoc(doc(db, "plans", zoneActive)),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "tl")),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "tr")),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "bl")),
-          deleteDoc(doc(db, `plans/${zoneActive}/tuiles`, "br"))
-        ]);
+        const chunksSnap = await getDocs(collection(db, `plans/${zoneActive}/chunks`));
+        const supprs = [];
+        chunksSnap.forEach(d => supprs.push(deleteDoc(d.ref)));
+        supprs.push(deleteDoc(doc(db, "plans", zoneActive)));
+        await Promise.all(supprs);
+
         await chargerPlanZone(zoneActive);
       } catch (err) {
         alert("Erreur : " + err.message);
       }
     };
 
-    // PASTILLES DE TÂCHES
+    // POSITIONNEMENT DES PASTILLES EN POURCENTAGE PARFAIT
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
-      if (!planDataActuel) return;
+      if (!pdfDocActuel) return;
 
       const tachesZone = tachesCache.filter(t => t.zone === zoneActive && t.statut !== "termine" && t.plan_pos);
 
@@ -468,14 +431,15 @@
       });
     }
 
-    // GESTION DU ZOOM ET DÉPLACEMENT
+    // MANIPULATION INTERACTIVE (ZOOM & PAN SANS JIGGLE MOBILE)
     function appliquerTransformation() {
       stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
     }
 
     window.modifierZoom = (delta) => {
-      zoomLevel = Math.min(Math.max(0.3, zoomLevel + delta), 5);
+      zoomLevel = Math.min(Math.max(0.4, zoomLevel + delta), 6.0);
       appliquerTransformation();
+      planifierRenduNet();
     };
 
     window.reinitialiserVue = () => {
@@ -483,6 +447,7 @@
       panX = 0;
       panY = 0;
       appliquerTransformation();
+      planifierRenduNet();
     };
 
     viewport.addEventListener("wheel", (e) => {
@@ -534,9 +499,10 @@
           e.touches[0].clientY - e.touches[1].clientY
         );
         const ratio = currentDist / initialPinchDistance;
-        zoomLevel = Math.min(Math.max(0.3, zoomLevel * ratio), 5);
+        zoomLevel = Math.min(Math.max(0.4, zoomLevel * ratio), 6.0);
         initialPinchDistance = currentDist;
         appliquerTransformation();
+        planifierRenduNet();
       }
     }, { passive: true });
 
@@ -546,8 +512,8 @@
     });
 
     window.basculerModeAjoutPin = () => {
-      if (!planDataActuel) {
-        alert("Déposez d'abord un plan pour cette zone.");
+      if (!pdfDocActuel) {
+        alert("Déposez d'abord le plan PDF pour cette zone.");
         return;
       }
       modeAjoutPin = !modeAjoutPin;
