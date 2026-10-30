@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Plans d'Implantation Vectoriels HD - Gabriel-Montpied</title>
+  <title>Plans d'Implantation HD - Gabriel-Montpied</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -17,6 +17,10 @@
       touch-action: none;
       overscroll-behavior: contain;
       user-select: none;
+    }
+    #plan-stage {
+      will-change: transform;
+      transform-origin: 0 0;
     }
   </style>
 </head>
@@ -32,7 +36,7 @@
       <div>
         <h1 class="text-sm font-black tracking-tight text-white flex items-center gap-2">
           <i class="fa-solid fa-map-location-dot text-amber-400"></i>
-          <span>Plans d'Implantation Vectoriels HD</span>
+          <span>Plans d'Implantation</span>
         </h1>
         <p class="text-[10px] text-slate-400 font-medium">Stade Gabriel-Montpied — Mode <span id="badge-role" class="font-bold text-amber-400 uppercase">Chantier</span></p>
       </div>
@@ -47,7 +51,7 @@
 
       <label id="btn-upload-plan" class="hidden bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3 py-2 rounded-xl shadow cursor-pointer flex items-center gap-1.5 transition active:scale-95">
         <i class="fa-solid fa-file-arrow-up"></i>
-        <span class="hidden sm:inline">Déposer PDF Vectoriel</span>
+        <span class="hidden sm:inline">Déposer PDF</span>
         <input type="file" id="input-pdf-plan" accept="application/pdf" class="hidden" onchange="importerPlanFichier(this.files[0])">
       </label>
 
@@ -72,11 +76,11 @@
     <button onclick="changerZone('Gergovie')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gergovie</button>
   </nav>
 
-  <!-- ZONE VIEWPORT DU PLAN -->
-  <main id="plan-viewport" class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing flex items-center justify-center">
+  <!-- VIEWPORT TACTILE HAUTE PERFORMANCE -->
+  <main id="plan-viewport" class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing">
 
-    <div id="aucun-plan-msg" class="text-center p-6 max-w-sm hidden pointer-events-none">
-      <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center mx-auto mb-3 text-2xl text-slate-500">
+    <div id="aucun-plan-msg" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center pointer-events-none hidden">
+      <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center mb-3 text-2xl text-slate-500">
         <i class="fa-solid fa-map"></i>
       </div>
       <h3 class="font-bold text-sm text-slate-300">Aucun plan pour cette zone</h3>
@@ -85,19 +89,23 @@
 
     <div id="loading-pdf" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
       <i class="fa-solid fa-circle-notch fa-spin text-3xl text-amber-400"></i>
-      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Chargement vectoriel...</span>
+      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Chargement du plan...</span>
     </div>
 
-    <!-- Scène Unique Canvas Vectorielle -->
-    <div id="plan-stage" class="relative origin-top-left will-change-transform inline-block">
-      <canvas id="plan-canvas" class="block shadow-2xl bg-white"></canvas>
+    <!-- Scène Unique gérée par GPU Transform -->
+    <div id="plan-stage" class="absolute top-0 left-0">
+      <!-- Canevas de fond fluide -->
+      <canvas id="plan-canvas-base" class="block shadow-2xl bg-white"></canvas>
+      <!-- Canevas de détail vectoriel ciblé (viewport actif) -->
+      <canvas id="plan-canvas-detail" class="absolute top-0 left-0 pointer-events-none"></canvas>
+      <!-- Conteneur des repères de tâches -->
       <div id="pins-container" class="absolute inset-0 pointer-events-auto"></div>
     </div>
 
     <!-- Contrôles flottants de zoom -->
     <div class="absolute bottom-5 right-5 z-20 flex flex-col gap-2 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-2xl">
-      <button onclick="modifierZoom(0.35)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom avant"><i class="fa-solid fa-plus"></i></button>
-      <button onclick="modifierZoom(-0.35)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom arrière"><i class="fa-solid fa-minus"></i></button>
+      <button onclick="modifierZoom(0.4)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom avant"><i class="fa-solid fa-plus"></i></button>
+      <button onclick="modifierZoom(-0.4)" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-sm" title="Zoom arrière"><i class="fa-solid fa-minus"></i></button>
       <button onclick="reinitialiserVue()" class="w-9 h-9 rounded-xl hover:bg-slate-800 flex items-center justify-center text-white text-xs font-bold" title="Ajuster">100%</button>
     </div>
 
@@ -215,15 +223,25 @@
     let coordTemporaire = null;
     let tacheEnConsultation = null;
 
-    let zoomLevel = 1, panX = 0, panY = 0, isDragging = false, startX = 0, startY = 0, initialPinchDistance = null;
-    let renderTaskEnCours = null;
-    let renduEnCours = false;
-    let renduEnAttente = false;
-    let renderTimeout = null;
+    // Dimensions de référence (largeur logique du plan en px)
+    let planWidth = 1000;
+    let planHeight = 700;
+
+    // Navigation tactile GPU
+    let zoomLevel = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let initialPinchDistance = null;
+    let renderDetailTask = null;
+    let debounceDetailTimeout = null;
 
     const viewport = document.getElementById("plan-viewport");
     const stage = document.getElementById("plan-stage");
-    const canvas = document.getElementById("plan-canvas");
+    const canvasBase = document.getElementById("plan-canvas-base");
+    const canvasDetail = document.getElementById("plan-canvas-detail");
 
     onSnapshot(collection(db, "taches"), (snapshot) => {
       tachesCache = [];
@@ -250,7 +268,7 @@
       if (docSnap.exists() && docSnap.data().total_chunks) {
         const totalChunks = docSnap.data().total_chunks;
         document.getElementById("loading-pdf").classList.remove("hidden");
-        document.getElementById("loading-pdf-text").innerText = "Chargement du plan vectoriel...";
+        document.getElementById("loading-pdf-text").innerText = "Chargement des vecteurs du plan...";
 
         const promises = [];
         for (let i = 0; i < totalChunks; i++) {
@@ -263,7 +281,6 @@
           if (s.exists()) pdfBase64Complet += s.data().data;
         });
 
-        // Décodage Base64 sécurisé
         const binaryString = atob(pdfBase64Complet);
         const len = binaryString.length;
         const bytes = new Uint8Array(len);
@@ -275,77 +292,241 @@
         const page1 = await pdfDocActuel.getPage(1);
         baseViewportPdf = page1.getViewport({ scale: 1.0 });
 
+        planWidth = Math.round(baseViewportPdf.width);
+        planHeight = Math.round(baseViewportPdf.height);
+
+        stage.style.width = `${planWidth}px`;
+        stage.style.height = `${planHeight}px`;
+
         if (roleActuel === "RA" || roleActuel === "BE") btnSuppr.classList.remove("hidden");
         document.getElementById("aucun-plan-msg").classList.add("hidden");
 
         reinitialiserVue();
-        await declencherRenduVectorielNet();
+        await genererFondPlanFluide();
       } else {
         pdfDocActuel = null;
         baseViewportPdf = null;
-        canvas.width = 0;
-        canvas.height = 0;
+        canvasBase.width = 0;
+        canvasBase.height = 0;
+        canvasDetail.width = 0;
+        canvasDetail.height = 0;
         document.getElementById("aucun-plan-msg").classList.remove("hidden");
         btnSuppr.classList.add("hidden");
       }
       renderPins();
     }
 
-    // GESTIONNAIRE DE RENDU AVEC VERROU STRICT POUR ÉVITER "RENDERING CANCELLED"
-    async function declencherRenduVectorielNet() {
-      if (!pdfDocActuel || !baseViewportPdf) return;
+    // 1. GÉNÉRATION UNIQUE DE L'IMAGE DE BASE (RAPIDE & FLUIDE)
+    async function genererFondPlanFluide() {
+      if (!pdfDocActuel) return;
+      document.getElementById("loading-pdf-text").innerText = "Optimisation de l'affichage...";
+      
+      const page = await pdfDocActuel.getPage(1);
+      // Échelle modérée pour l'ensemble du plan (~1800px max) : calcul instantané et mémoire légère
+      const targetWidth = Math.min(planWidth, 1800);
+      const scaleBase = targetWidth / planWidth;
+      const vp = page.getViewport({ scale: scaleBase });
 
-      if (renduEnCours) {
-        renduEnAttente = true;
-        if (renderTaskEnCours) {
-          try { renderTaskEnCours.cancel(); } catch(e) {}
-        }
+      canvasBase.width = Math.round(vp.width);
+      canvasBase.height = Math.round(vp.height);
+      canvasBase.style.width = `${planWidth}px`;
+      canvasBase.style.height = `${planHeight}px`;
+
+      const ctx = canvasBase.getContext("2d");
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+      document.getElementById("loading-pdf").classList.add("hidden");
+      renderPins();
+    }
+
+    // 2. RENDU HAUTE DÉFINITION CIBLÉ SUR LA ZONE EXACTEMENT VISIBLE (VIEWPORT CULLING)
+    async function rendreZoneVisibleEnHD() {
+      if (!pdfDocActuel || !baseViewportPdf || zoomLevel <= 1.1) {
+        // En vue globale, le fond de base suffit amplement
+        canvasDetail.width = 0;
+        canvasDetail.height = 0;
         return;
       }
 
-      renduEnCours = true;
-      renduEnAttente = false;
+      if (renderDetailTask) {
+        try { renderDetailTask.cancel(); } catch(e){}
+      }
+
+      const vpRect = viewport.getBoundingClientRect();
+      const pixelRatio = window.devicePixelRatio || 1;
+
+      // Calcul des coordonnées de la fenêtre visible dans le repère du plan (0 à planWidth)
+      const visibleX = Math.max(0, -panX / zoomLevel);
+      const visibleY = Math.max(0, -panY / zoomLevel);
+      const visibleW = Math.min(planWidth - visibleX, vpRect.width / zoomLevel);
+      const visibleH = Math.min(planHeight - visibleY, vpRect.height / zoomLevel);
+
+      if (visibleW <= 10 || visibleH <= 10) return;
+
+      const page = await pdfDocActuel.getPage(1);
+
+      // Le scale est calibré pour être ultra net sur l'écran physique
+      const renderScale = zoomLevel * pixelRatio;
+      
+      // Canvas calé exactement sur la zone affichée
+      canvasDetail.style.left = `${visibleX}px`;
+      canvasDetail.style.top = `${visibleY}px`;
+      canvasDetail.style.width = `${visibleW}px`;
+      canvasDetail.style.height = `${visibleH}px`;
+
+      canvasDetail.width = Math.round(visibleW * renderScale);
+      canvasDetail.height = Math.round(visibleH * renderScale);
+
+      const ctx = canvasDetail.getContext("2d");
+
+      // Transformation affine PDF.js pour ne dessiner QUE ce rectangle
+      const transformMatrix = [
+        renderScale, 0,
+        0, renderScale,
+        -visibleX * renderScale, -visibleY * renderScale
+      ];
 
       try {
-        const page = await pdfDocActuel.getPage(1);
-        const pixelRatio = window.devicePixelRatio || 1;
-        // Calcul du scale pour une netteté vectorielle parfaite sans saturer la mémoire
-        const targetScale = Math.min(Math.max(zoomLevel * pixelRatio * 1.4, 1.0), 5.5);
-        const viewportPdf = page.getViewport({ scale: targetScale });
-
-        canvas.width = Math.round(viewportPdf.width);
-        canvas.height = Math.round(viewportPdf.height);
-
-        canvas.style.width = `${Math.round(baseViewportPdf.width)}px`;
-        canvas.style.height = `${Math.round(baseViewportPdf.height)}px`;
-
-        const ctx = canvas.getContext("2d");
-        renderTaskEnCours = page.render({ canvasContext: ctx, viewport: viewportPdf });
-        await renderTaskEnCours.promise;
-      } catch (err) {
+        renderDetailTask = page.render({
+          canvasContext: ctx,
+          viewport: page.getViewport({ scale: 1.0 }),
+          transform: transformMatrix
+        });
+        await renderDetailTask.promise;
+      } catch(err) {
         if (err.name !== "RenderingCancelledException") {
-          console.error("Erreur de rendu PDF:", err);
+          console.error("Erreur rendu cible:", err);
         }
       } finally {
-        renderTaskEnCours = null;
-        renduEnCours = false;
-        document.getElementById("loading-pdf").classList.add("hidden");
-        renderPins();
-
-        if (renduEnAttente) {
-          declencherRenduVectorielNet();
-        }
+        renderDetailTask = null;
       }
     }
 
-    function planifierRenduNet() {
-      clearTimeout(renderTimeout);
-      renderTimeout = setTimeout(() => {
-        declencherRenduVectorielNet();
-      }, 300);
+    function planifierRenduCibleHD() {
+      clearTimeout(debounceDetailTimeout);
+      debounceDetailTimeout = setTimeout(() => {
+        rendreZoneVisibleEnHD();
+      }, 180); // Déclenchement 180ms après arrêt du mouvement
     }
 
-    // IMPORT ROBUSTE VIA FILEREADER (SANS STACK OVERFLOW SUR GROS PDF)
+    // MANIPULATION GPU ULTRA FLUIDE
+    function appliquerTransformation() {
+      stage.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomLevel})`;
+    }
+
+    window.modifierZoom = (delta) => {
+      const rect = viewport.getBoundingClientRect();
+      const centreX = rect.width / 2;
+      const centreY = rect.height / 2;
+      appliquerZoomAutourDuPoint(delta, centreX, centreY);
+    };
+
+    function appliquerZoomAutourDuPoint(delta, clientX, clientY) {
+      const nouveauZoom = Math.min(Math.max(0.2, zoomLevel + delta), 8.0);
+      if (nouveauZoom === zoomLevel) return;
+
+      // Zoom centré sur le curseur / les doigts
+      panX = clientX - (clientX - panX) * (nouveauZoom / zoomLevel);
+      panY = clientY - (clientY - panY) * (nouveauZoom / zoomLevel);
+      zoomLevel = nouveauZoom;
+
+      appliquerTransformation();
+      planifierRenduCibleHD();
+    }
+
+    window.reinitialiserVue = () => {
+      const vRect = viewport.getBoundingClientRect();
+      if (planWidth && planHeight && vRect.width && vRect.height) {
+        const ratioW = vRect.width / planWidth;
+        const ratioH = vRect.height / planHeight;
+        zoomLevel = Math.min(ratioW, ratioH) * 0.95;
+        panX = (vRect.width - planWidth * zoomLevel) / 2;
+        panY = (vRect.height - planHeight * zoomLevel) / 2;
+      } else {
+        zoomLevel = 1;
+        panX = 0;
+        panY = 0;
+      }
+      appliquerTransformation();
+      planifierRenduCibleHD();
+    };
+
+    // Molette de souris PC
+    viewport.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.35 : -0.35;
+      const vRect = viewport.getBoundingClientRect();
+      appliquerZoomAutourDuPoint(delta, e.clientX - vRect.left, e.clientY - vRect.top);
+    }, { passive: false });
+
+    // Glisser souris PC
+    viewport.addEventListener("mousedown", (e) => {
+      if (modeAjoutPin) return;
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      appliquerTransformation();
+      planifierRenduCibleHD();
+    });
+
+    window.addEventListener("mouseup", () => isDragging = false);
+
+    // Tactile Mobile / Tablette
+    viewport.addEventListener("touchstart", (e) => {
+      if (modeAjoutPin) return;
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - panX;
+        startY = e.touches[0].clientY - panY;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialPinchDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    viewport.addEventListener("touchmove", (e) => {
+      if (modeAjoutPin) return;
+      if (e.touches.length === 1 && isDragging) {
+        panX = e.touches[0].clientX - startX;
+        panY = e.touches[0].clientY - startY;
+        appliquerTransformation();
+        planifierRenduCibleHD();
+      } else if (e.touches.length === 2 && initialPinchDistance) {
+        const currentDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const ratio = currentDist / initialPinchDistance;
+        const vRect = viewport.getBoundingClientRect();
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - vRect.left;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - vRect.top;
+
+        const nouveauZoom = Math.min(Math.max(0.2, zoomLevel * ratio), 8.0);
+        panX = midX - (midX - panX) * (nouveauZoom / zoomLevel);
+        panY = midY - (midY - panY) * (nouveauZoom / zoomLevel);
+        zoomLevel = nouveauZoom;
+        initialPinchDistance = currentDist;
+
+        appliquerTransformation();
+        planifierRenduCibleHD();
+      }
+    }, { passive: true });
+
+    viewport.addEventListener("touchend", () => {
+      isDragging = false;
+      initialPinchDistance = null;
+    });
+
+    // IMPORT PDF SANS LIMITE DE VOLUME
     window.importerPlanFichier = (file) => {
       if (!file || file.type !== "application/pdf") {
         alert("Veuillez sélectionner un fichier PDF vectoriel.");
@@ -355,7 +536,7 @@
       const loader = document.getElementById("loading-pdf");
       const loaderText = document.getElementById("loading-pdf-text");
       loader.classList.remove("hidden");
-      loaderText.innerText = "Lecture et découpage du fichier...";
+      loaderText.innerText = "Lecture et indexation du plan...";
 
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -363,11 +544,10 @@
           const dataUrl = e.target.result;
           const fullBase64 = dataUrl.split(',')[1];
 
-          // Segments de 500 Ko pour Firestore
           const chunkSize = 500000;
           const totalChunks = Math.ceil(fullBase64.length / chunkSize);
 
-          loaderText.innerText = `Sauvegarde sur le serveur (${totalChunks} segments)...`;
+          loaderText.innerText = `Sauvegarde sur le serveur (${totalChunks} blocs)...`;
 
           const batchWrites = [];
           for (let i = 0; i < totalChunks; i++) {
@@ -421,6 +601,7 @@
       }
     };
 
+    // PASTILLES DE TÂCHES
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -450,85 +631,6 @@
       });
     }
 
-    function appliquerTransformation() {
-      stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
-    }
-
-    window.modifierZoom = (delta) => {
-      zoomLevel = Math.min(Math.max(0.4, zoomLevel + delta), 6.0);
-      appliquerTransformation();
-      planifierRenduNet();
-    };
-
-    window.reinitialiserVue = () => {
-      zoomLevel = 1;
-      panX = 0;
-      panY = 0;
-      appliquerTransformation();
-      planifierRenduNet();
-    };
-
-    viewport.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 0.25 : -0.25;
-      window.modifierZoom(delta);
-    }, { passive: false });
-
-    viewport.addEventListener("mousedown", (e) => {
-      if (modeAjoutPin) return;
-      isDragging = true;
-      startX = e.clientX - panX;
-      startY = e.clientY - panY;
-    });
-
-    window.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
-      panX = e.clientX - startX;
-      panY = e.clientY - startY;
-      appliquerTransformation();
-    });
-
-    window.addEventListener("mouseup", () => isDragging = false);
-
-    viewport.addEventListener("touchstart", (e) => {
-      if (modeAjoutPin) return;
-      if (e.touches.length === 1) {
-        isDragging = true;
-        startX = e.touches[0].clientX - panX;
-        startY = e.touches[0].clientY - panY;
-      } else if (e.touches.length === 2) {
-        isDragging = false;
-        initialPinchDistance = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-      }
-    }, { passive: true });
-
-    viewport.addEventListener("touchmove", (e) => {
-      if (modeAjoutPin) return;
-      if (e.touches.length === 1 && isDragging) {
-        panX = e.touches[0].clientX - startX;
-        panY = e.touches[0].clientY - startY;
-        appliquerTransformation();
-      } else if (e.touches.length === 2 && initialPinchDistance) {
-        const currentDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        const ratio = currentDist / initialPinchDistance;
-        zoomLevel = Math.min(Math.max(0.4, zoomLevel * ratio), 6.0);
-        initialPinchDistance = currentDist;
-        appliquerTransformation();
-        planifierRenduNet();
-      }
-    }, { passive: true });
-
-    viewport.addEventListener("touchend", () => {
-      isDragging = false;
-      initialPinchDistance = null;
-    });
-
     window.basculerModeAjoutPin = () => {
       if (!pdfDocActuel) {
         alert("Déposez d'abord le plan PDF pour cette zone.");
@@ -553,7 +655,7 @@
 
     stage.addEventListener("click", (e) => {
       if (!modeAjoutPin) return;
-      const rect = canvas.getBoundingClientRect();
+      const rect = stage.getBoundingClientRect();
       const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
       const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
 
