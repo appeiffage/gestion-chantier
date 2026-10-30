@@ -13,7 +13,6 @@
 </head>
 <body class="bg-slate-200 text-slate-800 min-h-screen">
 
-  <!-- BANDEAU HAUT -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-purple-500">
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -184,7 +183,7 @@
     </div>
   </div>
 
-  <!-- MODAL : ÉDITION AVEC LES 3 COMMENTAIRES DISTINCTS -->
+  <!-- MODAL : ÉDITION AVEC LIEN PLAN DÉDIÉ -->
   <div id="modal-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 text-xs overflow-hidden">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
@@ -195,6 +194,22 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-4">
+
+        <!-- BANDEAU ACCÈS DIRECT AU PLAN SI AFFILIÉE -->
+        <div id="modal-plan-affiliation-box" class="hidden bg-purple-50 border-2 border-purple-300 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2 text-purple-950">
+            <i class="fa-solid fa-map-location-dot text-base text-purple-600"></i>
+            <div>
+              <span class="font-black block text-[11px] uppercase tracking-wide">Repérée sur plan</span>
+              <span id="modal-plan-info" class="text-[10px] text-purple-900 font-bold"></span>
+            </div>
+          </div>
+          <button id="btn-ouvrir-sur-plan" onclick="allerSurLePlanDeLaTache()" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Voir sur le plan</span>
+          </button>
+        </div>
+
         <div>
           <label class="font-bold text-slate-800 block mb-1">Titre de l'action / Étude</label>
           <input id="tache-titre" type="text" placeholder="Ex: Diffusion indice B schéma TGBT" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-purple-500 font-semibold text-slate-800">
@@ -240,11 +255,9 @@
           </div>
         </div>
 
-        <!-- SYSTÈME DES 3 COMMENTAIRES VERROUILLÉS -->
         <div class="border-t pt-3 space-y-3">
           <span class="font-bold text-slate-800 block text-[11px] uppercase tracking-wider">Commentaires par métier</span>
 
-          <!-- 1. CHANTIER (LECTURE SEULE SUR BE) -->
           <div class="bg-amber-50/50 border border-amber-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-amber-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-helmet-safety text-amber-600"></i> Commentaire Chantier</span>
@@ -253,7 +266,6 @@
             <input id="comm-chantier" type="text" readonly disabled class="w-full border border-amber-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
 
-          <!-- 2. RA (LECTURE SEULE SUR BE) -->
           <div class="bg-blue-50/50 border border-blue-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-blue-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-briefcase text-blue-600"></i> Commentaire RA</span>
@@ -262,7 +274,6 @@
             <input id="comm-ra" type="text" readonly disabled class="w-full border border-blue-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
 
-          <!-- 3. BE (ÉDITABLE ICI) -->
           <div class="bg-purple-50/80 border-2 border-purple-400 p-2.5 rounded-2xl">
             <label class="font-black text-purple-950 flex items-center gap-1.5 mb-1 text-[11px]">
               <i class="fa-solid fa-compass-drafting text-purple-600"></i> Commentaire BE (Modifiable)
@@ -271,7 +282,6 @@
           </div>
         </div>
 
-        <!-- ZONE PHOTOS -->
         <div class="border-t pt-3">
           <div class="flex items-center justify-between mb-2">
             <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-purple-600 mr-1"></i> Pièces jointes & Schémas</span>
@@ -323,7 +333,7 @@
       collection, 
       addDoc, 
       updateDoc, 
-      deleteDoc,
+      deleteDoc, 
       doc, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
@@ -424,6 +434,7 @@
 
         actionsBE.forEach(t => {
           const photosCount = (t.photos && t.photos.length) ? `<span class="text-[10px] text-purple-700 font-bold ml-2"><i class="fa-solid fa-image mr-1"></i>${t.photos.length}</span>` : '';
+          const badgePlan = t.plan_pos ? `<a href="plans.html?role=be&niveau=${t.zone}&lot=${t.plan_lot || 'CFO'}&focus=${t.id}" onclick="event.stopPropagation()" class="bg-[#FFE500] hover:bg-amber-400 text-black border border-black px-2 py-0.5 rounded-md font-black text-[9px] flex items-center gap-1 shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Sur plan</a>` : '';
 
           const item = document.createElement("div");
           item.className = "bg-white p-3.5 rounded-2xl border-2 border-purple-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-purple-400 transition";
@@ -433,6 +444,7 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="bg-purple-600 text-white font-black text-[9px] px-2 py-0.5 rounded">Action BE</span>
                 <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
+                ${badgePlan}
                 ${photosCount}
                 ${t.date_limite ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200"><i class="fa-regular fa-clock mr-1"></i>${formaterDateFr(t.date_limite)}</span>` : ''}
               </div>
@@ -477,7 +489,7 @@
       const card = document.createElement("div");
       card.className = "bg-white border-2 border-slate-200 hover:border-slate-400 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition cursor-pointer";
       card.onclick = (e) => {
-        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") ouvrirModalEditionTache(t);
+        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I" && e.target.tagName !== "A") ouvrirModalEditionTache(t);
       };
 
       const dateRetard = estDatee && t.date_limite < aujourdhuiStr;
@@ -489,12 +501,14 @@
       }).join(" ");
 
       const photosCount = (t.photos && t.photos.length) ? `<span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-lg border ml-1"><i class="fa-solid fa-camera mr-1 text-purple-600"></i>${t.photos.length}</span>` : '';
+      const badgePlan = t.plan_pos ? `<a href="plans.html?role=be&niveau=${t.zone}&lot=${t.plan_lot || 'CFO'}&focus=${t.id}" onclick="event.stopPropagation()" class="bg-[#FFE500] hover:bg-amber-400 text-black border border-black px-2 py-0.5 rounded-md font-black text-[9px] flex items-center gap-1 shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Sur plan (${t.plan_lot || 'CFO'})</a>` : '';
 
       card.innerHTML = `
         <div class="space-y-1.5 flex-1">
           <div class="flex flex-wrap items-center gap-1.5">
             <span class="bg-slate-900 text-amber-300 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">${t.zone}</span>
             ${badgesAssign}
+            ${badgePlan}
             ${photosCount}
             ${estDatee ? `
               <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
@@ -512,6 +526,13 @@
       `;
       return card;
     }
+
+    window.allerSurLePlanDeLaTache = () => {
+      if (!tacheEnCoursEdition || !tacheEnCoursEdition.plan_pos) return;
+      const niv = tacheEnCoursEdition.zone || "RDC";
+      const lot = tacheEnCoursEdition.plan_lot || "CFO";
+      window.location.href = `plans.html?role=be&niveau=${niv}&lot=${lot}&focus=${tacheEnCoursEdition.id}`;
+    };
 
     window.cloturerTache = async (id) => {
       await updateDoc(doc(db, "taches", id), {
@@ -759,7 +780,6 @@
       }
     });
 
-    // CHARGEMENT MODAL BE
     window.ouvrirModalAjoutTache = () => {
       tacheEnCoursEdition = null;
       photosTemporaires = [];
@@ -771,6 +791,8 @@
       document.getElementById("comm-chantier").value = "";
       document.getElementById("comm-ra").value = "";
       document.getElementById("comm-be").value = "";
+
+      document.getElementById("modal-plan-affiliation-box").classList.add("hidden");
 
       document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => chk.checked = chk.value === "BE");
       renderMiniaturesPhotos();
@@ -784,6 +806,14 @@
       document.getElementById("tache-titre").value = t.titre || "";
       document.getElementById("tache-zone").value = t.zone || "RDC";
       document.getElementById("tache-date").value = t.date_limite || "";
+
+      const boxPlan = document.getElementById("modal-plan-affiliation-box");
+      if (t.plan_pos) {
+        document.getElementById("modal-plan-info").innerText = `${t.zone} — ${t.plan_lot || 'CFO'} (Position : ${t.plan_pos.x}%, ${t.plan_pos.y}%)`;
+        boxPlan.classList.remove("hidden");
+      } else {
+        boxPlan.classList.add("hidden");
+      }
 
       const comms = t.commentaires || {};
       document.getElementById("comm-chantier").value = comms.chantier || (t.annotation_auteur === 'Chantier' ? t.annotation : '') || "";
@@ -808,7 +838,6 @@
       const zone = document.getElementById("tache-zone").value;
       const dateLimite = document.getElementById("tache-date").value || null;
 
-      // On récupère uniquement la saisie autorisée pour cette page
       const texteBe = document.getElementById("comm-be").value.trim();
 
       const assignes = [];
@@ -827,7 +856,7 @@
         const commsExistants = tacheEnCoursEdition.commentaires || {};
         const commentairesMaj = {
           ...commsExistants,
-          be: texteBe // Seul BE est mis à jour
+          be: texteBe
         };
 
         await updateDoc(doc(db, "taches", tacheEnCoursEdition.id), {
