@@ -181,7 +181,7 @@
       collection, 
       doc, 
       getDoc, 
-      getDocs,
+      getDocs, 
       setDoc, 
       deleteDoc, 
       addDoc, 
@@ -222,7 +222,6 @@
       document.getElementById("btn-upload-plan").classList.remove("hidden");
     }
 
-    // Gestion Niveau & Lot (Clé unique = Niveau_Lot)
     let niveauActuel = "RDC";
     let lotActuel = "CFO";
     let planCleActuelle = "RDC_CFO";
@@ -617,7 +616,7 @@
       }
     };
 
-    // PASTILLES DE TÂCHES (Filtrées par niveau ET lot)
+    // PASTILLES DE TÂCHES ULTRA-VISIBLES
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -630,24 +629,44 @@
       });
 
       tachesFiltrees.forEach(t => {
-        const pin = document.createElement("button");
-        pin.className = "absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition active:scale-90 z-10";
+        const wrapper = document.createElement("div");
+        wrapper.className = "absolute -translate-x-1/2 -translate-y-full z-20 pointer-events-auto cursor-pointer group";
+        wrapper.style.left = `${t.plan_pos.x}%`;
+        wrapper.style.top = `${t.plan_pos.y}%`;
 
         const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
-        if (assigns.includes("BE")) pin.classList.add("bg-purple-600", "text-white");
-        else if (assigns.includes("RA")) pin.classList.add("bg-blue-600", "text-white");
-        else pin.classList.add("bg-amber-400", "text-slate-950");
+        let bgCouleur = "bg-amber-400 text-slate-950";
 
-        pin.style.left = `${t.plan_pos.x}%`;
-        pin.style.top = `${t.plan_pos.y}%`;
-        pin.innerHTML = `<i class="fa-solid fa-location-dot text-xs"></i>`;
+        if (assigns.includes("BE")) {
+          bgCouleur = "bg-purple-600 text-white";
+        } else if (assigns.includes("RA")) {
+          bgCouleur = "bg-blue-600 text-white";
+        }
 
-        pin.onclick = (e) => {
+        wrapper.innerHTML = `
+          <div class="relative flex flex-col items-center select-none transition-transform duration-150 active:scale-90 group-hover:scale-110">
+            <!-- Halo radar pulsant -->
+            <span class="absolute -top-1 w-10 h-10 rounded-full ${bgCouleur} opacity-40 animate-ping pointer-events-none"></span>
+
+            <!-- Corps de l'épingle (bulle haute) -->
+            <div class="w-9 h-9 rounded-full ${bgCouleur} border-3 border-white shadow-2xl flex items-center justify-center font-black text-sm z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
+              <i class="fa-solid fa-location-dot"></i>
+            </div>
+
+            <!-- Pointe basse de l'épingle pointant la cloison -->
+            <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] ${assigns.includes('BE') ? 'border-t-purple-600' : (assigns.includes('RA') ? 'border-t-blue-600' : 'border-t-amber-400')} -mt-0.5 z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"></div>
+
+            <!-- Ombre au sol (point d'ancrage exact) -->
+            <div class="w-2.5 h-1 bg-black/60 rounded-full blur-[0.8px] -mt-0.5"></div>
+          </div>
+        `;
+
+        wrapper.onclick = (e) => {
           e.stopPropagation();
           ouvrirFichePin(t);
         };
 
-        container.appendChild(pin);
+        container.appendChild(wrapper);
       });
     }
 
