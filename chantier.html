@@ -13,7 +13,6 @@
 </head>
 <body class="bg-slate-200 text-slate-800 min-h-screen">
 
-  <!-- BANDEAU HAUT -->
   <header class="relative bg-[#0b172a] text-white overflow-hidden shadow-xl border-b-4 border-amber-400">
     <div class="absolute right-0 bottom-0 top-0 w-full md:w-3/4 pointer-events-none opacity-30 flex items-end justify-end">
       <svg viewBox="0 0 1000 320" class="w-full h-full object-cover" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -243,7 +242,7 @@
     </div>
   </div>
 
-  <!-- MODAL : ÉDITION AVEC LES 3 COMMENTAIRES DISTINCTS -->
+  <!-- MODAL : ÉDITION AVEC LIEN PLAN DÉDIÉ -->
   <div id="modal-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 text-xs overflow-hidden">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
@@ -254,6 +253,22 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-4">
+
+        <!-- BANDEAU ACCÈS DIRECT AU PLAN SI AFFILIÉE -->
+        <div id="modal-plan-affiliation-box" class="hidden bg-amber-50 border-2 border-amber-300 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2 text-amber-950">
+            <i class="fa-solid fa-map-location-dot text-base text-amber-600"></i>
+            <div>
+              <span class="font-black block text-[11px] uppercase tracking-wide">Repérée sur plan</span>
+              <span id="modal-plan-info" class="text-[10px] text-amber-900 font-bold"></span>
+            </div>
+          </div>
+          <button id="btn-ouvrir-sur-plan" onclick="allerSurLePlanDeLaTache()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[11px] px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Voir sur le plan</span>
+          </button>
+        </div>
+
         <div>
           <label class="font-bold text-slate-800 block mb-1">Titre de la tâche</label>
           <input id="tache-titre" type="text" placeholder="Ex: Raccordement TGBT" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-amber-500 font-semibold text-slate-800">
@@ -377,7 +392,7 @@
       collection, 
       addDoc, 
       updateDoc, 
-      deleteDoc, 
+      deleteDoc,
       doc, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
@@ -572,6 +587,7 @@
         }).join(" ");
 
         const photosCount = (t.photos && t.photos.length) ? `<span class="text-[10px] text-amber-700 font-bold ml-2"><i class="fa-solid fa-image mr-1"></i>${t.photos.length}</span>` : '';
+        const badgePlan = t.plan_pos ? `<a href="plans.html?role=chantier&niveau=${t.zone}&lot=${t.plan_lot || 'CFO'}&focus=${t.id}" onclick="event.stopPropagation()" class="bg-[#FFE500] hover:bg-amber-400 text-black border border-black px-2 py-0.5 rounded-md font-black text-[9px] flex items-center gap-1 shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Sur plan</a>` : '';
 
         const item = document.createElement("div");
         item.className = "bg-white p-3.5 rounded-2xl border-2 border-amber-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-amber-400 transition";
@@ -581,6 +597,7 @@
             <div class="flex items-center gap-1.5 flex-wrap">
               ${badgesHtml}
               <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
+              ${badgePlan}
               ${photosCount}
             </div>
             <h4 class="font-bold text-xs text-slate-900 mt-1">${t.titre}</h4>
@@ -618,19 +635,21 @@
       const card = document.createElement("div");
       card.className = "bg-white border-2 border-slate-200 hover:border-slate-400 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition cursor-pointer";
       card.onclick = (e) => {
-        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") ouvrirModalEditionTache(t);
+        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I" && e.target.tagName !== "A") ouvrirModalEditionTache(t);
       };
 
       const dateRetard = estDatee && t.date_limite < aujourdhuiStr;
       const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
       const badgesAssign = assigns.map(a => `<span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[9px] uppercase border">${a}</span>`).join(" ");
       const photosCount = (t.photos && t.photos.length) ? `<span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-lg border ml-1"><i class="fa-solid fa-camera mr-1 text-amber-500"></i>${t.photos.length}</span>` : '';
+      const badgePlan = t.plan_pos ? `<a href="plans.html?role=chantier&niveau=${t.zone}&lot=${t.plan_lot || 'CFO'}&focus=${t.id}" onclick="event.stopPropagation()" class="bg-[#FFE500] hover:bg-amber-400 text-black border border-black px-2 py-0.5 rounded-md font-black text-[9px] flex items-center gap-1 shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Sur plan (${t.plan_lot || 'CFO'})</a>` : '';
 
       card.innerHTML = `
         <div class="space-y-1.5 flex-1">
           <div class="flex flex-wrap items-center gap-1.5">
             <span class="bg-slate-900 text-amber-300 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">${t.zone}</span>
             ${badgesAssign}
+            ${badgePlan}
             ${photosCount}
             ${estDatee ? `
               <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
@@ -648,6 +667,13 @@
       `;
       return card;
     }
+
+    window.allerSurLePlanDeLaTache = () => {
+      if (!tacheEnCoursEdition || !tacheEnCoursEdition.plan_pos) return;
+      const niv = tacheEnCoursEdition.zone || "RDC";
+      const lot = tacheEnCoursEdition.plan_lot || "CFO";
+      window.location.href = `plans.html?role=chantier&niveau=${niv}&lot=${lot}&focus=${tacheEnCoursEdition.id}`;
+    };
 
     window.cloturerTache = async (id) => {
       await updateDoc(doc(db, "taches", id), {
@@ -1027,6 +1053,8 @@
       document.getElementById("comm-ra").value = "";
       document.getElementById("comm-be").value = "";
 
+      document.getElementById("modal-plan-affiliation-box").classList.add("hidden");
+
       document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => chk.checked = chk.value === "Chantier");
       renderMiniaturesPhotos();
       document.getElementById("modal-tache").classList.remove("hidden");
@@ -1039,6 +1067,15 @@
       document.getElementById("tache-titre").value = t.titre || "";
       document.getElementById("tache-zone").value = t.zone || "RDC";
       document.getElementById("tache-date").value = t.date_limite || "";
+
+      // Affichage de l'affiliation au plan si existante
+      const boxPlan = document.getElementById("modal-plan-affiliation-box");
+      if (t.plan_pos) {
+        document.getElementById("modal-plan-info").innerText = `${t.zone} — ${t.plan_lot || 'CFO'} (Position : ${t.plan_pos.x}%, ${t.plan_pos.y}%)`;
+        boxPlan.classList.remove("hidden");
+      } else {
+        boxPlan.classList.add("hidden");
+      }
 
       const comms = t.commentaires || {};
       document.getElementById("comm-chantier").value = comms.chantier || (t.annotation_auteur === 'Chantier' ? t.annotation : '') || "";
