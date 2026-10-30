@@ -22,7 +22,6 @@
       will-change: transform;
       transform-origin: 0 0;
     }
-    /* Animation pulsation pour l'épingle fluo */
     @keyframes fluo-pulse {
       0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(255, 230, 0, 0.9)); }
       50% { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(255, 170, 0, 1)); }
@@ -128,56 +127,141 @@
     </div>
   </main>
 
-  <!-- MODAL : ASSOCIER TÂCHE -->
+  <!-- MODAL : ASSOCIER TÂCHE EXISTANTE OU CRÉER DIRECTEMENT -->
   <div id="modal-associer-tache" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-4 text-xs">
       <div class="flex justify-between items-center border-b pb-2">
         <h3 class="font-black text-sm uppercase tracking-wide flex items-center gap-1.5">
-          <i class="fa-solid fa-location-dot text-amber-500"></i> Lier une tâche à cet emplacement
+          <i class="fa-solid fa-location-dot text-amber-500"></i> Repère sur plan
         </h3>
         <button onclick="fermerModalAssocier()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <div class="space-y-3">
         <div>
-          <label class="font-bold text-slate-700 block mb-1">Choisir parmi les tâches existantes de ce niveau :</label>
+          <label class="font-bold text-slate-700 block mb-1">Associer une tâche déjà existante sans repère :</label>
           <select id="select-taches-existantes" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none font-semibold text-slate-800 bg-white">
-            <option value="">-- Créer une nouvelle tâche à cet endroit --</option>
+            <option value="">-- Créer une nouvelle tâche complète à cet endroit --</option>
           </select>
-        </div>
-
-        <div id="form-nouvelle-tache-plan" class="space-y-2 border-t pt-2">
-          <label class="font-bold text-slate-700 block">Ou saisir directement une nouvelle tâche :</label>
-          <input id="new-tache-titre" type="text" placeholder="Intitulé de la tâche..." class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none font-semibold">
-          <input id="new-tache-comm" type="text" placeholder="Annotation rapide..." class="w-full border border-slate-200 rounded-xl p-2 outline-none">
         </div>
       </div>
 
       <div class="flex gap-2 pt-2 border-t">
         <button onclick="fermerModalAssocier()" class="flex-1 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-200 hover:bg-slate-300">Annuler</button>
-        <button onclick="confirmerLiaisonTache()" class="flex-1 py-2.5 rounded-xl font-black text-slate-950 bg-amber-400 hover:bg-amber-300 shadow">Valider l'emplacement</button>
+        <button onclick="procederAssociationOuCreation()" class="flex-1 py-2.5 rounded-xl font-black text-slate-950 bg-amber-400 hover:bg-amber-300 shadow">Continuer</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL : FICHE DÉTAIL D'UNE TÂCHE -->
-  <div id="modal-fiche-pin" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-3 text-xs">
-      <div class="flex justify-between items-start border-b pb-2">
-        <div>
-          <span id="fiche-pin-zone" class="bg-slate-900 text-amber-300 font-black px-2 py-0.5 rounded text-[10px] uppercase"></span>
-          <span id="fiche-pin-lot" class="bg-sky-100 text-sky-800 font-bold px-2 py-0.5 rounded text-[10px] uppercase ml-1"></span>
-          <h3 id="fiche-pin-titre" class="font-black text-sm text-slate-900 mt-1"></h3>
-        </div>
-        <button onclick="fermerFichePin()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+  <!-- MODAL COMPLÈTE DE GESTION DE TÂCHE (IDENTIQUE AUX AUTRES PAGES AVEC 3 COMMENTAIRES VERROUILLÉS) -->
+  <div id="modal-tache" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white text-slate-900 rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 text-xs overflow-hidden">
+      <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
+        <h3 id="modal-tache-titre" class="font-black text-sm flex items-center gap-2 uppercase tracking-wide">
+          <i class="fa-solid fa-pen-to-square text-amber-400"></i> Édition de la tâche sur plan
+        </h3>
+        <button onclick="fermerModalTache()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div id="fiche-pin-comms" class="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200"></div>
-      <div id="fiche-pin-photos" class="grid grid-cols-3 gap-2"></div>
+      <div class="p-5 overflow-y-auto space-y-4">
+        <div>
+          <label class="font-bold text-slate-800 block mb-1">Titre de la tâche</label>
+          <input id="tache-titre" type="text" placeholder="Ex: Raccordement bloc secours BAES" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-amber-500 font-semibold text-slate-800">
+        </div>
 
-      <div class="flex gap-2 pt-2 border-t">
-        <button onclick="supprimerReperePlan()" class="py-2.5 px-3 rounded-xl font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200" title="Retirer du plan"><i class="fa-solid fa-trash"></i></button>
-        <button onclick="cloturerTacheDepuisPlan()" class="flex-1 py-2.5 rounded-xl font-black text-white bg-emerald-600 hover:bg-emerald-500 shadow flex items-center justify-center gap-1.5"><i class="fa-solid fa-check"></i> Marquer terminée</button>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-800 block mb-1">Niveau / Zone</label>
+            <select id="tache-zone" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-amber-500 bg-white font-bold text-slate-700">
+              <option value="RDC">RDC</option>
+              <option value="N1">N1</option>
+              <option value="N2">N2</option>
+              <option value="N3">N3</option>
+              <option value="N4">N4</option>
+              <option value="N5">N5</option>
+              <option value="Billetterie">Billetterie</option>
+              <option value="Gymnase">Gymnase</option>
+              <option value="Gergovie">Gergovie</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-800 block mb-1">Date limite (optionnelle)</label>
+            <input id="tache-date" type="date" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-amber-500 font-semibold text-slate-700">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-800 block mb-1">Assigner à :</label>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-emerald-100 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-950 font-bold transition">
+              <input type="checkbox" name="assigne_chk" value="Chantier" class="accent-emerald-600">
+              <i class="fa-solid fa-helmet-safety"></i> Chantier
+            </label>
+            <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-blue-100 has-[:checked]:border-blue-600 has-[:checked]:text-blue-950 font-bold transition">
+              <input type="checkbox" name="assigne_chk" value="RA" class="accent-blue-600">
+              <i class="fa-solid fa-briefcase"></i> RA
+            </label>
+            <label class="border-2 rounded-xl p-2.5 flex items-center justify-center gap-1.5 cursor-pointer has-[:checked]:bg-purple-100 has-[:checked]:border-purple-600 has-[:checked]:text-purple-950 font-bold transition">
+              <input type="checkbox" name="assigne_chk" value="BE" class="accent-purple-600">
+              <i class="fa-solid fa-compass-drafting"></i> BE
+            </label>
+          </div>
+        </div>
+
+        <!-- SYSTÈME DES 3 COMMENTAIRES VERROUILLÉS AVEC INDICATION DE L'AUTEUR -->
+        <div class="border-t pt-3 space-y-3">
+          <span class="font-bold text-slate-800 block text-[11px] uppercase tracking-wider">Commentaires par corps de métier</span>
+
+          <!-- COMMENTAIRE CHANTIER -->
+          <div id="box-comm-chantier" class="p-2.5 rounded-2xl border transition">
+            <label class="font-bold flex items-center justify-between mb-1 text-[11px]">
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-helmet-safety text-amber-600"></i> Commentaire Chantier</span>
+              <span id="badge-lock-chantier" class="text-[9px] font-semibold"></span>
+            </label>
+            <input id="comm-chantier" type="text" placeholder="Ajouter le commentaire Chantier..." class="w-full rounded-xl p-2 outline-none font-medium text-slate-800">
+          </div>
+
+          <!-- COMMENTAIRE RA -->
+          <div id="box-comm-ra" class="p-2.5 rounded-2xl border transition">
+            <label class="font-bold flex items-center justify-between mb-1 text-[11px]">
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-briefcase text-blue-600"></i> Commentaire RA</span>
+              <span id="badge-lock-ra" class="text-[9px] font-semibold"></span>
+            </label>
+            <input id="comm-ra" type="text" placeholder="Ajouter le commentaire RA..." class="w-full rounded-xl p-2 outline-none font-medium text-slate-800">
+          </div>
+
+          <!-- COMMENTAIRE BE -->
+          <div id="box-comm-be" class="p-2.5 rounded-2xl border transition">
+            <label class="font-bold flex items-center justify-between mb-1 text-[11px]">
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-compass-drafting text-purple-600"></i> Commentaire BE</span>
+              <span id="badge-lock-be" class="text-[9px] font-semibold"></span>
+            </label>
+            <input id="comm-be" type="text" placeholder="Ajouter le commentaire BE..." class="w-full rounded-xl p-2 outline-none font-medium text-slate-800">
+          </div>
+        </div>
+
+        <!-- ZONE PHOTOS -->
+        <div class="border-t pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-amber-500 mr-1"></i> Photos terrain</span>
+            <label class="bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-xl font-bold text-xs border border-slate-300 cursor-pointer flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-paperclip"></i> Prendre / Ajouter
+              <input type="file" id="tache-photos-input" accept="image/*" multiple class="hidden" onchange="gererFichiersPhotos(this.files)">
+            </label>
+          </div>
+          <div id="drop-zone-paste" class="border-2 border-dashed border-slate-300 rounded-2xl p-3 text-center text-slate-400 hover:border-amber-400 transition cursor-pointer" onclick="document.getElementById('tache-photos-input').click()">
+            <span class="text-[11px]">Cliquez, prenez une photo ou collez (<kbd class="bg-slate-100 px-1 py-0.5 rounded border">Ctrl+V</kbd>)</span>
+          </div>
+          <div id="miniatures-photos" class="grid grid-cols-3 gap-2 mt-2"></div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t bg-slate-50 flex gap-2">
+        <button id="btn-suppr-repere" onclick="supprimerRepereSeulement()" type="button" class="hidden px-3 py-3 rounded-xl font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200" title="Retirer l'épingle du plan">
+          <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+        <button onclick="fermerModalTache()" class="flex-1 py-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300">Annuler</button>
+        <button onclick="enregistrerTacheDepuisPlan()" class="flex-1 py-3 rounded-xl text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-300 shadow">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -239,7 +323,8 @@
     let tachesCache = [];
     let modeAjoutPin = false;
     let coordTemporaire = null;
-    let tacheEnConsultation = null;
+    let tacheEnEdition = null;
+    let photosTemporaires = [];
 
     let planWidth = 1000;
     let planHeight = 700;
@@ -441,7 +526,6 @@
       ajusterEchelleInverseDesPins();
     }
 
-    // COMPENSATION DE TAILLE : LA PUCE GARDE LA MÊME TAILLE ÉCRAN QUEL QUE SOIT LE ZOOM
     function ajusterEchelleInverseDesPins() {
       const invScale = 1 / zoomLevel;
       document.querySelectorAll(".pin-scalable").forEach(el => {
@@ -557,6 +641,7 @@
       initialPinchDistance = null;
     });
 
+    // IMPORT PDF POUR LA COMBINAISON NIVEAU_LOT ACTIVE
     window.importerPlanFichier = (file) => {
       if (!file || file.type !== "application/pdf") {
         alert("Veuillez sélectionner un fichier PDF vectoriel.");
@@ -615,9 +700,10 @@
       reader.readAsDataURL(file);
     };
 
+    // SUPPRESSION DU PLAN UNIQUEMENT (SANS JAMAIS TOUCHER AUX TÂCHES NI AUX COORDONNÉES)
     window.supprimerPlanZoneActuelle = async () => {
       if (!pdfDocActuel) return;
-      if (!confirm(`Supprimer définitivement le plan ${niveauActuel} — ${lotActuel} ?`)) return;
+      if (!confirm(`Supprimer le plan PDF du ${niveauActuel} — ${lotActuel} pour le remplacer ?\n\n(RASSUREZ-VOUS : Les repères et les tâches restent entièrement conservés et réapparaîtront sur le nouveau plan).`)) return;
 
       try {
         const chunksSnap = await getDocs(collection(db, `plans/${planCleActuelle}/chunks`));
@@ -632,7 +718,7 @@
       }
     };
 
-    // PASTILLES ULTRA-VISIBLES : JAUNE FLUO + CONTOUR NOIR MARQUÉ + ÉCHELLE COMPENSÉE
+    // RENDU DES PINS ULTRA-VISIBLES (JAUNE FLUO + CONTOUR NOIR MARQUÉ)
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -661,31 +747,21 @@
         }
 
         wrapper.innerHTML = `
-          <!-- Conteneur avec échelle inverse pour garder une taille constante -->
           <div class="pin-scalable origin-bottom flex flex-col items-center select-none" style="transform: scale(${invScale});">
-            
-            <!-- Épingle complète -->
             <div class="pin-fluo-pulse relative flex flex-col items-center">
-              
-              <!-- Tête d'épingle Jaune Fluo avec liseré blanc et anneau noir épais -->
               <div class="w-8 h-8 rounded-full bg-[#FFE500] border-[2.5px] border-black shadow-[0_0_0_2px_#ffffff,0_4px_10px_rgba(0,0,0,0.8)] flex items-center justify-center text-black font-black text-xs z-10">
                 ${badgeRoleHtml}
               </div>
-
-              <!-- Pointe basse noire et jaune orientée sur l'emplacement précis -->
               <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[9px] border-t-black -mt-[1px] z-10"></div>
               <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[7px] border-t-[#FFE500] -mt-[8.5px] z-10"></div>
-
-              <!-- Point d'ancrage précis au sol -->
               <div class="w-2 h-2 rounded-full bg-black border border-white -mt-[1px] z-10 shadow"></div>
             </div>
-
           </div>
         `;
 
         wrapper.onclick = (e) => {
           e.stopPropagation();
-          ouvrirFichePin(t);
+          ouvrirModalEditionCompleteTache(t);
         };
 
         container.appendChild(wrapper);
@@ -729,15 +805,13 @@
 
     function ouvrirModalAssocier() {
       const select = document.getElementById("select-taches-existantes");
-      select.innerHTML = `<option value="">-- Créer une nouvelle tâche à cet endroit --</option>`;
+      select.innerHTML = `<option value="">-- Créer une nouvelle tâche complète à cet endroit --</option>`;
 
       const sansRepere = tachesCache.filter(t => (t.zone === niveauActuel || t.zone === "Toutes zones") && t.statut !== "termine" && !t.plan_pos);
       sansRepere.forEach(t => {
         select.innerHTML += `<option value="${t.id}">${t.titre}</option>`;
       });
 
-      document.getElementById("new-tache-titre").value = "";
-      document.getElementById("new-tache-comm").value = "";
       document.getElementById("modal-associer-tache").classList.remove("hidden");
     }
 
@@ -746,90 +820,280 @@
       coordTemporaire = null;
     };
 
-    window.confirmerLiaisonTache = async () => {
-      if (!coordTemporaire) return;
-      const tacheId = document.getElementById("select-taches-existantes").value;
+    window.procederAssociationOuCreation = async () => {
+      const selectVal = document.getElementById("select-taches-existantes").value;
+      fermerModalAssocier();
 
-      if (tacheId) {
-        await updateDoc(doc(db, "taches", tacheId), {
+      if (selectVal) {
+        // Associer position à une tâche existante et ouvrir directement pour édition
+        const tacheExistante = tachesCache.find(t => t.id === selectVal);
+        await updateDoc(doc(db, "taches", selectVal), {
           plan_pos: coordTemporaire,
           plan_lot: lotActuel
         });
+        ouvrirModalEditionCompleteTache({ ...tacheExistante, plan_pos: coordTemporaire, plan_lot: lotActuel });
       } else {
-        const titre = document.getElementById("new-tache-titre").value.trim();
-        const comm = document.getElementById("new-tache-comm").value.trim();
-        if (!titre) {
-          alert("Indiquez un titre pour la tâche.");
-          return;
-        }
+        // Ouvrir la modale complète en mode création
+        ouvrirModalCreationCompleteTache();
+      }
+    };
 
+    // GESTION DU VERROUILLAGE DES COMMENTAIRES PAR RÔLE
+    function configurerChampsCommentairesSelonRole(tache = null) {
+      const comms = (tache && tache.commentaires) ? tache.commentaires : {};
+
+      const inputChantier = document.getElementById("comm-chantier");
+      const inputRa = document.getElementById("comm-ra");
+      const inputBe = document.getElementById("comm-be");
+
+      const boxChantier = document.getElementById("box-comm-chantier");
+      const boxRa = document.getElementById("box-comm-ra");
+      const boxBe = document.getElementById("box-comm-be");
+
+      const badgeChantier = document.getElementById("badge-lock-chantier");
+      const badgeRa = document.getElementById("badge-lock-ra");
+      const badgeBe = document.getElementById("badge-lock-be");
+
+      inputChantier.value = comms.chantier || "";
+      inputRa.value = comms.ra || "";
+      inputBe.value = comms.be || "";
+
+      // 1. Chantier
+      if (roleActuel === "Chantier") {
+        inputChantier.readOnly = false;
+        inputChantier.disabled = false;
+        inputChantier.className = "w-full rounded-xl p-2 outline-none font-medium text-slate-800 bg-white border border-amber-300 focus:ring-2 focus:ring-amber-500";
+        boxChantier.className = "p-2.5 rounded-2xl border-2 border-amber-300 bg-amber-50/80";
+        badgeChantier.innerHTML = `<span class="text-amber-800 font-bold"><i class="fa-solid fa-pen mr-1"></i>Modifiable</span>`;
+      } else {
+        inputChantier.readOnly = true;
+        inputChantier.disabled = true;
+        inputChantier.className = "w-full rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 border border-slate-200 cursor-not-allowed";
+        boxChantier.className = "p-2.5 rounded-2xl border border-slate-200 bg-slate-50 opacity-90";
+        badgeChantier.innerHTML = `<span class="text-slate-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>Chantier</span>`;
+      }
+
+      // 2. RA
+      if (roleActuel === "RA") {
+        inputRa.readOnly = false;
+        inputRa.disabled = false;
+        inputRa.className = "w-full rounded-xl p-2 outline-none font-medium text-slate-800 bg-white border border-blue-400 focus:ring-2 focus:ring-blue-500";
+        boxRa.className = "p-2.5 rounded-2xl border-2 border-blue-400 bg-blue-50/80";
+        badgeRa.innerHTML = `<span class="text-blue-800 font-bold"><i class="fa-solid fa-pen mr-1"></i>Modifiable</span>`;
+      } else {
+        inputRa.readOnly = true;
+        inputRa.disabled = true;
+        inputRa.className = "w-full rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 border border-slate-200 cursor-not-allowed";
+        boxRa.className = "p-2.5 rounded-2xl border border-slate-200 bg-slate-50 opacity-90";
+        badgeRa.innerHTML = `<span class="text-slate-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>RA</span>`;
+      }
+
+      // 3. BE
+      if (roleActuel === "BE") {
+        inputBe.readOnly = false;
+        inputBe.disabled = false;
+        inputBe.className = "w-full rounded-xl p-2 outline-none font-medium text-slate-800 bg-white border border-purple-400 focus:ring-2 focus:ring-purple-500";
+        boxBe.className = "p-2.5 rounded-2xl border-2 border-purple-400 bg-purple-50/80";
+        badgeBe.innerHTML = `<span class="text-purple-800 font-bold"><i class="fa-solid fa-pen mr-1"></i>Modifiable</span>`;
+      } else {
+        inputBe.readOnly = true;
+        inputBe.disabled = true;
+        inputBe.className = "w-full rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 border border-slate-200 cursor-not-allowed";
+        boxBe.className = "p-2.5 rounded-2xl border border-slate-200 bg-slate-50 opacity-90";
+        badgeBe.innerHTML = `<span class="text-slate-500 font-semibold"><i class="fa-solid fa-lock mr-1"></i>BE</span>`;
+      }
+    }
+
+    function ouvrirModalCreationCompleteTache() {
+      tacheEnEdition = null;
+      photosTemporaires = [];
+      document.getElementById("modal-tache-titre").innerHTML = `<i class="fa-solid fa-plus-circle text-amber-400"></i> Nouvelle tâche sur ${niveauActuel} (${lotActuel})`;
+      document.getElementById("tache-titre").value = "";
+      document.getElementById("tache-zone").value = niveauActuel;
+      document.getElementById("tache-date").value = "";
+      document.getElementById("btn-suppr-repere").classList.add("hidden");
+
+      document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => {
+        chk.checked = (chk.value === roleActuel);
+      });
+
+      configurerChampsCommentairesSelonRole(null);
+      renderMiniaturesPhotos();
+      document.getElementById("modal-tache").classList.remove("hidden");
+    }
+
+    function ouvrirModalEditionCompleteTache(t) {
+      tacheEnEdition = t;
+      photosTemporaires = Array.isArray(t.photos) ? [...t.photos] : [];
+      document.getElementById("modal-tache-titre").innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400"></i> Édition tâche — ${t.zone} (${t.plan_lot || lotActuel})`;
+      document.getElementById("tache-titre").value = t.titre || "";
+      document.getElementById("tache-zone").value = t.zone || niveauActuel;
+      document.getElementById("tache-date").value = t.date_limite || "";
+      document.getElementById("btn-suppr-repere").classList.remove("hidden");
+
+      const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
+      document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => {
+        chk.checked = assigns.includes(chk.value);
+      });
+
+      configurerChampsCommentairesSelonRole(t);
+      renderMiniaturesPhotos();
+      document.getElementById("modal-tache").classList.remove("hidden");
+    }
+
+    window.fermerModalTache = () => {
+      document.getElementById("modal-tache").classList.add("hidden");
+      tacheEnEdition = null;
+      coordTemporaire = null;
+    };
+
+    window.enregistrerTacheDepuisPlan = async () => {
+      const titre = document.getElementById("tache-titre").value.trim();
+      const zone = document.getElementById("tache-zone").value;
+      const dateLimite = document.getElementById("tache-date").value || null;
+
+      const assignes = [];
+      document.querySelectorAll('input[name="assigne_chk"]:checked').forEach(chk => assignes.push(chk.value));
+
+      if (!titre) {
+        alert("Indiquez un titre pour la tâche.");
+        return;
+      }
+      if (assignes.length === 0) {
+        alert("Cochez au moins un responsable.");
+        return;
+      }
+
+      if (tacheEnEdition) {
+        const commsExistants = tacheEnEdition.commentaires || {};
+        const commentairesMaj = { ...commsExistants };
+
+        // Mise à jour uniquement du commentaire autorisé selon le rôle
+        if (roleActuel === "Chantier") commentairesMaj.chantier = document.getElementById("comm-chantier").value.trim();
+        else if (roleActuel === "RA") commentairesMaj.ra = document.getElementById("comm-ra").value.trim();
+        else if (roleActuel === "BE") commentairesMaj.be = document.getElementById("comm-be").value.trim();
+
+        await updateDoc(doc(db, "taches", tacheEnEdition.id), {
+          titre,
+          zone,
+          assignes,
+          date_limite: dateLimite,
+          commentaires: commentairesMaj,
+          photos: photosTemporaires
+        });
+      } else {
         const commObj = { chantier: "", ra: "", be: "" };
-        if (roleActuel === "BE") commObj.be = comm;
-        else if (roleActuel === "RA") commObj.ra = comm;
-        else commObj.chantier = comm;
+        if (roleActuel === "Chantier") commObj.chantier = document.getElementById("comm-chantier").value.trim();
+        else if (roleActuel === "RA") commObj.ra = document.getElementById("comm-ra").value.trim();
+        else if (roleActuel === "BE") commObj.be = document.getElementById("comm-be").value.trim();
 
         await addDoc(collection(db, "taches"), {
           titre,
-          zone: niveauActuel,
+          zone,
           plan_lot: lotActuel,
-          assignes: [roleActuel],
-          commentaires: commObj,
           plan_pos: coordTemporaire,
+          assignes,
+          date_limite: dateLimite,
+          commentaires: commObj,
+          photos: photosTemporaires,
           statut: "a_faire",
           cree_le: new Date().toISOString()
         });
       }
 
-      fermerModalAssocier();
+      fermerModalTache();
     };
 
-    function ouvrirFichePin(t) {
-      tacheEnConsultation = t;
-      document.getElementById("fiche-pin-titre").innerText = t.titre;
-      document.getElementById("fiche-pin-zone").innerText = t.zone;
-      document.getElementById("fiche-pin-lot").innerText = t.plan_lot || lotActuel;
+    window.supprimerRepereSeulement = async () => {
+      if (!tacheEnEdition) return;
+      if (!confirm("Retirer le repère de cette tâche du plan ? (La tâche restera accessible dans vos listes de tâches).")) return;
 
-      const comms = t.commentaires || {};
-      let commsHtml = "";
-      if (comms.chantier) commsHtml += `<div class="text-[11px]"><b class="text-amber-800">Chantier :</b> ${comms.chantier}</div>`;
-      if (comms.ra) commsHtml += `<div class="text-[11px]"><b class="text-blue-800">RA :</b> ${comms.ra}</div>`;
-      if (comms.be) commsHtml += `<div class="text-[11px]"><b class="text-purple-800">BE :</b> ${comms.be}</div>`;
-      document.getElementById("fiche-pin-comms").innerHTML = commsHtml || `<span class="text-slate-400 italic">Aucun commentaire enregistré.</span>`;
-
-      const contPhotos = document.getElementById("fiche-pin-photos");
-      contPhotos.innerHTML = "";
-      (t.photos || []).forEach(src => {
-        contPhotos.innerHTML += `<img src="${src}" class="h-16 w-full object-cover rounded-xl border">`;
-      });
-
-      document.getElementById("modal-fiche-pin").classList.remove("hidden");
-    }
-
-    window.fermerFichePin = () => {
-      document.getElementById("modal-fiche-pin").classList.add("hidden");
-      tacheEnConsultation = null;
-    };
-
-    window.supprimerReperePlan = async () => {
-      if (!tacheEnConsultation) return;
-      await updateDoc(doc(db, "taches", tacheEnConsultation.id), {
+      await updateDoc(doc(db, "taches", tacheEnEdition.id), {
         plan_pos: null,
         plan_lot: null
       });
-      fermerFichePin();
+
+      fermerModalTache();
     };
 
-    window.cloturerTacheDepuisPlan = async () => {
-      if (!tacheEnConsultation) return;
-      await updateDoc(doc(db, "taches", tacheEnConsultation.id), {
-        statut: "termine",
-        termine_le: new Date().toISOString(),
-        valide_par: roleActuel
+    // COMPRESSION ET GESTION DES PHOTOS
+    function compresserImage(file, maxDimension = 1400, qualite = 0.75) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxDimension) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", qualite));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       });
-      fermerFichePin();
+    }
+
+    window.gererFichiersPhotos = async (files) => {
+      for (const f of files) {
+        if (!f.type.startsWith("image/")) continue;
+        const base64 = await compresserImage(f);
+        photosTemporaires.push(base64);
+      }
+      renderMiniaturesPhotos();
     };
 
-    // Initialisation
+    document.addEventListener("paste", async (e) => {
+      const modal = document.getElementById("modal-tache");
+      if (modal.classList.contains("hidden")) return;
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (const item of items) {
+        if (item.type.indexOf("image") !== -1) {
+          const file = item.getAsFile();
+          const base64 = await compresserImage(file);
+          photosTemporaires.push(base64);
+          renderMiniaturesPhotos();
+        }
+      }
+    });
+
+    function renderMiniaturesPhotos() {
+      const cont = document.getElementById("miniatures-photos");
+      cont.innerHTML = "";
+      photosTemporaires.forEach((src, idx) => {
+        const div = document.createElement("div");
+        div.className = "relative rounded-xl overflow-hidden border border-slate-300 h-20 bg-slate-100 group shadow-sm";
+        div.innerHTML = `
+          <img src="${src}" class="w-full h-full object-cover">
+          <button onclick="event.stopPropagation(); supprimerPhoto(${idx})" class="absolute top-1 right-1 bg-black/70 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    window.supprimerPhoto = (idx) => {
+      photosTemporaires.splice(idx, 1);
+      renderMiniaturesPhotos();
+    };
+
+    // Initialisation au chargement
     mettreAJourCleEtTitre();
     chargerPlanZone(planCleActuelle);
   </script>
