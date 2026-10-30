@@ -63,17 +63,26 @@
   </header>
 
   <!-- BARRE DES NIVEAUX / ZONES -->
-  <nav class="bg-slate-950/80 border-b border-slate-800/80 px-4 py-2 shrink-0 overflow-x-auto no-scrollbar z-20 flex items-center gap-2">
+  <nav class="bg-slate-950/90 border-b border-slate-800/80 px-4 py-2 shrink-0 overflow-x-auto no-scrollbar z-20 flex items-center gap-2">
     <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Niveau :</span>
-    <button onclick="changerZone('RDC')" class="zone-tab active px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-amber-400 text-slate-950 shadow">RDC</button>
-    <button onclick="changerZone('N1')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N1</button>
-    <button onclick="changerZone('N2')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N2</button>
-    <button onclick="changerZone('N3')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N3</button>
-    <button onclick="changerZone('N4')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N4</button>
-    <button onclick="changerZone('N5')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N5</button>
-    <button onclick="changerZone('Billetterie')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Billetterie</button>
-    <button onclick="changerZone('Gymnase')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gymnase</button>
-    <button onclick="changerZone('Gergovie')" class="zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gergovie</button>
+    <button onclick="changerNiveau('RDC')" class="niveau-tab active px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-amber-400 text-slate-950 shadow">RDC</button>
+    <button onclick="changerNiveau('N1')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N1</button>
+    <button onclick="changerNiveau('N2')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N2</button>
+    <button onclick="changerNiveau('N3')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N3</button>
+    <button onclick="changerNiveau('N4')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N4</button>
+    <button onclick="changerNiveau('N5')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">N5</button>
+    <button onclick="changerNiveau('Billetterie')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Billetterie</button>
+    <button onclick="changerNiveau('Gymnase')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gymnase</button>
+    <button onclick="changerNiveau('Gergovie')" class="niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">Gergovie</button>
+  </nav>
+
+  <!-- BARRE DES LOTS TECHNIQUES : CFO / CFA / SSI -->
+  <nav class="bg-slate-950/70 border-b border-slate-800/60 px-4 py-1.5 shrink-0 overflow-x-auto no-scrollbar z-20 flex items-center gap-2">
+    <span class="text-[11px] font-black text-sky-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-bolt mr-1"></i> Lot :</span>
+    <button onclick="changerLot('CFO')" class="lot-tab active px-3.5 py-0.5 rounded-lg text-xs font-black shrink-0 bg-sky-500 text-white shadow">CFO</button>
+    <button onclick="changerLot('CFA')" class="lot-tab px-3.5 py-0.5 rounded-lg text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">CFA</button>
+    <button onclick="changerLot('SSI')" class="lot-tab px-3.5 py-0.5 rounded-lg text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700">SSI</button>
+    <span id="label-plan-actif" class="ml-auto text-[11px] font-bold text-slate-400 shrink-0">Plan affiché : <span class="text-amber-400 font-black">RDC — CFO</span></span>
   </nav>
 
   <!-- VIEWPORT TACTILE HAUTE PERFORMANCE -->
@@ -83,8 +92,8 @@
       <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center mb-3 text-2xl text-slate-500">
         <i class="fa-solid fa-map"></i>
       </div>
-      <h3 class="font-bold text-sm text-slate-300">Aucun plan pour cette zone</h3>
-      <p class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer le plan PDF de ce niveau ci-dessus.</p>
+      <h3 id="aucun-plan-titre" class="font-bold text-sm text-slate-300">Aucun plan CFO pour ce niveau</h3>
+      <p id="aucun-plan-desc" class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer le plan PDF de ce lot ci-dessus.</p>
     </div>
 
     <div id="loading-pdf" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
@@ -94,11 +103,8 @@
 
     <!-- Scène Unique gérée par GPU Transform -->
     <div id="plan-stage" class="absolute top-0 left-0">
-      <!-- Canevas de fond fluide -->
       <canvas id="plan-canvas-base" class="block shadow-2xl bg-white"></canvas>
-      <!-- Canevas de détail vectoriel ciblé (viewport actif) -->
       <canvas id="plan-canvas-detail" class="absolute top-0 left-0 pointer-events-none"></canvas>
-      <!-- Conteneur des repères de tâches -->
       <div id="pins-container" class="absolute inset-0 pointer-events-auto"></div>
     </div>
 
@@ -126,7 +132,7 @@
 
       <div class="space-y-3">
         <div>
-          <label class="font-bold text-slate-700 block mb-1">Choisir parmi les tâches existantes de cette zone :</label>
+          <label class="font-bold text-slate-700 block mb-1">Choisir parmi les tâches existantes de ce niveau :</label>
           <select id="select-taches-existantes" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none font-semibold text-slate-800 bg-white">
             <option value="">-- Créer une nouvelle tâche à cet endroit --</option>
           </select>
@@ -152,6 +158,7 @@
       <div class="flex justify-between items-start border-b pb-2">
         <div>
           <span id="fiche-pin-zone" class="bg-slate-900 text-amber-300 font-black px-2 py-0.5 rounded text-[10px] uppercase"></span>
+          <span id="fiche-pin-lot" class="bg-sky-100 text-sky-800 font-bold px-2 py-0.5 rounded text-[10px] uppercase ml-1"></span>
           <h3 id="fiche-pin-titre" class="font-black text-sm text-slate-900 mt-1"></h3>
         </div>
         <button onclick="fermerFichePin()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
@@ -215,7 +222,11 @@
       document.getElementById("btn-upload-plan").classList.remove("hidden");
     }
 
-    let zoneActive = "RDC";
+    // Gestion Niveau & Lot (Clé unique = Niveau_Lot)
+    let niveauActuel = "RDC";
+    let lotActuel = "CFO";
+    let planCleActuelle = "RDC_CFO";
+
     let pdfDocActuel = null;
     let baseViewportPdf = null;
     let tachesCache = [];
@@ -223,11 +234,9 @@
     let coordTemporaire = null;
     let tacheEnConsultation = null;
 
-    // Dimensions de référence (largeur logique du plan en px)
     let planWidth = 1000;
     let planHeight = 700;
 
-    // Navigation tactile GPU
     let zoomLevel = 1;
     let panX = 0;
     let panY = 0;
@@ -249,30 +258,50 @@
       renderPins();
     });
 
-    window.changerZone = async (zone) => {
-      zoneActive = zone;
-      document.querySelectorAll(".zone-tab").forEach(b => {
-        if (b.innerText.trim() === zone) {
-          b.className = "zone-tab active px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-amber-400 text-slate-950 shadow";
+    function mettreAJourCleEtTitre() {
+      planCleActuelle = `${niveauActuel}_${lotActuel}`;
+      document.getElementById("label-plan-actif").innerHTML = `Plan affiché : <span class="text-amber-400 font-black">${niveauActuel} — ${lotActuel}</span>`;
+      document.getElementById("aucun-plan-titre").innerText = `Aucun plan ${lotActuel} pour le niveau ${niveauActuel}`;
+    }
+
+    window.changerNiveau = async (niveau) => {
+      niveauActuel = niveau;
+      document.querySelectorAll(".niveau-tab").forEach(b => {
+        if (b.innerText.trim() === niveau) {
+          b.className = "niveau-tab active px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-amber-400 text-slate-950 shadow";
         } else {
-          b.className = "zone-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700";
+          b.className = "niveau-tab px-3 py-1 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700";
         }
       });
-      await chargerPlanZone(zone);
+      mettreAJourCleEtTitre();
+      await chargerPlanZone(planCleActuelle);
     };
 
-    async function chargerPlanZone(zone) {
-      const docSnap = await getDoc(doc(db, "plans", zone));
+    window.changerLot = async (lot) => {
+      lotActuel = lot;
+      document.querySelectorAll(".lot-tab").forEach(b => {
+        if (b.innerText.trim() === lot) {
+          b.className = "lot-tab active px-3.5 py-0.5 rounded-lg text-xs font-black shrink-0 bg-sky-500 text-white shadow";
+        } else {
+          b.className = "lot-tab px-3.5 py-0.5 rounded-lg text-xs font-bold shrink-0 bg-slate-800 text-slate-300 hover:bg-slate-700";
+        }
+      });
+      mettreAJourCleEtTitre();
+      await chargerPlanZone(planCleActuelle);
+    };
+
+    async function chargerPlanZone(cle) {
+      const docSnap = await getDoc(doc(db, "plans", cle));
       const btnSuppr = document.getElementById("btn-supprimer-plan");
 
       if (docSnap.exists() && docSnap.data().total_chunks) {
         const totalChunks = docSnap.data().total_chunks;
         document.getElementById("loading-pdf").classList.remove("hidden");
-        document.getElementById("loading-pdf-text").innerText = "Chargement des vecteurs du plan...";
+        document.getElementById("loading-pdf-text").innerText = `Chargement du plan ${cle.replace('_', ' ')}...`;
 
         const promises = [];
         for (let i = 0; i < totalChunks; i++) {
-          promises.push(getDoc(doc(db, `plans/${zone}/chunks`, `chunk_${i}`)));
+          promises.push(getDoc(doc(db, `plans/${cle}/chunks`, `chunk_${i}`)));
         }
         const chunkSnaps = await Promise.all(promises);
 
@@ -316,13 +345,11 @@
       renderPins();
     }
 
-    // 1. GÉNÉRATION UNIQUE DE L'IMAGE DE BASE (RAPIDE & FLUIDE)
     async function genererFondPlanFluide() {
       if (!pdfDocActuel) return;
       document.getElementById("loading-pdf-text").innerText = "Optimisation de l'affichage...";
       
       const page = await pdfDocActuel.getPage(1);
-      // Échelle modérée pour l'ensemble du plan (~1800px max) : calcul instantané et mémoire légère
       const targetWidth = Math.min(planWidth, 1800);
       const scaleBase = targetWidth / planWidth;
       const vp = page.getViewport({ scale: scaleBase });
@@ -339,10 +366,8 @@
       renderPins();
     }
 
-    // 2. RENDU HAUTE DÉFINITION CIBLÉ SUR LA ZONE EXACTEMENT VISIBLE (VIEWPORT CULLING)
     async function rendreZoneVisibleEnHD() {
       if (!pdfDocActuel || !baseViewportPdf || zoomLevel <= 1.1) {
-        // En vue globale, le fond de base suffit amplement
         canvasDetail.width = 0;
         canvasDetail.height = 0;
         return;
@@ -355,7 +380,6 @@
       const vpRect = viewport.getBoundingClientRect();
       const pixelRatio = window.devicePixelRatio || 1;
 
-      // Calcul des coordonnées de la fenêtre visible dans le repère du plan (0 à planWidth)
       const visibleX = Math.max(0, -panX / zoomLevel);
       const visibleY = Math.max(0, -panY / zoomLevel);
       const visibleW = Math.min(planWidth - visibleX, vpRect.width / zoomLevel);
@@ -364,11 +388,8 @@
       if (visibleW <= 10 || visibleH <= 10) return;
 
       const page = await pdfDocActuel.getPage(1);
-
-      // Le scale est calibré pour être ultra net sur l'écran physique
       const renderScale = zoomLevel * pixelRatio;
       
-      // Canvas calé exactement sur la zone affichée
       canvasDetail.style.left = `${visibleX}px`;
       canvasDetail.style.top = `${visibleY}px`;
       canvasDetail.style.width = `${visibleW}px`;
@@ -379,7 +400,6 @@
 
       const ctx = canvasDetail.getContext("2d");
 
-      // Transformation affine PDF.js pour ne dessiner QUE ce rectangle
       const transformMatrix = [
         renderScale, 0,
         0, renderScale,
@@ -406,10 +426,9 @@
       clearTimeout(debounceDetailTimeout);
       debounceDetailTimeout = setTimeout(() => {
         rendreZoneVisibleEnHD();
-      }, 180); // Déclenchement 180ms après arrêt du mouvement
+      }, 180);
     }
 
-    // MANIPULATION GPU ULTRA FLUIDE
     function appliquerTransformation() {
       stage.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomLevel})`;
     }
@@ -425,7 +444,6 @@
       const nouveauZoom = Math.min(Math.max(0.2, zoomLevel + delta), 8.0);
       if (nouveauZoom === zoomLevel) return;
 
-      // Zoom centré sur le curseur / les doigts
       panX = clientX - (clientX - panX) * (nouveauZoom / zoomLevel);
       panY = clientY - (clientY - panY) * (nouveauZoom / zoomLevel);
       zoomLevel = nouveauZoom;
@@ -451,7 +469,6 @@
       planifierRenduCibleHD();
     };
 
-    // Molette de souris PC
     viewport.addEventListener("wheel", (e) => {
       e.preventDefault();
       const delta = e.deltaY < 0 ? 0.35 : -0.35;
@@ -459,7 +476,6 @@
       appliquerZoomAutourDuPoint(delta, e.clientX - vRect.left, e.clientY - vRect.top);
     }, { passive: false });
 
-    // Glisser souris PC
     viewport.addEventListener("mousedown", (e) => {
       if (modeAjoutPin) return;
       isDragging = true;
@@ -477,7 +493,6 @@
 
     window.addEventListener("mouseup", () => isDragging = false);
 
-    // Tactile Mobile / Tablette
     viewport.addEventListener("touchstart", (e) => {
       if (modeAjoutPin) return;
       if (e.touches.length === 1) {
@@ -526,7 +541,7 @@
       initialPinchDistance = null;
     });
 
-    // IMPORT PDF SANS LIMITE DE VOLUME
+    // IMPORT PDF POUR LA COMBINAISON NIVEAU_LOT ACTIVE
     window.importerPlanFichier = (file) => {
       if (!file || file.type !== "application/pdf") {
         alert("Veuillez sélectionner un fichier PDF vectoriel.");
@@ -536,7 +551,7 @@
       const loader = document.getElementById("loading-pdf");
       const loaderText = document.getElementById("loading-pdf-text");
       loader.classList.remove("hidden");
-      loaderText.innerText = "Lecture et indexation du plan...";
+      loaderText.innerText = `Lecture du plan ${niveauActuel} — ${lotActuel}...`;
 
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -553,20 +568,21 @@
           for (let i = 0; i < totalChunks; i++) {
             const chunk = fullBase64.substring(i * chunkSize, (i + 1) * chunkSize);
             batchWrites.push(
-              setDoc(doc(db, `plans/${zoneActive}/chunks`, `chunk_${i}`), { data: chunk })
+              setDoc(doc(db, `plans/${planCleActuelle}/chunks`, `chunk_${i}`), { data: chunk })
             );
           }
 
           await Promise.all(batchWrites);
 
-          await setDoc(doc(db, "plans", zoneActive), {
-            zone: zoneActive,
+          await setDoc(doc(db, "plans", planCleActuelle), {
+            niveau: niveauActuel,
+            lot: lotActuel,
             total_chunks: totalChunks,
             mis_a_jour_par: roleActuel,
             date_maj: new Date().toISOString()
           });
 
-          await chargerPlanZone(zoneActive);
+          await chargerPlanZone(planCleActuelle);
         } catch (err) {
           console.error("Erreur import:", err);
           alert("Erreur lors de l'enregistrement : " + err.message);
@@ -586,30 +602,34 @@
 
     window.supprimerPlanZoneActuelle = async () => {
       if (!pdfDocActuel) return;
-      if (!confirm(`Supprimer définitivement le plan vectoriel de la zone "${zoneActive}" ?`)) return;
+      if (!confirm(`Supprimer définitivement le plan ${niveauActuel} — ${lotActuel} ?`)) return;
 
       try {
-        const chunksSnap = await getDocs(collection(db, `plans/${zoneActive}/chunks`));
+        const chunksSnap = await getDocs(collection(db, `plans/${planCleActuelle}/chunks`));
         const supprs = [];
         chunksSnap.forEach(d => supprs.push(deleteDoc(d.ref)));
-        supprs.push(deleteDoc(doc(db, "plans", zoneActive)));
+        supprs.push(deleteDoc(doc(db, "plans", planCleActuelle)));
         await Promise.all(supprs);
 
-        await chargerPlanZone(zoneActive);
+        await chargerPlanZone(planCleActuelle);
       } catch (err) {
         alert("Erreur : " + err.message);
       }
     };
 
-    // PASTILLES DE TÂCHES
+    // PASTILLES DE TÂCHES (Filtrées par niveau ET lot)
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
       if (!pdfDocActuel) return;
 
-      const tachesZone = tachesCache.filter(t => t.zone === zoneActive && t.statut !== "termine" && t.plan_pos);
+      const tachesFiltrees = tachesCache.filter(t => {
+        const memeZone = (t.zone === niveauActuel || t.zone === "Toutes zones");
+        const memeLot = (!t.plan_lot || t.plan_lot === lotActuel);
+        return memeZone && memeLot && t.statut !== "termine" && t.plan_pos;
+      });
 
-      tachesZone.forEach(t => {
+      tachesFiltrees.forEach(t => {
         const pin = document.createElement("button");
         pin.className = "absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center shadow-lg border-2 border-white transition active:scale-90 z-10";
 
@@ -633,7 +653,7 @@
 
     window.basculerModeAjoutPin = () => {
       if (!pdfDocActuel) {
-        alert("Déposez d'abord le plan PDF pour cette zone.");
+        alert(`Déposez d'abord le plan ${lotActuel} pour le niveau ${niveauActuel}.`);
         return;
       }
       modeAjoutPin = !modeAjoutPin;
@@ -670,7 +690,7 @@
       const select = document.getElementById("select-taches-existantes");
       select.innerHTML = `<option value="">-- Créer une nouvelle tâche à cet endroit --</option>`;
 
-      const sansRepere = tachesCache.filter(t => t.zone === zoneActive && t.statut !== "termine" && !t.plan_pos);
+      const sansRepere = tachesCache.filter(t => (t.zone === niveauActuel || t.zone === "Toutes zones") && t.statut !== "termine" && !t.plan_pos);
       sansRepere.forEach(t => {
         select.innerHTML += `<option value="${t.id}">${t.titre}</option>`;
       });
@@ -690,7 +710,10 @@
       const tacheId = document.getElementById("select-taches-existantes").value;
 
       if (tacheId) {
-        await updateDoc(doc(db, "taches", tacheId), { plan_pos: coordTemporaire });
+        await updateDoc(doc(db, "taches", tacheId), {
+          plan_pos: coordTemporaire,
+          plan_lot: lotActuel
+        });
       } else {
         const titre = document.getElementById("new-tache-titre").value.trim();
         const comm = document.getElementById("new-tache-comm").value.trim();
@@ -706,7 +729,8 @@
 
         await addDoc(collection(db, "taches"), {
           titre,
-          zone: zoneActive,
+          zone: niveauActuel,
+          plan_lot: lotActuel,
           assignes: [roleActuel],
           commentaires: commObj,
           plan_pos: coordTemporaire,
@@ -722,6 +746,7 @@
       tacheEnConsultation = t;
       document.getElementById("fiche-pin-titre").innerText = t.titre;
       document.getElementById("fiche-pin-zone").innerText = t.zone;
+      document.getElementById("fiche-pin-lot").innerText = t.plan_lot || lotActuel;
 
       const comms = t.commentaires || {};
       let commsHtml = "";
@@ -746,7 +771,10 @@
 
     window.supprimerReperePlan = async () => {
       if (!tacheEnConsultation) return;
-      await updateDoc(doc(db, "taches", tacheEnConsultation.id), { plan_pos: null });
+      await updateDoc(doc(db, "taches", tacheEnConsultation.id), {
+        plan_pos: null,
+        plan_lot: null
+      });
       fermerFichePin();
     };
 
@@ -760,7 +788,9 @@
       fermerFichePin();
     };
 
-    changerZone("RDC");
+    // Chargement initial RDC CFO
+    mettreAJourCleEtTitre();
+    chargerPlanZone(planCleActuelle);
   </script>
 </body>
 </html>
