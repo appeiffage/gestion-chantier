@@ -22,6 +22,14 @@
       will-change: transform;
       transform-origin: 0 0;
     }
+    /* Animation pulsation pour l'épingle fluo */
+    @keyframes fluo-pulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(255, 230, 0, 0.9)); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(255, 170, 0, 1)); }
+    }
+    .pin-fluo-pulse {
+      animation: fluo-pulse 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col overflow-hidden">
@@ -85,14 +93,14 @@
     <span id="label-plan-actif" class="ml-auto text-[11px] font-bold text-slate-400 shrink-0">Plan affiché : <span class="text-amber-400 font-black">RDC — CFO</span></span>
   </nav>
 
-  <!-- VIEWPORT TACTILE HAUTE PERFORMANCE -->
+  <!-- VIEWPORT TACTILE -->
   <main id="plan-viewport" class="relative flex-1 bg-slate-950 overflow-hidden cursor-grab active:cursor-grabbing">
 
     <div id="aucun-plan-msg" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center pointer-events-none hidden">
       <div class="w-16 h-16 rounded-3xl bg-slate-800 flex items-center justify-center mb-3 text-2xl text-slate-500">
         <i class="fa-solid fa-map"></i>
       </div>
-      <h3 id="aucun-plan-titre" class="font-bold text-sm text-slate-300">Aucun plan CFO pour ce niveau</h3>
+      <h3 id="aucun-plan-titre" class="font-bold text-sm text-slate-300">Aucun plan pour ce niveau</h3>
       <p id="aucun-plan-desc" class="text-xs text-slate-500 mt-1">Le RA ou le BE peut déposer le plan PDF de ce lot ci-dessus.</p>
     </div>
 
@@ -101,7 +109,7 @@
       <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Chargement du plan...</span>
     </div>
 
-    <!-- Scène Unique gérée par GPU Transform -->
+    <!-- Scène Interactive -->
     <div id="plan-stage" class="absolute top-0 left-0">
       <canvas id="plan-canvas-base" class="block shadow-2xl bg-white"></canvas>
       <canvas id="plan-canvas-detail" class="absolute top-0 left-0 pointer-events-none"></canvas>
@@ -430,6 +438,15 @@
 
     function appliquerTransformation() {
       stage.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomLevel})`;
+      ajusterEchelleInverseDesPins();
+    }
+
+    // COMPENSATION DE TAILLE : LA PUCE GARDE LA MÊME TAILLE ÉCRAN QUEL QUE SOIT LE ZOOM
+    function ajusterEchelleInverseDesPins() {
+      const invScale = 1 / zoomLevel;
+      document.querySelectorAll(".pin-scalable").forEach(el => {
+        el.style.transform = `scale(${invScale})`;
+      });
     }
 
     window.modifierZoom = (delta) => {
@@ -540,7 +557,6 @@
       initialPinchDistance = null;
     });
 
-    // IMPORT PDF POUR LA COMBINAISON NIVEAU_LOT ACTIVE
     window.importerPlanFichier = (file) => {
       if (!file || file.type !== "application/pdf") {
         alert("Veuillez sélectionner un fichier PDF vectoriel.");
@@ -616,7 +632,7 @@
       }
     };
 
-    // PASTILLES DE TÂCHES ULTRA-VISIBLES
+    // PASTILLES ULTRA-VISIBLES : JAUNE FLUO + CONTOUR NOIR MARQUÉ + ÉCHELLE COMPENSÉE
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -628,6 +644,8 @@
         return memeZone && memeLot && t.statut !== "termine" && t.plan_pos;
       });
 
+      const invScale = 1 / zoomLevel;
+
       tachesFiltrees.forEach(t => {
         const wrapper = document.createElement("div");
         wrapper.className = "absolute -translate-x-1/2 -translate-y-full z-20 pointer-events-auto cursor-pointer group";
@@ -635,29 +653,33 @@
         wrapper.style.top = `${t.plan_pos.y}%`;
 
         const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
-        let bgCouleur = "bg-amber-400 text-slate-950";
-
+        let badgeRoleHtml = `<span class="bg-black text-amber-300 px-1 rounded text-[8px] font-black">CH</span>`;
         if (assigns.includes("BE")) {
-          bgCouleur = "bg-purple-600 text-white";
+          badgeRoleHtml = `<span class="bg-purple-900 text-purple-200 px-1 rounded text-[8px] font-black">BE</span>`;
         } else if (assigns.includes("RA")) {
-          bgCouleur = "bg-blue-600 text-white";
+          badgeRoleHtml = `<span class="bg-blue-950 text-blue-200 px-1 rounded text-[8px] font-black">RA</span>`;
         }
 
         wrapper.innerHTML = `
-          <div class="relative flex flex-col items-center select-none transition-transform duration-150 active:scale-90 group-hover:scale-110">
-            <!-- Halo radar pulsant -->
-            <span class="absolute -top-1 w-10 h-10 rounded-full ${bgCouleur} opacity-40 animate-ping pointer-events-none"></span>
+          <!-- Conteneur avec échelle inverse pour garder une taille constante -->
+          <div class="pin-scalable origin-bottom flex flex-col items-center select-none" style="transform: scale(${invScale});">
+            
+            <!-- Épingle complète -->
+            <div class="pin-fluo-pulse relative flex flex-col items-center">
+              
+              <!-- Tête d'épingle Jaune Fluo avec liseré blanc et anneau noir épais -->
+              <div class="w-8 h-8 rounded-full bg-[#FFE500] border-[2.5px] border-black shadow-[0_0_0_2px_#ffffff,0_4px_10px_rgba(0,0,0,0.8)] flex items-center justify-center text-black font-black text-xs z-10">
+                ${badgeRoleHtml}
+              </div>
 
-            <!-- Corps de l'épingle (bulle haute) -->
-            <div class="w-9 h-9 rounded-full ${bgCouleur} border-3 border-white shadow-2xl flex items-center justify-center font-black text-sm z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
-              <i class="fa-solid fa-location-dot"></i>
+              <!-- Pointe basse noire et jaune orientée sur l'emplacement précis -->
+              <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[9px] border-t-black -mt-[1px] z-10"></div>
+              <div class="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[7px] border-t-[#FFE500] -mt-[8.5px] z-10"></div>
+
+              <!-- Point d'ancrage précis au sol -->
+              <div class="w-2 h-2 rounded-full bg-black border border-white -mt-[1px] z-10 shadow"></div>
             </div>
 
-            <!-- Pointe basse de l'épingle pointant la cloison -->
-            <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] ${assigns.includes('BE') ? 'border-t-purple-600' : (assigns.includes('RA') ? 'border-t-blue-600' : 'border-t-amber-400')} -mt-0.5 z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"></div>
-
-            <!-- Ombre au sol (point d'ancrage exact) -->
-            <div class="w-2.5 h-1 bg-black/60 rounded-full blur-[0.8px] -mt-0.5"></div>
           </div>
         `;
 
@@ -807,7 +829,7 @@
       fermerFichePin();
     };
 
-    // Chargement initial RDC CFO
+    // Initialisation
     mettreAJourCleEtTitre();
     chargerPlanZone(planCleActuelle);
   </script>
