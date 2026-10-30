@@ -77,26 +77,24 @@
       <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto no-scrollbar">
         <span class="text-xs font-black text-sky-400 uppercase tracking-wider shrink-0 mr-1"><i class="fa-solid fa-layer-group mr-1"></i> Filtre :</span>
         <button onclick="filtrerZone('Toutes')" class="zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-amber-400 text-slate-950 shadow">Toutes zones</button>
-        <button onclick="filtrerZone('RDC')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">RDC</button>
-        <button onclick="filtrerZone('N1')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N1</button>
-        <button onclick="filtrerZone('N2')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N2</button>
-        <button onclick="filtrerZone('N3')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N3</button>
-        <button onclick="filtrerZone('N4')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N4</button>
-        <button onclick="filtrerZone('N5')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N5</button>
-        <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Billetterie</button>
-        <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gymnase</button>
-        <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gergovie</button>
+        <button onclick="filtrerZone('RDC')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">RDC</button>
+        <button onclick="filtrerZone('N1')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N1</button>
+        <button onclick="filtrerZone('N2')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N2</button>
+        <button onclick="filtrerZone('N3')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N3</button>
+        <button onclick="filtrerZone('N4')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N4</button>
+        <button onclick="filtrerZone('N5')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">N5</button>
+        <button onclick="filtrerZone('Billetterie')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Billetterie</button>
+        <button onclick="filtrerZone('Gymnase')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gymnase</button>
+        <button onclick="filtrerZone('Gergovie')" class="zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700">Gergovie</button>
       </div>
     </div>
   </header>
 
-  <!-- CONTENU PRINCIPAL (3/4 - 1/4) -->
+  <!-- CONTENU PRINCIPAL (75% / 25%) -->
   <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- COLONNE GAUCHE (75%) -->
     <section class="lg:col-span-9 space-y-5">
-
-      <!-- REMONTÉES RA / BE -->
+      <!-- REMONTÉES -->
       <div class="bg-amber-100/70 border-2 border-amber-300 rounded-3xl p-5 shadow-sm space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -112,7 +110,6 @@
         </div>
       </div>
 
-      <!-- TÂCHES CHANTIER & RA -->
       <div class="space-y-4">
         <!-- TÂCHES PLANIFIÉES -->
         <div class="bg-emerald-50/60 border border-emerald-200 rounded-3xl p-4 md:p-5 shadow-sm space-y-3">
@@ -143,20 +140,17 @@
         </div>
       </div>
 
-      <!-- BOUTON AJOUT RAPIDE EN BAS -->
       <div class="pt-2">
         <button onclick="ouvrirModalAjoutTache()" class="w-full bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-950 font-black text-sm md:text-base py-4 px-6 rounded-2xl shadow-lg border-2 border-amber-500 flex items-center justify-center gap-3 transition active:scale-[0.99]">
           <i class="fa-solid fa-circle-plus text-xl"></i>
           <span>Ajouter une tâche ou planifier une action</span>
         </button>
       </div>
-
     </section>
 
-    <!-- COLONNE DROITE (25%) : LIVRAISONS & STOCKAGE -->
+    <!-- COLONNE DROITE (25%) -->
     <section class="lg:col-span-3 space-y-4">
-
-      <!-- WIDGET JAUGES STOCKAGE FIRESTORE (1 Go SPARK) -->
+      <!-- JAUGES STOCKAGE FIRESTORE -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md space-y-2 text-white">
         <div class="flex items-center justify-between">
           <span class="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 text-slate-300">
@@ -164,12 +158,9 @@
           </span>
           <span id="stockage-pourcentage" class="text-xs font-black text-amber-400">0%</span>
         </div>
-
-        <!-- Barre de progression -->
         <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700">
           <div id="stockage-barre" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
         </div>
-
         <div class="flex justify-between items-center text-[10px] text-slate-400 font-medium pt-0.5">
           <span>Utilisé : <b id="stockage-texte" class="text-white">Calcul...</b></span>
           <span>Max gratuit : <b class="text-slate-300">1 000 Mo</b></span>
@@ -183,7 +174,6 @@
         <p class="text-[11px] text-slate-300 mt-0.5">Suivi des commandes & livraisons</p>
       </div>
 
-      <!-- DU JOUR -->
       <div class="bg-amber-50/80 border-2 border-amber-300 rounded-2xl p-3.5 shadow-sm space-y-2.5">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-black uppercase text-amber-950 tracking-wider flex items-center gap-1.5">
@@ -194,7 +184,6 @@
         <div id="liste-livraisons-jour" class="space-y-2"></div>
       </div>
 
-      <!-- RETARDS & RELIQUATS -->
       <div class="bg-rose-50/80 border-2 border-rose-300 rounded-2xl p-3.5 shadow-sm space-y-2.5">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-black uppercase text-rose-950 tracking-wider flex items-center gap-1.5">
@@ -205,7 +194,6 @@
         <div id="liste-livraisons-retard" class="space-y-2"></div>
       </div>
 
-      <!-- À VENIR -->
       <div class="bg-white border border-slate-300 rounded-2xl p-3.5 shadow-sm space-y-2.5">
         <div class="flex justify-between items-center">
           <h3 class="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
@@ -215,9 +203,7 @@
         </div>
         <div id="liste-livraisons-avenir" class="space-y-2"></div>
       </div>
-
     </section>
-
   </main>
 
   <!-- MODAL : RÉCEPTION PARTIELLE -->
@@ -293,7 +279,7 @@
     </div>
   </div>
 
-  <!-- MODAL : HISTORIQUE PURGÉ AUTOMATIQUEMENT À 60 JOURS -->
+  <!-- MODAL : HISTORIQUE -->
   <div id="modal-historique" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-slate-300">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
@@ -330,7 +316,7 @@
     </div>
   </div>
 
-  <!-- MODAL UNIQUE : ÉDITION AVEC LES 3 COMMENTAIRES DISTINCTS -->
+  <!-- MODAL : ÉDITION AVEC LIEN PLAN DÉDIÉ -->
   <div id="modal-tache" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl border border-slate-300 text-xs overflow-hidden">
       <div class="p-4 border-b bg-slate-900 text-white flex justify-between items-center">
@@ -341,6 +327,22 @@
       </div>
 
       <div class="p-5 overflow-y-auto space-y-4">
+
+        <!-- BANDEAU ACCÈS DIRECT AU PLAN SI AFFILIÉE -->
+        <div id="modal-plan-affiliation-box" class="hidden bg-amber-50 border-2 border-amber-300 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2 text-amber-950">
+            <i class="fa-solid fa-map-location-dot text-base text-amber-600"></i>
+            <div>
+              <span class="font-black block text-[11px] uppercase tracking-wide">Repérée sur plan</span>
+              <span id="modal-plan-info" class="text-[10px] text-amber-900 font-bold"></span>
+            </div>
+          </div>
+          <button id="btn-ouvrir-sur-plan" onclick="allerSurLePlanDeLaTache()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-[11px] px-3.5 py-2 rounded-xl shadow flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Voir sur le plan</span>
+          </button>
+        </div>
+
         <div>
           <label class="font-bold text-slate-800 block mb-1">Titre de la tâche</label>
           <input id="tache-titre" type="text" placeholder="Ex: Fourniture synoptique TGBT validé BE" class="w-full border-2 border-slate-200 rounded-xl p-2.5 outline-none focus:border-amber-500 font-semibold text-slate-800">
@@ -386,11 +388,9 @@
           </div>
         </div>
 
-        <!-- SYSTÈME DES 3 COMMENTAIRES VERROUILLÉS -->
         <div class="border-t pt-3 space-y-3">
           <span class="font-bold text-slate-800 block text-[11px] uppercase tracking-wider">Commentaires par métier</span>
 
-          <!-- 1. CHANTIER (LECTURE SEULE SUR RA) -->
           <div class="bg-amber-50/50 border border-amber-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-amber-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-helmet-safety text-amber-600"></i> Commentaire Chantier</span>
@@ -399,7 +399,6 @@
             <input id="comm-chantier" type="text" readonly disabled class="w-full border border-amber-200 rounded-xl p-2 font-medium text-slate-700 bg-slate-100/70 cursor-not-allowed">
           </div>
 
-          <!-- 2. RA (ÉDITABLE ICI) -->
           <div class="bg-blue-50/80 border-2 border-blue-400 p-2.5 rounded-2xl">
             <label class="font-black text-blue-950 flex items-center gap-1.5 mb-1 text-[11px]">
               <i class="fa-solid fa-briefcase text-blue-600"></i> Commentaire RA (Modifiable)
@@ -407,7 +406,6 @@
             <input id="comm-ra" type="text" placeholder="Ajouter ou modifier le commentaire RA..." class="w-full border border-blue-300 rounded-xl p-2 outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 bg-white">
           </div>
 
-          <!-- 3. BE (LECTURE SEULE SUR RA) -->
           <div class="bg-purple-50/50 border border-purple-200 p-2.5 rounded-2xl opacity-90">
             <label class="font-bold text-purple-900 flex items-center justify-between mb-1 text-[11px]">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-compass-drafting text-purple-600"></i> Commentaire BE</span>
@@ -417,7 +415,6 @@
           </div>
         </div>
 
-        <!-- ZONE PHOTOS -->
         <div class="border-t pt-3">
           <div class="flex items-center justify-between mb-2">
             <span class="font-bold text-slate-800"><i class="fa-solid fa-camera text-amber-500 mr-1"></i> Pièces jointes & Photos</span>
@@ -526,19 +523,15 @@
       actualiserJaugeStockage();
     });
 
-    // CALCUL DU STOCKAGE TOTAL FIRESTORE (PLANS + PHOTOS)
     async function actualiserJaugeStockage() {
       try {
         let octetsTotaux = 0;
-
-        // 1. Somme des blocs PDF stockés (collections "chunks")
         const chunksSnap = await getDocs(collectionGroup(db, "chunks"));
         chunksSnap.forEach(d => {
           const data = d.data().data || "";
           octetsTotaux += data.length;
         });
 
-        // 2. Somme des photos stockées dans les tâches
         tachesCache.forEach(t => {
           if (Array.isArray(t.photos)) {
             t.photos.forEach(p => {
@@ -720,6 +713,7 @@
         }).join(" ");
 
         const photosCount = (t.photos && t.photos.length) ? `<span class="text-[10px] text-amber-700 font-bold ml-2"><i class="fa-solid fa-image mr-1"></i>${t.photos.length}</span>` : '';
+        const badgePlan = t.plan_pos ? `<a href="plans.html?role=ra&niveau=${t.zone}&lot=${t.plan_lot || 'CFO'}&focus=${t.id}" onclick="event.stopPropagation()" class="bg-[#FFE500] hover:bg-amber-400 text-black border border-black px-2 py-0.5 rounded-md font-black text-[9px] flex items-center gap-1 shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Sur plan</a>` : '';
 
         const item = document.createElement("div");
         item.className = "bg-white p-3.5 rounded-2xl border-2 border-amber-300 flex items-center justify-between gap-3 shadow-sm cursor-pointer hover:border-amber-400 transition";
@@ -729,6 +723,7 @@
             <div class="flex items-center gap-1.5 flex-wrap">
               ${badgesHtml}
               <span class="text-[10px] font-bold text-slate-500">${t.zone}</span>
+              ${badgePlan}
               ${photosCount}
             </div>
             <h4 class="font-bold text-xs text-slate-900 mt-1">${t.titre}</h4>
@@ -761,19 +756,21 @@
       const card = document.createElement("div");
       card.className = "bg-white border-2 border-slate-200 hover:border-slate-400 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition cursor-pointer";
       card.onclick = (e) => {
-        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I") ouvrirModalEditionTache(t);
+        if (e.target.tagName !== "BUTTON" && e.target.tagName !== "I" && e.target.tagName !== "A") ouvrirModalEditionTache(t);
       };
 
       const dateRetard = estDatee && t.date_limite < aujourdhuiStr;
       const assigns = Array.isArray(t.assignes) ? t.assignes : [t.assigne || "Chantier"];
       const badgesAssign = assigns.map(a => `<span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded text-[9px] uppercase border">${a}</span>`).join(" ");
       const photosCount = (t.photos && t.photos.length) ? `<span class="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-lg border ml-1"><i class="fa-solid fa-camera mr-1 text-amber-500"></i>${t.photos.length}</span>` : '';
+      const badgePlan = t.plan_pos ? `<a href="plans.html?role=ra&niveau=${t.zone}&lot=${t.plan_lot || 'CFO'}&focus=${t.id}" onclick="event.stopPropagation()" class="bg-[#FFE500] hover:bg-amber-400 text-black border border-black px-2 py-0.5 rounded-md font-black text-[9px] flex items-center gap-1 shadow-sm"><i class="fa-solid fa-map-location-dot"></i> Sur plan (${t.plan_lot || 'CFO'})</a>` : '';
 
       card.innerHTML = `
         <div class="space-y-1.5 flex-1">
           <div class="flex flex-wrap items-center gap-1.5">
             <span class="bg-slate-900 text-amber-300 font-black px-2.5 py-0.5 rounded-lg text-[10px] uppercase tracking-wider">${t.zone}</span>
             ${badgesAssign}
+            ${badgePlan}
             ${photosCount}
             ${estDatee ? `
               <span class="text-xs font-bold px-2 py-0.5 rounded-lg ${dateRetard ? 'bg-rose-100 text-rose-800 border border-rose-300' : 'bg-slate-100 text-slate-700'}">
@@ -791,6 +788,13 @@
       `;
       return card;
     }
+
+    window.allerSurLePlanDeLaTache = () => {
+      if (!tacheEnCoursEdition || !tacheEnCoursEdition.plan_pos) return;
+      const niv = tacheEnCoursEdition.zone || "RDC";
+      const lot = tacheEnCoursEdition.plan_lot || "CFO";
+      window.location.href = `plans.html?role=ra&niveau=${niv}&lot=${lot}&focus=${tacheEnCoursEdition.id}`;
+    };
 
     window.cloturerTache = async (id) => {
       await updateDoc(doc(db, "taches", id), {
@@ -1239,7 +1243,6 @@
       }
     });
 
-    // CHARGEMENT MODAL RA
     window.ouvrirModalAjoutTache = () => {
       tacheEnCoursEdition = null;
       photosTemporaires = [];
@@ -1251,6 +1254,8 @@
       document.getElementById("comm-chantier").value = "";
       document.getElementById("comm-ra").value = "";
       document.getElementById("comm-be").value = "";
+
+      document.getElementById("modal-plan-affiliation-box").classList.add("hidden");
 
       document.querySelectorAll('input[name="assigne_chk"]').forEach(chk => chk.checked = chk.value === "RA");
       renderMiniaturesPhotos();
@@ -1264,6 +1269,14 @@
       document.getElementById("tache-titre").value = t.titre || "";
       document.getElementById("tache-zone").value = t.zone || "RDC";
       document.getElementById("tache-date").value = t.date_limite || "";
+
+      const boxPlan = document.getElementById("modal-plan-affiliation-box");
+      if (t.plan_pos) {
+        document.getElementById("modal-plan-info").innerText = `${t.zone} — ${t.plan_lot || 'CFO'} (Position : ${t.plan_pos.x}%, ${t.plan_pos.y}%)`;
+        boxPlan.classList.remove("hidden");
+      } else {
+        boxPlan.classList.add("hidden");
+      }
 
       const comms = t.commentaires || {};
       document.getElementById("comm-chantier").value = comms.chantier || (t.annotation_auteur === 'Chantier' ? t.annotation : '') || "";
@@ -1288,7 +1301,6 @@
       const zone = document.getElementById("tache-zone").value;
       const dateLimite = document.getElementById("tache-date").value || null;
 
-      // Seul le RA a le droit d'écrire son propre commentaire
       const texteRa = document.getElementById("comm-ra").value.trim();
 
       const assignes = [];
@@ -1344,7 +1356,7 @@
         if (btn.innerText.trim() === zone || (zone === "Toutes" && btn.innerText.includes("Toutes"))) {
           btn.className = "zone-btn active px-3.5 py-1.5 rounded-xl text-xs font-black shrink-0 bg-amber-400 text-slate-950 shadow";
         } else {
-          btn.className = "zone-btn px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
+          btn.className = "zone-btn px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 bg-slate-800 text-slate-200 hover:bg-slate-700";
         }
       });
       renderTaches();
