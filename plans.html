@@ -85,10 +85,10 @@
 
     <div id="loading-pdf" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm z-30 hidden flex flex-col items-center justify-center gap-3">
       <i class="fa-solid fa-circle-notch fa-spin text-3xl text-amber-400"></i>
-      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Rendu vectoriel net...</span>
+      <span id="loading-pdf-text" class="text-xs font-bold text-slate-200">Chargement vectoriel...</span>
     </div>
 
-    <!-- Scène Unique Canvas Vectorielle (Zéro découpe, netteté native) -->
+    <!-- Scène Unique Canvas Vectorielle -->
     <div id="plan-stage" class="relative origin-top-left will-change-transform inline-block">
       <canvas id="plan-canvas" class="block shadow-2xl bg-white"></canvas>
       <div id="pins-container" class="absolute inset-0 pointer-events-auto"></div>
@@ -217,6 +217,8 @@
 
     let zoomLevel = 1, panX = 0, panY = 0, isDragging = false, startX = 0, startY = 0, initialPinchDistance = null;
     let renderTaskEnCours = null;
+    let renduEnCours = false;
+    let renduEnAttente = false;
     let renderTimeout = null;
 
     const viewport = document.getElementById("plan-viewport");
@@ -241,7 +243,6 @@
       await chargerPlanZone(zone);
     };
 
-    // CHARGEMENT DU PDF BINAIRE RECONSTITUÉ DEPUIS LES SEGMENTS
     async function chargerPlanZone(zone) {
       const docSnap = await getDoc(doc(db, "plans", zone));
       const btnSuppr = document.getElementById("btn-supprimer-plan");
@@ -251,7 +252,6 @@
         document.getElementById("loading-pdf").classList.remove("hidden");
         document.getElementById("loading-pdf-text").innerText = "Chargement du plan vectoriel...";
 
-        // Récupération de tous les segments
         const promises = [];
         for (let i = 0; i < totalChunks; i++) {
           promises.push(getDoc(doc(db, `plans/${zone}/chunks`, `chunk_${i}`)));
@@ -263,10 +263,11 @@
           if (s.exists()) pdfBase64Complet += s.data().data;
         });
 
-        // Conversion en bytes
+        // Décodage Base64 sécurisé
         const binaryString = atob(pdfBase64Complet);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
 
@@ -278,7 +279,7 @@
         document.getElementById("aucun-plan-msg").classList.add("hidden");
 
         reinitialiserVue();
-        await reeffectuerRenduVectorielNet();
+        await declencherRenduVectorielNet();
       } else {
         pdfDocActuel = null;
         baseViewportPdf = null;
@@ -290,46 +291,62 @@
       renderPins();
     }
 
-    // REDESSIN DYNAMIQUE À CHAQUE NIVEAU DE ZOOM (NETTETÉ VECTORIELLE PURE)
-    async function reeffectuerRenduVectorielNet() {
+    // GESTIONNAIRE DE RENDU AVEC VERROU STRICT POUR ÉVITER "RENDERING CANCELLED"
+    async function declencherRenduVectorielNet() {
       if (!pdfDocActuel || !baseViewportPdf) return;
 
-      const page = await pdfDocActuel.getPage(1);
-
-      // Le scale est adapté en temps réel au zoom de l'écran avec une marge de netteté
-      const pixelRatio = window.devicePixelRatio || 1;
-      const targetScale = Math.min(Math.max(zoomLevel * pixelRatio * 1.5, 1.0), 6.0);
-      const viewportPdf = page.getViewport({ scale: targetScale });
-
-      canvas.width = Math.round(viewportPdf.width);
-      canvas.height = Math.round(viewportPdf.height);
-
-      // La taille CSS affichée correspond toujours à la taille de base du plan
-      canvas.style.width = `${Math.round(baseViewportPdf.width)}px`;
-      canvas.style.height = `${Math.round(baseViewportPdf.height)}px`;
-
-      if (renderTaskEnCours) {
-        try { renderTaskEnCours.cancel(); } catch(e){}
+      if (renduEnCours) {
+        renduEnAttente = true;
+        if (renderTaskEnCours) {
+          try { renderTaskEnCours.cancel(); } catch(e) {}
+        }
+        return;
       }
 
-      const ctx = canvas.getContext("2d");
-      renderTaskEnCours = page.render({ canvasContext: ctx, viewport: viewportPdf });
-      await renderTaskEnCours.promise;
-      renderTaskEnCours = null;
+      renduEnCours = true;
+      renduEnAttente = false;
 
-      document.getElementById("loading-pdf").classList.add("hidden");
-      renderPins();
+      try {
+        const page = await pdfDocActuel.getPage(1);
+        const pixelRatio = window.devicePixelRatio || 1;
+        // Calcul du scale pour une netteté vectorielle parfaite sans saturer la mémoire
+        const targetScale = Math.min(Math.max(zoomLevel * pixelRatio * 1.4, 1.0), 5.5);
+        const viewportPdf = page.getViewport({ scale: targetScale });
+
+        canvas.width = Math.round(viewportPdf.width);
+        canvas.height = Math.round(viewportPdf.height);
+
+        canvas.style.width = `${Math.round(baseViewportPdf.width)}px`;
+        canvas.style.height = `${Math.round(baseViewportPdf.height)}px`;
+
+        const ctx = canvas.getContext("2d");
+        renderTaskEnCours = page.render({ canvasContext: ctx, viewport: viewportPdf });
+        await renderTaskEnCours.promise;
+      } catch (err) {
+        if (err.name !== "RenderingCancelledException") {
+          console.error("Erreur de rendu PDF:", err);
+        }
+      } finally {
+        renderTaskEnCours = null;
+        renduEnCours = false;
+        document.getElementById("loading-pdf").classList.add("hidden");
+        renderPins();
+
+        if (renduEnAttente) {
+          declencherRenduVectorielNet();
+        }
+      }
     }
 
     function planifierRenduNet() {
       clearTimeout(renderTimeout);
       renderTimeout = setTimeout(() => {
-        reeffectuerRenduVectorielNet();
-      }, 250);
+        declencherRenduVectorielNet();
+      }, 300);
     }
 
-    // DÉPÔT SANS LIMITE DE TAILLE : DÉCOUPAGE EN MORCEAUX DE 500 KO DANS FIRESTORE
-    window.importerPlanFichier = async (file) => {
+    // IMPORT ROBUSTE VIA FILEREADER (SANS STACK OVERFLOW SUR GROS PDF)
+    window.importerPlanFichier = (file) => {
       if (!file || file.type !== "application/pdf") {
         alert("Veuillez sélectionner un fichier PDF vectoriel.");
         return;
@@ -338,50 +355,53 @@
       const loader = document.getElementById("loading-pdf");
       const loaderText = document.getElementById("loading-pdf-text");
       loader.classList.remove("hidden");
-      loaderText.innerText = "Préparation et découpage sécurisé...";
+      loaderText.innerText = "Lecture et découpage du fichier...";
 
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const bytes = new Uint8Array(arrayBuffer);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target.result;
+          const fullBase64 = dataUrl.split(',')[1];
 
-        let binary = '';
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
+          // Segments de 500 Ko pour Firestore
+          const chunkSize = 500000;
+          const totalChunks = Math.ceil(fullBase64.length / chunkSize);
+
+          loaderText.innerText = `Sauvegarde sur le serveur (${totalChunks} segments)...`;
+
+          const batchWrites = [];
+          for (let i = 0; i < totalChunks; i++) {
+            const chunk = fullBase64.substring(i * chunkSize, (i + 1) * chunkSize);
+            batchWrites.push(
+              setDoc(doc(db, `plans/${zoneActive}/chunks`, `chunk_${i}`), { data: chunk })
+            );
+          }
+
+          await Promise.all(batchWrites);
+
+          await setDoc(doc(db, "plans", zoneActive), {
+            zone: zoneActive,
+            total_chunks: totalChunks,
+            mis_a_jour_par: roleActuel,
+            date_maj: new Date().toISOString()
+          });
+
+          await chargerPlanZone(zoneActive);
+        } catch (err) {
+          console.error("Erreur import:", err);
+          alert("Erreur lors de l'enregistrement : " + err.message);
+        } finally {
+          loader.classList.add("hidden");
+          document.getElementById("input-pdf-plan").value = "";
         }
-        const fullBase64 = btoa(binary);
+      };
 
-        // Découpage en blocs de 500 Ko pour passer sous le 1 Mo Firestore sans jamais être bloqué
-        const chunkSize = 500000;
-        const totalChunks = Math.ceil(fullBase64.length / chunkSize);
-
-        loaderText.innerText = `Enregistrement sur le serveur (${totalChunks} segments)...`;
-
-        const batchWrites = [];
-        for (let i = 0; i < totalChunks; i++) {
-          const chunk = fullBase64.substring(i * chunkSize, (i + 1) * chunkSize);
-          batchWrites.push(
-            setDoc(doc(db, `plans/${zoneActive}/chunks`, `chunk_${i}`), { data: chunk })
-          );
-        }
-
-        await Promise.all(batchWrites);
-
-        await setDoc(doc(db, "plans", zoneActive), {
-          zone: zoneActive,
-          total_chunks: totalChunks,
-          mis_a_jour_par: roleActuel,
-          date_maj: new Date().toISOString()
-        });
-
-        await chargerPlanZone(zoneActive);
-      } catch (err) {
-        console.error("Erreur téléversement:", err);
-        alert("Erreur lors de l'enregistrement : " + err.message);
-      } finally {
+      reader.onerror = () => {
         loader.classList.add("hidden");
-        document.getElementById("input-pdf-plan").value = "";
-      }
+        alert("Impossible de lire ce fichier.");
+      };
+
+      reader.readAsDataURL(file);
     };
 
     window.supprimerPlanZoneActuelle = async () => {
@@ -401,7 +421,6 @@
       }
     };
 
-    // POSITIONNEMENT DES PASTILLES EN POURCENTAGE PARFAIT
     function renderPins() {
       const container = document.getElementById("pins-container");
       container.innerHTML = "";
@@ -431,7 +450,6 @@
       });
     }
 
-    // MANIPULATION INTERACTIVE (ZOOM & PAN SANS JIGGLE MOBILE)
     function appliquerTransformation() {
       stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
     }
